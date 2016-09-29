@@ -2,7 +2,7 @@ import java.awt.Color
 
 import Material.SingleColorMaterial
 import geometry.Light
-import geometry.geometry.{AABB, Shape, Sphere, Vector3}
+import geometry.{AABB, Shape, Sphere, Vector3}
 
 /**
   * Created by torsten on 9/18/16.

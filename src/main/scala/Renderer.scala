@@ -3,7 +3,7 @@ import java.util.Random
 
 import com.typesafe.scalalogging._
 import geometry.Light
-import geometry.geometry.{Hit, Ray, Vector3}
+import geometry.{Hit, Ray, Vector3}
 
 import scala.Seq
 import scala.collection.parallel.ParSeq

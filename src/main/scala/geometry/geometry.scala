@@ -4,18 +4,16 @@ import java.awt.Color
 import Material.{Material, SingleColorMaterial, UnshadedColor}
 
 object geometry {
-  type Real = Float
+  def sqrt(r: Float) = Math.sqrt(r).toFloat
 
-  def sqrt(r: Real) = Math.sqrt(r).toFloat
+  val EPS: Float = 0.0001.toFloat
+}
 
-  val EPS: Real = 0.0001.toFloat
+case class Vector3(val x: Float, val y: Float, val z: Float){ //TODO array? other type?
 
-
-case class Vector3(val x: Real, val y: Real, val z: Real){ //TODO array? other type?
-
-   def /(s: Real) = Vector3(x/s,y/s,z/s)
+   def /(s: Float) = Vector3(x/s,y/s,z/s)
    def /(s: Int) = Vector3(x/s,y/s,z/s)
-   def *(s: Real) = Vector3(s*x,s*y,s*z)
+   def *(s: Float) = Vector3(s*x,s*y,s*z)
 
 
    def +(p:Vector3) = Vector3(x+p.x,y+p.y,z+p.z)
@@ -25,7 +23,7 @@ case class Vector3(val x: Real, val y: Real, val z: Real){ //TODO array? other t
    def unary_-() = this *(-1)
    def unary_+() = this
 
-   def length : Real = sqrt(this * this)
+   def length : Float = geometry.sqrt(this * this)
    def dist(p: Vector3) = (this-p).length
    def normalized =  this/(this.length)
    def cross(p: Vector3) = Vector3(y*p.z-z*p.y, z*p.x-x*p.z, x*p.y-y-p.x)
@@ -57,10 +55,11 @@ trait Shape{
 
 }
 
-  case class Sphere(val center: Vector3, val radius: Real) extends  Shape{
+  case class Sphere(val center: Vector3, val radius: Float) extends  Shape{
+    import geometry._
     override def intersect(r: Ray): Option[Hit] = {
-      val t_ca : Real  = (center-r.origin) * r.direction
-      val t_hc2 : Real = radius*radius - (center-r.origin)*(center-r.origin) + t_ca*t_ca
+      val t_ca : Float  = (center-r.origin) * r.direction
+      val t_hc2 : Float = radius*radius - (center-r.origin)*(center-r.origin) + t_ca*t_ca
       if(t_hc2 < 0) //No hit
         return None
 
@@ -83,9 +82,9 @@ trait Shape{
     }
 
     //TODO: should only generate needed data, not too much in advance
-    override def intersect(r: Ray, maxDist: Real): Boolean = {
-      val t_ca : Real  = (center-r.origin) * r.direction
-      val t_hc2 : Real = radius*radius - (center-r.origin)*(center-r.origin) + t_ca*t_ca
+    override def intersect(r: Ray, maxDist: Float): Boolean = {
+      val t_ca : Float  = (center-r.origin) * r.direction
+      val t_hc2 : Float = radius*radius - (center-r.origin)*(center-r.origin) + t_ca*t_ca
       if(t_hc2 < 0) //No hit
         return false
 
@@ -104,6 +103,7 @@ trait Shape{
   case class AABB(val x_min: Float, val x_max : Float,
                   val y_min: Float, val y_max : Float,
                   val z_min: Float, val z_max : Float) extends  Shape {
+    import geometry._
     require(x_min < x_max)
     require(y_min < y_max)
     require(z_min < z_max)
@@ -139,7 +139,7 @@ trait Shape{
     }
 
     //TODO: should only generate needed data, not too much in advance
-    override def intersect(r: Ray, maxDist: Real): Boolean = {
+    override def intersect(r: Ray, maxDist: Float): Boolean = {
       val dirfrac = Vector3(1 / r.direction.x, 1 / r.direction.y, 1 / r.direction.z)
 
       val t1 = (x_min - r.origin.x) * dirfrac.x
@@ -160,43 +160,59 @@ trait Shape{
       return tmin < maxDist
     }
   }
+
+
+
+
+case class Triangle(a: Vector3, b: Vector3, c: Vector3) extends  Shape{
+  import geometry._
+  val edge1 : Vector3 = b-a
+  val edge2 : Vector3 = c-a
+  val normal: Vector3 = (edge1 cross edge2) normalized
+
+  override def intersect(r: Ray): Option[Hit] = {
+
+      //Begin calculating determinant - also used to calculate u parameter
+      val p = r.direction cross edge2
+      //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
+      val det = edge1 * p
+      //NOT CULLING
+      if(det > EPS && det < EPS)
+        return None
+      val inv_det = 1f / det
+
+      //calculate distance from V1 to ray origin
+      val t_vec  = r.origin - a
+
+      //Calculate u parameter and test bound
+      val u = (t_vec * p)  * inv_det
+      //The intersection lies outside of the triangle
+      if(u < 0 || u > 1)
+        return None
+
+      //Prepare to test v parameter
+      val q : Vector3 =  t_vec cross edge1
+
+      //Calculate V parameter and test bound
+      val v = (r.direction * q) * inv_det
+      //The intersection lies outside of the triangle
+      if(v < 0 || u + v  > 1)
+        return None
+
+      val t = (edge2 * q) * inv_det
+
+      if(t > EPS) { //ray intersection
+        val pos = r.march(t)
+        Some(Hit(t, r.march(t), normal, material.getMat(pos)))
+      }else{
+        None
+      }
+  }
+
+  //TODO replace by faster implementation
+  override def intersect(r: Ray, maxDist: Float): Boolean =
+    intersect(r) match {
+      case None => false
+      case Some(hit) => hit.distance < maxDist
+    }
 }
-
-
-/***
-  some code for AABB intersetion:
-
-  // r.dir is unit direction vector of ray
-dirfrac.x = 1.0f / r.dir.x;
-dirfrac.y = 1.0f / r.dir.y;
-dirfrac.z = 1.0f / r.dir.z;
-// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
-// r.org is origin of ray
-float t1 = (lb.x - r.org.x)*dirfrac.x;
-float t2 = (rt.x - r.org.x)*dirfrac.x;
-float t3 = (lb.y - r.org.y)*dirfrac.y;
-float t4 = (rt.y - r.org.y)*dirfrac.y;
-float t5 = (lb.z - r.org.z)*dirfrac.z;
-float t6 = (rt.z - r.org.z)*dirfrac.z;
-
-float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
-float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
-
-// if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
-if (tmax < 0)
-{
-    t = tmax;
-    return false;
-}
-
-// if tmin > tmax, ray doesn't intersect AABB
-if (tmin > tmax)
-{
-    t = tmax;
-    return false;
-}
-
-t = tmin;
-return true;
-
-  **/

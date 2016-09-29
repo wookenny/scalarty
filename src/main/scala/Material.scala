@@ -1,7 +1,7 @@
 package Material
 
 import java.awt.Color
-import geometry.geometry.Vector3
+import geometry.Vector3
 
 object Material {
   val EPS = 0.001
@@ -10,6 +10,7 @@ object Material {
 case class UnshadedColor(val color: Color, val ambient: Float, val diffuse: Float, val spec: Float, val shininess: Float)
 
 trait Material{
+
   def getMat(position: Vector3) : UnshadedColor
   //TODO what about UV mapping?
 }
