@@ -1,8 +1,7 @@
 import java.awt.Color
 
 import Material.SingleColorMaterial
-import geometry.Light
-import geometry.{AABB, Shape, Sphere, Vector3}
+import geometry._
 
 /**
   * Created by torsten on 9/18/16.
@@ -25,9 +24,12 @@ class Scene {
     sphere3.material=SingleColorMaterial(Color.lightGray,0.05f,0.8f,.15f)
 
 
-
-  val shapes : Seq[Shape] = Seq( Sphere(Vector3(0,0,2),.5f), sphere1, sphere2, sphere3,
-                                 AABB(1, 2, -.8f, .2f, 2.1f, 3.1f) )
+  val a = Vector3(0, 0, 2)
+  val b = Vector3(.2f,.2f,2)
+  val c = Vector3(-.2f,.2f, 2)
+  val shapes : Seq[Shape] = Seq( Sphere(Vector3(0,0,2),.5f), //sphere1, sphere2, sphere3,
+                                 AABB(1, 2, -.8f, .2f, 2.1f, 3.1f),
+                                 Triangle(a,b,c))
 
   val lights = Seq( Light(Vector3(4,2,0),Color.WHITE,.1f),
                     Light(Vector3(-4,2,0),Color.WHITE,1f))
