@@ -86,7 +86,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
     val start = System.nanoTime()
     logger.info("Starting to trace")
-    val img = new Image(scene.width*scene.ppi,scene.height*scene.ppi)
+    val img = new Image((scene.width*scene.ppi).toInt,(scene.height*scene.ppi).toInt)
     val w: Float = scene.width
     val h: Float = scene.height
     val corner =  scene.cameraOrigin + scene.cameraPointing - scene.side*(w/2) + scene.up*(h/2)

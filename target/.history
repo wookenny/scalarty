@@ -1,0 +1,6 @@
+sbt run
+compile
+run
+run -o image.png
+test
+test-only *Triangle*

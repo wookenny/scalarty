@@ -4,15 +4,14 @@ import Material.SingleColorMaterial
 import geometry._
 import play.api.libs.json.Json
 
+
 /**
   * Created by torsten on 9/18/16.
   */
-case class Scene(val cameraOrigin     : Vector3 = Vector3.ZERO,
-                 val cameraPointing   : Vector3 = Vector3.Z ) {
+case class Scene(cameraOrigin : Vector3, cameraPointing : Vector3,
+                 width: Float, height : Float ) {
 
   //TODO: move into file:
-  val (width,height) = (2,2)
-
   val sphere1 =  Sphere(Vector3(0,0.8f,3),.1f)
   sphere1.material = SingleColorMaterial(Color.BLUE,0.1f,0.8f,.1f)
   val sphere2 = Sphere(Vector3(-.8f,-.5f,3),1f)
@@ -39,6 +38,6 @@ case class Scene(val cameraOrigin     : Vector3 = Vector3.ZERO,
 }
 
 object  Scene {
-  implicit val sceneJsonFormat = Json.format[Scene]
+  implicit val sceneJsonFormat = Json.reads[Scene]
 }
 

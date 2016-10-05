@@ -1,8 +1,8 @@
-import java.io.File
 import play.api.libs.json.Json
+import scala.io.Source._
 
-case class Config(out: String = "render.png",
-                  in: File = new File("."),
+case class Config(out: String = "",
+                  in: String = "",
                   supersampling: Int = 1,
                   verbose: Boolean = false,
                   debug: Boolean = false,
@@ -13,9 +13,9 @@ object Main {
   val parser = new scopt.OptionParser[Config]("scopt") {
     head("scalarty", "0.0.1")
 
-    opt[File]('i', "in")/*.required()*/.valueName("<file>"). //make this required
+    opt[String]('i', "in").required().valueName("<file>").
       action( (x, c) => c.copy(in = x) ).
-      text("in is a required file property")
+      text("scene to be rendered")
 
     opt[String]('o', "out").required().valueName("<file>").
       action( (x, c) => c.copy(out = x) ).
@@ -53,7 +53,8 @@ object Main {
 
   def main(config: Config): Unit = {
 
-    val sceneFile = "{}"
+
+    val sceneFile : String = fromFile(config.in).getLines.mkString
     val scene = Json.parse(sceneFile).as[Scene]
     val renderer = new Renderer(scene)
     renderer.render(config)

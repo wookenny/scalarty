@@ -1,7 +1,10 @@
 package geometry
 
 import java.awt.Color
+
 import Material.{Material, SingleColorMaterial, UnshadedColor}
+import play.api.libs.json.{JsPath,Reads}
+import play.api.libs.json.Reads._
 
 object geometry {
   def sqrt(f: Float) = Math.sqrt(f).toFloat
@@ -9,7 +12,7 @@ object geometry {
   val EPS: Float = 0.0001.toFloat
 }
 
-case class Vector3(val x: Float, val y: Float, val z: Float){
+case class Vector3(x: Float, y: Float, z: Float){
 
 
 
@@ -34,6 +37,8 @@ case class Vector3(val x: Float, val y: Float, val z: Float){
 
    def pow(exp: Float) = Vector3(Math.pow(x,exp).toFloat, Math.pow(y,exp).toFloat, Math.pow(z,exp).toFloat)
    def expf = Vector3(Math.exp(x).toFloat,Math.exp(y).toFloat,Math.exp(z).toFloat)
+
+
 }
 
   object Vector3{
@@ -42,6 +47,15 @@ case class Vector3(val x: Float, val y: Float, val z: Float){
     val X    = Vector3(1,0,0)
     val Y    = Vector3(0,1,0)
     val Z    = Vector3(0,0,1)
+
+    implicit val vectorReads: Reads[Vector3] = {
+      (JsPath \ "vector").read[String] map { values =>
+        val v = values.replace("(","").replace(")","")
+        val Array(value1, value2, value3) = v.split(",").map(_.toFloat)
+        Vector3(value1, value2, value3)
+      }
+    }
+
   }
 
 
