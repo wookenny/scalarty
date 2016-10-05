@@ -28,7 +28,7 @@ class VectorSpec extends Specification with ScalaCheck { def is = s2"""
   val distTest    = forAll { (a: Vector3, b: Vector3) =>  approx(a.dist(b), Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) +(a.z-b.z)*(a.z-b.z))) }
   val normalizedTest  = forAll { (p: Vector3) => approx(1, p.normalized.length)  }
 
-  val scalarDivision =  forAll { (a: Vector3, s: Float) => a/s == Vector3(a.x/s, a.y/s, a.z/s ) }
+  val scalarDivision =  forAll { (a: Vector3, s: Float) => a/s =~= Vector3(a.x/s, a.y/s, a.z/s ) }
   val scalarMultiplication =  forAll { (a: Vector3, s: Float) => a*s == Vector3(a.x*s, a.y*s, a.z*s ) }
   val negation =  forAll { (a: Vector3) => -a == Vector3(-a.x, -a.y, -a.z ) && -(-a)==a }
   val identity =  forAll { (a: Vector3) => +a == a}
@@ -55,6 +55,7 @@ class VectorSpec extends Specification with ScalaCheck { def is = s2"""
   val EPS = 0.001
   def approx(x: Double, y: Double): Boolean  = (x.isNaN && y.isNaN) || Math.abs(x-y)<=EPS
   def approx(a:Vector3, b: Vector3): Boolean  = approx(a.x,b.x) &&  approx(a.y,b.y) &&  approx(a.z,b.z)
+
 }
 
 

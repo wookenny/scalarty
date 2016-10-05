@@ -1,4 +1,5 @@
 import java.io.File
+import play.api.libs.json.Json
 
 case class Config(out: String = "render.png",
                   in: File = new File("."),
@@ -51,7 +52,10 @@ object Main {
   }
 
   def main(config: Config): Unit = {
-    val renderer = new Renderer
+
+    val sceneFile = "{}"
+    val scene = Json.parse(sceneFile).as[Scene]
+    val renderer = new Renderer(scene)
     renderer.render(config)
   }
 }

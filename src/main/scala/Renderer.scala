@@ -13,9 +13,7 @@ object Renderer{
   val gamma : Float = 2.2f
 }
 
-class Renderer extends LazyLogging {
-
-  val scene = new Scene
+class Renderer(val scene: Scene) extends LazyLogging {
 
   private def toColor(colorVec: Vector3): Color = {
     new Color( Math.min(Math.max(0f,colorVec.x),1f),

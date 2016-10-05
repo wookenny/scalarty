@@ -11,6 +11,8 @@ object geometry {
 
 case class Vector3(val x: Float, val y: Float, val z: Float){
 
+
+
    def /(s: Float) = Vector3(x/s,y/s,z/s)
    def *(s: Float) = Vector3(s*x,s*y,s*z)
 
@@ -21,6 +23,7 @@ case class Vector3(val x: Float, val y: Float, val z: Float){
 
    def unary_-() = this *(-1)
    def unary_+() = this
+   def =~=(p: Vector3) = (this == p) //TODO: implement
 
    def length : Float = geometry.sqrt(this * this)
    def dist(p: Vector3) = (this-p).length
