@@ -55,7 +55,8 @@ object Main {
 
 
     val sceneFile : String = fromFile(config.in).getLines.mkString
-    val scene = Json.parse(sceneFile).as[Scene]
+    val sceneDTO = Json.parse(sceneFile).as[SceneDTO]
+    val scene = new Scene(sceneDTO)
     val renderer = new Renderer(scene)
     renderer.render(config)
   }

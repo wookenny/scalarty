@@ -41,7 +41,12 @@ case class Vector3(x: Float, y: Float, z: Float){
 
 }
 
-  object Vector3{
+  object Vector3{ //TODO: use Xor
+    def fromString(vec: String) : Vector3 = vec.replaceAll("[()]","").split(",") match {
+      case Array(x, y, z) => Vector3(x.toFloat, y.toFloat, z.toFloat)
+    }
+
+
     val ZERO = Vector3(0,0,0)
     val ONE  = Vector3(1,1,1)
     val X    = Vector3(1,0,0)

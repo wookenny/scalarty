@@ -1,6 +1,7 @@
 {
-  "cameraOrigin": {"vector": "(0,0,0)"},
-  "cameraPointing": {"vector": "(0,0,1)"},
+  "cameraOrigin": "(0,0,0)",
+  "cameraPointing": "(0,0,1)",
   "width"  : 2,
-  "height" : 2
+  "height" : 2,
+  "lights" : ["", "l2"]
 }

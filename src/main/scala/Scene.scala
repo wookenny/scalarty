@@ -2,14 +2,14 @@ import java.awt.Color
 
 import Material.SingleColorMaterial
 import geometry._
-import play.api.libs.json.Json
 
 
-/**
-  * Created by torsten on 9/18/16.
-  */
-case class Scene(cameraOrigin : Vector3, cameraPointing : Vector3,
-                 width: Float, height : Float ) {
+class Scene(sceneDTO: SceneDTO) {
+
+  val cameraOrigin   = sceneDTO.getCameraOrigin
+  val cameraPointing = sceneDTO.getCameraPointing
+  val width = sceneDTO.width
+  val height = sceneDTO.height
 
   //TODO: move into file:
   val sphere1 =  Sphere(Vector3(0,0.8f,3),.1f)
@@ -38,6 +38,6 @@ case class Scene(cameraOrigin : Vector3, cameraPointing : Vector3,
 }
 
 object  Scene {
-  implicit val sceneJsonFormat = Json.reads[Scene]
+
 }
 
