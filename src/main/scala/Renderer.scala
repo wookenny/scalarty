@@ -2,11 +2,7 @@ import java.util.Random
 
 import com.typesafe.scalalogging._
 import geometry._
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsValue, Json, _}
 
-import scala.Seq
-import scala.collection.parallel.ParSeq
 
 object Renderer{
   val backgroundColor = RGB.BLACK

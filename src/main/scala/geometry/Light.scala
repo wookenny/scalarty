@@ -1,9 +1,8 @@
 package geometry
 
 
-import play.api.libs.json.{JsPath, Json, Reads}
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
+import play.api.libs.json.Json
+
 
 
 case class Light(position: Vector3, color: RGB, intensity: Float)

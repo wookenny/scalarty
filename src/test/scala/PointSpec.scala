@@ -5,7 +5,6 @@ import org.specs2.{ScalaCheck, Specification}
 
 
 
-
 class VectorSpec extends Specification with ScalaCheck { def is = s2"""
   A Vector should
     calculate its length ${lengthTest}

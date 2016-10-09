@@ -1,4 +1,4 @@
-import geometry.{AABB, Ray, Vector3}
+import geometry.{Ray, Vector3}
 import org.specs2.{ScalaCheck, Specification}
 
 
