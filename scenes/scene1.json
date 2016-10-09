@@ -1,7 +1,12 @@
 {
-  "cameraOrigin": "(0,0,0)",
-  "cameraPointing": "(0,0,1)",
+  "cameraOrigin":   {"x":0, "y":0,"z":0},
+  "cameraPointing": {"x":0, "y":0,"z":1},
   "width"  : 2,
   "height" : 2,
-  "lights" : ["", "l2"]
+  "lights" : [{"position" : {"x":4, "y":2,"z":0},
+               "color"    : {"red": 1, "green": 1, "blue": 1},
+               "intensity": 0.5},
+              {"position" : {"x":-4, "y":2,"z":0},
+                "color"    : {"red": 1, "green": 1, "blue": 1},
+                "intensity": 1.0}]
 }

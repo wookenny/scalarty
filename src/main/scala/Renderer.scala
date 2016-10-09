@@ -1,38 +1,31 @@
-import java.awt.Color
 import java.util.Random
 
 import com.typesafe.scalalogging._
-import geometry.Light
-import geometry.{Hit, Ray, Vector3}
+import geometry._
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsValue, Json, _}
 
 import scala.Seq
 import scala.collection.parallel.ParSeq
 
 object Renderer{
-  val backgroundColor = Vector3.ZERO
-  val gamma : Float = 2.2f
+  val backgroundColor = RGB.BLACK
 }
 
 class Renderer(val scene: Scene) extends LazyLogging {
-
-  private def toColor(colorVec: Vector3): Color = {
-    new Color( Math.min(Math.max(0f,colorVec.x),1f),
-               Math.min(Math.max(0f,colorVec.y),1f),
-               Math.min(Math.max(0f,colorVec.z),1f))
-  }
 
   def shadowRay(position: Vector3, light: Vector3): Boolean = {
       val vectorToLight = (light-position)
       anyHit( Ray(position, vectorToLight.normalized), vectorToLight.length )
   }
 
-  def shadePixel(hit: Hit, r: Ray): Vector3 = {
+  def shadeHit(hit: Hit, r: Ray): RGB = {
 
     val colorInfo = hit.color
-    val baseColor : Vector3 = Vector3(colorInfo.color.getRed/255f, colorInfo.color.getGreen/255f, colorInfo.color.getBlue/255f)
+    val baseColor: RGB = colorInfo.color
 
     //ambient
-    val ambientColor : Vector3 = baseColor * colorInfo.ambient
+    val ambientColor = baseColor * colorInfo.ambient
 
     //visible lights
     val visibleLights = scene.lights.filter( l => !shadowRay(hit.position, l.position) )
@@ -43,36 +36,40 @@ class Renderer(val scene: Scene) extends LazyLogging {
         baseColor * Math.max((hit.normal * L),0) * colorInfo.diffuse * l.intensity //TODO light color?
       }
     } match {
-      case Seq() => Vector3.ZERO
+      case Seq() => RGB.BLACK
       case list => list.reduce(_ + _)
     }
 
 
     //specular
-    val specColor =  visibleLights.map{ l => {
+    val specColor=  visibleLights.map{ l => {
         val V = r.direction * - 1 //towards eye
         val L = (l.position - hit.position).normalized // vector pointing towards light
-         val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-         baseColor * Math.pow (Math.max (- (R * L), 0), colorInfo.shininess).toFloat * colorInfo.spec * l.intensity //TODO light color?}
+        val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
+        baseColor * Math.pow (Math.max (- (R * L), 0), colorInfo.shininess).toFloat * colorInfo.spec * l.intensity //TODO light color?}
       }
     } match {
-      case Seq() => Vector3.ZERO
+      case Seq() => RGB.BLACK
       case list => list.reduce(_ + _)
     }
 
-    //
+    //reflection
+    val reflectedColor : RGB = if(Math.pow(colorInfo.reflective,r.depth+1)> 0.00001 && r.depth <= 4) //TODO make configurable
+      traceRay( r.reflectedAt(hit.position, hit.normal) ) * colorInfo.reflective
+    else RGB.BLACK
 
-    val combinedExposure = ambientColor+diffuseColor+specColor
-    val corrected = Vector3(1,1,1) - (combinedExposure* -1).expf
-    corrected.pow(1/Renderer.gamma) //gamma correction
+    //transition
+
+    val combinedExposure : RGB = (ambientColor+diffuseColor+specColor)*(1f-colorInfo.reflective) + reflectedColor
+    combinedExposure.exposureCorrected.gammaCorrected
   }
 
-  def renderPixel(x: Int, y: Int, r: Ray): Vector3 = {
+  def traceRay(r: Ray): RGB = {
     val hit = getFirstHit(r)
     if(!hit.isDefined)
         Renderer.backgroundColor
     else
-        shadePixel(hit.get, r)
+        shadeHit(hit.get, r)
   }
 
   def getFirstHit(r:Ray) : Option[Hit] = scene.shapes.flatMap{ s => s intersect r } match {
@@ -107,7 +104,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
       case (x:Int,y:Int) => {
         //supersampling //TODO: could be made adaptive //could use multijitter
         val S = config.supersampling*config.supersampling
-        val colorSum : Vector3 =
+        val colorSum : RGB =
           (for{i <- 0 until config.supersampling
                j <- 0 until config.supersampling
                shift = (config.supersampling-1)/(2f*config.supersampling)
@@ -115,9 +112,9 @@ class Renderer(val scene: Scene) extends LazyLogging {
                   + scene.side*((w*(x+i.toFloat/config.supersampling-shift))/X)
                   - scene.up  *(h*(y+j.toFloat/config.supersampling-shift)/Y))
               rayDir = (rayTarget - scene.cameraOrigin).normalized
-            } yield renderPixel(x,y, Ray(scene.cameraOrigin, rayDir))
+            } yield traceRay(Ray(scene.cameraOrigin, rayDir))
           ).reduce(_ + _)
-        img.set(x, y, toColor(colorSum/S))
+        img.set(x, y, (colorSum/S).awtColor() )
       }
     }
     val now = System.nanoTime()

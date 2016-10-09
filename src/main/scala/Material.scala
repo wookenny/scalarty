@@ -1,13 +1,12 @@
 package Material
 
-import java.awt.Color
-import geometry.Vector3
+import geometry.{RGB, Vector3}
 
 object Material {
   val EPS = 0.001
 }
 
-case class UnshadedColor(val color: Color, val ambient: Float, val diffuse: Float, val spec: Float, val shininess: Float)
+case class UnshadedColor(color: RGB, ambient: Float, diffuse: Float, spec: Float, reflective: Float, shininess: Float)
 
 trait Material{
 
@@ -16,8 +15,8 @@ trait Material{
 }
 
 
-case class SingleColorMaterial(val c: Color, val ambient: Float, val diffuse: Float, val spec: Float, val shininess: Float = 64) extends Material {
-  require( Math.abs(ambient+diffuse+spec - 1) <= Material.EPS )
+case class SingleColorMaterial(c: RGB, ambient: Float, diffuse: Float, spec: Float, reflective: Float = 0.05f, shininess: Float = 64) extends Material {
+  require( Math.abs(ambient+diffuse+spec+reflective - 1) <= Material.EPS )
 
-  override def getMat(position: Vector3) = UnshadedColor(c, ambient, diffuse, spec, shininess)
+  override def getMat(position: Vector3) = UnshadedColor(c, ambient, diffuse, spec, reflective, shininess)
 }

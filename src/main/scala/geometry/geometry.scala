@@ -1,10 +1,11 @@
 package geometry
 
-import java.awt.Color
 
 import Material.{Material, SingleColorMaterial, UnshadedColor}
-import play.api.libs.json.{JsPath,Reads}
-import play.api.libs.json.Reads._
+import play.api.libs.json.{Format, JsResult, JsValue, Json}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsValue, Json, _}
+
 
 object geometry {
   def sqrt(f: Float) = Math.sqrt(f).toFloat
@@ -13,8 +14,6 @@ object geometry {
 }
 
 case class Vector3(x: Float, y: Float, z: Float){
-
-
 
    def /(s: Float) = Vector3(x/s,y/s,z/s)
    def *(s: Float) = Vector3(s*x,s*y,s*z)
@@ -41,11 +40,7 @@ case class Vector3(x: Float, y: Float, z: Float){
 
 }
 
-  object Vector3{ //TODO: use Xor
-    def fromString(vec: String) : Vector3 = vec.replaceAll("[()]","").split(",") match {
-      case Array(x, y, z) => Vector3(x.toFloat, y.toFloat, z.toFloat)
-    }
-
+object Vector3{ //TODO: use Xor
 
     val ZERO = Vector3(0,0,0)
     val ONE  = Vector3(1,1,1)
@@ -53,25 +48,70 @@ case class Vector3(x: Float, y: Float, z: Float){
     val Y    = Vector3(0,1,0)
     val Z    = Vector3(0,0,1)
 
-    implicit val vectorReads: Reads[Vector3] = {
-      (JsPath \ "vector").read[String] map { values =>
-        val v = values.replace("(","").replace(")","")
-        val Array(value1, value2, value3) = v.split(",").map(_.toFloat)
-        Vector3(value1, value2, value3)
-      }
-    }
-
+    implicit val vectorJsonFormat = Json.format[Vector3]
   }
 
+case class RGB(red: Float = 0, green: Float = 0, blue: Float = 0){
+  def ^(pow: Float) = RGB(Math.pow(red,pow).toFloat,
+                          Math.pow(green,pow).toFloat,
+                          Math.pow(blue,pow).toFloat)
 
-case class Ray(val origin: Vector3, val direction: Vector3){
+  //TODO :alpha?
+  def awtColor() = new java.awt.Color( Math.min(Math.max(0f,red),1f),
+                                         Math.min(Math.max(0f,green),1f),
+                                         Math.min(Math.max(0f,blue),1f))
+
+  def *(s: Float) = RGB(red*s, green*s, blue*s)
+  def /(s: Float) = RGB(red/s, green/s, blue/s)
+
+  def +(c: RGB) = RGB(red+c.red,green+c.green,blue+c.blue)
+  def -(c: RGB) = RGB(red-c.red,green-c.green,blue+c.blue)
+
+
+  def unary_-() = this *(-1)
+  def unary_+() = this
+
+  def exposureCorrected = RGB(1-Math.exp(-red).toFloat,
+                              1-Math.exp(-green).toFloat,
+                              1-Math.exp(-blue).toFloat)
+  def gammaCorrected = this ^ (1/RGB.GAMMA)
+
+}
+
+object RGB{
+
+  implicit val colorJsonFormat = Json.format[RGB]
+
+  final val BLACK = RGB(0,0,0)
+  final val WHITE = RGB(1,1,1)
+  final val RED   = RGB(red=1)
+  final val GREEN = RGB(green=1)
+  final val BLUE  = RGB(blue=1)
+  final val CYAN  = RGB(green=1, blue=1)
+
+  final val GAMMA = 2.2f
+
+}
+
+
+
+
+
+case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0){
+  import geometry.EPS
   def march(length: Float) = origin + direction * length
+
+  def reflectedAt(position: Vector3, normal: Vector3): Ray = {
+    val dir = (direction - normal * (direction * normal) * 2).normalized
+    Ray(position + dir*EPS, dir, depth+1)
+  }
+
 }
 
 case class Hit(val distance: Float, val position: Vector3, val normal: Vector3, val color: UnshadedColor)
 
 trait Shape{
-   var material: Material = SingleColorMaterial(Color.WHITE,0.1f,0.7f,0.2f)
+   var material: Material = SingleColorMaterial(RGB.WHITE,0.1f,0.65f,0.15f,.1f)
    def intersect(r: Ray) : Option[Hit] //TODO: should only generate needed data, not too much in advance
    def intersect(r: Ray,maxDist: Float) : Boolean
 

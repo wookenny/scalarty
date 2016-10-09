@@ -1,5 +1,7 @@
 import play.api.libs.json.Json
 import scala.io.Source._
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsValue, Json, _}
 
 case class Config(out: String = "",
                   in: String = "",
@@ -55,8 +57,10 @@ object Main {
 
 
     val sceneFile : String = fromFile(config.in).getLines.mkString
-    val sceneDTO = Json.parse(sceneFile).as[SceneDTO]
-    val scene = new Scene(sceneDTO)
+    val scene : Scene = Json.parse(sceneFile).as[Scene]
+
+    println(s"lights: ${scene.lights}\nshapes: ${scene.shapes}")
+    scene.shapes.map(s => println(s" ${s.material}"))
     val renderer = new Renderer(scene)
     renderer.render(config)
   }
