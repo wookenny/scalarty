@@ -1,5 +1,4 @@
 
-import Material.SingleColorMaterial
 import geometry.{Ray, Vector3}
 import org.specs2.{ScalaCheck, Specification}
 import play.api.libs.json.Json
