@@ -5,7 +5,7 @@ import Material.DEFAULT_MATERIAL
 
 trait Shape{
   def intersect(r: Ray) : Option[Hit] //TODO: should only generate needed data, not too much in advance
-  def intersect(r: Ray,maxDist: Float) : Boolean
+  def intersect(r: Ray, maxDist: Float) : Boolean
 }
 
 object Shape{
@@ -90,7 +90,11 @@ case class AABB( x_min: Float, x_max : Float,
   require(y_min < y_max)
   require(z_min < z_max)
 
+  val y_rotation = 45
+
   override def intersect(r: Ray): Option[Hit] = {
+
+    //TODO rotated Ray val r = Ray(unrot_r.rotatedAround(45)
 
     val dirfrac = Vector3(1 / r.direction.x, 1 / r.direction.y, 1 / r.direction.z)
 
@@ -116,6 +120,7 @@ case class AABB( x_min: Float, x_max : Float,
       //use tmax if we are inside the AABB
       val t = if (tmin < 0) tmax else tmin
       val pos = r.march(t)
+      //TODO: march with unrotated, normal: fix using rotation
       Some(Hit(t, pos, normal, material.getMat(pos)))
     }
   }
@@ -213,7 +218,8 @@ case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material = DEF
     if(v < 0f || u + v  > 1f)
       return false
 
-    return (edge2 * q) * inv_det > EPS
+    val t =  (edge2 * q) * inv_det
+     EPS < t && t < maxDist-EPS
   }
 
 }
