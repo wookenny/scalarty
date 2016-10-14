@@ -17,7 +17,9 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
-                      "shininess": 64
+                      "shininess": 64,
+                      "refractive" : 0,
+                      "n" : 1
                     }
                   }
                 }
@@ -33,7 +35,9 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
-                      "shininess": 64
+                      "shininess": 64,
+                      "refractive" : 0,
+                      "n" : 1
                     }
                   }
                 }
@@ -49,6 +53,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -65,6 +71,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -81,6 +89,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -97,6 +107,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -113,6 +125,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -129,6 +143,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -145,6 +161,8 @@
                       "diffuse": 0.8,
                       "spec": 0.15,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -161,6 +179,8 @@
                               "diffuse": 0.8,
                               "spec": 0.15,
                               "reflective": 0,
+                              "refractive" : 0,
+                              "n" : 1,
                               "shininess": 64
                             }
                           }
@@ -176,6 +196,8 @@
                       "diffuse": 0.7,
                       "spec": 0.15,
                       "reflective": 0.15,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -194,6 +216,8 @@
                       "diffuse": 0.75,
                       "spec": 0.2,
                       "reflective": 0,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }

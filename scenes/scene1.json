@@ -19,6 +19,8 @@
                                             "diffuse": 0.75,
                                             "spec": 0.15,
                                             "reflective": 0.05,
+                                            "refractive" : 0,
+                                            "n" : 1,
                                             "shininess": 64
                                         }
                            }
@@ -34,6 +36,8 @@
                       "diffuse": 0.75,
                       "spec": 0.15,
                       "reflective": 0.05,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -49,6 +53,8 @@
                       "diffuse": 0.65,
                       "spec": 0.15,
                       "reflective": 0.15,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -67,6 +73,8 @@
                       "diffuse": 0.65,
                       "spec": 0.15,
                       "reflective": 0.15,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }
@@ -82,6 +90,8 @@
                       "diffuse": 0.65,
                       "spec": 0.15,
                       "reflective": 0.15,
+                      "refractive" : 0,
+                      "n" : 1,
                       "shininess": 64
                     }
                   }

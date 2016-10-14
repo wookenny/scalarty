@@ -94,15 +94,24 @@ object RGB{
   def apply(r: Double, g: Double, b: Double) : RGB  = apply(r.toFloat, g.toFloat, b.toFloat)
 }
 
-case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0){
+case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1){
   import geometry.EPS
   def march(length: Float) = origin + direction * length
 
   def reflectedAt(position: Vector3, normal: Vector3): Ray = {
     val dir = (direction - normal * (direction * normal) * 2).normalized
-    Ray(position + dir*EPS, dir, depth+1)
+    Ray(position + dir*EPS, dir, depth+1, n)
   }
 
+  def refractedAt(position: Vector3, normal: Vector3, newN: Float) = {
+    //TODO find nicer and/or faster calculation
+    val refractionFactor = n / newN
+    val c1 : Float = - normal *  direction
+    val c2 : Float = Math.sqrt(1 - refractionFactor*refractionFactor * (1 - c1*c1)).toFloat
+
+    val refractedDir: Vector3 = (direction * n) + normal * (n * c1 - c2)
+    Ray(position + refractedDir*EPS, refractedDir, depth+1, newN)
+  }
 }
 
 case class Hit(val distance: Float, val position: Vector3, val normal: Vector3, val color: UnshadedColor)

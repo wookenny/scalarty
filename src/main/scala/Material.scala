@@ -25,14 +25,14 @@ object Material {
   implicit val singleColorMaterialFmt = Json.format[SingleColorMaterial]
 }
 
-case class UnshadedColor(color: RGB, ambient: Float, diffuse: Float, spec: Float, reflective: Float, shininess: Float)
+case class UnshadedColor(color: RGB, ambient: Float, diffuse: Float, spec: Float, reflective: Float, refractive: Float, n: Float, shininess: Float)
 
 trait Material{
   def getMat(position: Vector3) : UnshadedColor
 }
 
-case class SingleColorMaterial(c: RGB, ambient: Float, diffuse: Float, spec: Float, reflective: Float = 0.05f, shininess: Float = 64) extends Material {
+case class SingleColorMaterial(c: RGB, ambient: Float, diffuse: Float, spec: Float, reflective : Float = 0.05f,  refractive: Float = 0, n: Float = 1.33f, shininess: Float = 64) extends Material {
   require( Math.abs(ambient+diffuse+spec+reflective - 1) <= Material.EPS )
 
-  override def getMat(position: Vector3) = UnshadedColor(c, ambient, diffuse, spec, reflective, shininess)
+  override def getMat(position: Vector3) = UnshadedColor(c, ambient, diffuse, spec, reflective, refractive, n, shininess)
 }

@@ -20,13 +20,13 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val colorInfo = hit.color
     val baseColor: RGB = colorInfo.color
 
-    //ambient
+    //ambient (not for leaving ray)
     val ambientColor = baseColor * colorInfo.ambient
 
-    //visible lights
+    //visible lights (not for leaving ray)
     val visibleLights = scene.lights.filter( l => !shadowRay(hit.position, l.position) )
 
-    //diffuse
+    //diffuse (not for leaving ray)
     val diffuseColor = visibleLights.map{ l => {
         val L = (l.position-hit.position).normalized // vector pointing towards light //TODO duplicate calculation
         baseColor * Math.max((hit.normal * L),0) * colorInfo.diffuse * l.intensity //TODO light color?
@@ -37,7 +37,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
     }
 
 
-    //specular
+    //specular (not for leaving ray)
     val specColor=  visibleLights.map{ l => {
         val V = r.direction * - 1 //towards eye
         val L = (l.position - hit.position).normalized // vector pointing towards light
@@ -49,12 +49,10 @@ class Renderer(val scene: Scene) extends LazyLogging {
       case list => list.reduce(_ + _)
     }
 
-    //reflection
+    //reflection (not for leaving ray)
     val reflectedColor : RGB = if(Math.pow(colorInfo.reflective,r.depth+1)> 0.00001 && r.depth <= 4) //TODO make configurable
       traceRay( r.reflectedAt(hit.position, hit.normal) ) * colorInfo.reflective
     else RGB.BLACK
-
-    //transition
 
     val combinedExposure : RGB = (ambientColor+diffuseColor+specColor)*(1f-colorInfo.reflective) + reflectedColor
     combinedExposure.exposureCorrected.gammaCorrected

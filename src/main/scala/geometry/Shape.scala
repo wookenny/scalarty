@@ -23,7 +23,7 @@ object Shape{
       case "AABB"     => Json.fromJson[AABB](data)(aabbFmt)
       case "Sphere"   => Json.fromJson[Sphere](data)(sphereFmt)
       case "Triangle" => Json.fromJson[Triangle](data)(triangleFmt)
-    }).get
+    }).get //TODO catch a problem here
   }
 
 
@@ -62,7 +62,6 @@ case class Sphere(center: Vector3, radius: Float, material: Material = DEFAULT_M
 
   }
 
-  //TODO: should only generate needed data, not too much in advance
   override def intersect(r: Ray, maxDist: Float): Boolean = {
     val t_ca : Float  = (center-r.origin) * r.direction
     val t_hc2 : Float = radius*radius - (center-r.origin)*(center-r.origin) + t_ca*t_ca
@@ -163,7 +162,8 @@ case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material = DEF
     val p : Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     val det : Float = edge1 * p
-    //NOT CULLING
+
+    //Backface culling not enabled!
     if(det > -EPS && det < EPS)
       return None
     val inv_det = 1f / det
@@ -197,9 +197,10 @@ case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material = DEF
     val p : Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     val det : Float = edge1 * p
-    //NOT CULLING
-    if(det > -EPS && det < EPS)
-      return false
+    //Backface culling not enabled!
+    //if(det > -EPS && det < EPS)
+    // return false
+
     val inv_det = 1f / det
     //calculate distance from V1 to ray origin
     val t_vec  = (r.origin - a)
