@@ -19,14 +19,16 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
     val colorInfo = hit.color
     val baseColor: RGB = colorInfo.color
+    val backFace = (hit.normal * r.direction <  0)
 
-    //ambient (not for leaving ray)
-    val ambientColor = baseColor * colorInfo.ambient
 
-    //visible lights (not for leaving ray)
-    val visibleLights = scene.lights.filter( l => !shadowRay(hit.position, l.position) )
+    //ambient
+    val ambientColor = if(!backFace) baseColor * colorInfo.ambient else Renderer.backgroundColor
 
-    //diffuse (not for leaving ray)
+    //visible lights
+    val visibleLights = scene.lights.filter( l => !backFace && !shadowRay(hit.position, l.position) )
+
+    //diffuse
     val diffuseColor = visibleLights.map{ l => {
         val L = (l.position-hit.position).normalized // vector pointing towards light //TODO duplicate calculation
         baseColor * Math.max((hit.normal * L),0) * colorInfo.diffuse * l.intensity //TODO light color?
@@ -37,7 +39,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
     }
 
 
-    //specular (not for leaving ray)
+    //specular
     val specColor=  visibleLights.map{ l => {
         val V = r.direction * - 1 //towards eye
         val L = (l.position - hit.position).normalized // vector pointing towards light
@@ -49,12 +51,20 @@ class Renderer(val scene: Scene) extends LazyLogging {
       case list => list.reduce(_ + _)
     }
 
-    //reflection (not for leaving ray)
+    //reflection
     val reflectedColor : RGB = if(Math.pow(colorInfo.reflective,r.depth+1)> 0.00001 && r.depth <= 4) //TODO make configurable
       traceRay( r.reflectedAt(hit.position, hit.normal) ) * colorInfo.reflective
     else RGB.BLACK
 
-    val combinedExposure : RGB = (ambientColor+diffuseColor+specColor)*(1f-colorInfo.reflective) + reflectedColor
+    //refracted ray
+    val refractedColor =
+      if(colorInfo.refractive<=0)
+        Renderer.backgroundColor
+      else {
+        val refractedRay = r.refractedAt(hit.position, hit.normal, colorInfo.n)
+        traceRay(refractedRay)
+      }
+    val combinedExposure : RGB = (ambientColor+diffuseColor+specColor+refractedColor)*(1f-colorInfo.reflective) + reflectedColor
     combinedExposure.exposureCorrected.gammaCorrected
   }
 

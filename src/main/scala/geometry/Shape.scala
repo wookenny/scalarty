@@ -163,7 +163,7 @@ case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material = DEF
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     val det : Float = edge1 * p
 
-    //Backface culling not enabled!
+    //TODO: Backface culling???
     if(det > -EPS && det < EPS)
       return None
     val inv_det = 1f / det
@@ -197,9 +197,9 @@ case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material = DEF
     val p : Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     val det : Float = edge1 * p
-    //Backface culling not enabled!
-    //if(det > -EPS && det < EPS)
-    // return false
+    //TODO: Backface culling???
+    if(det > -EPS && det < EPS)
+     return false
 
     val inv_det = 1f / det
     //calculate distance from V1 to ray origin
