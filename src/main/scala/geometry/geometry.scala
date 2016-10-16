@@ -2,7 +2,7 @@ package geometry
 
 
 import Material.{Material, SingleColorMaterial, UnshadedColor}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OFormat}
 
 object geometry {
   def sqrt(f: Float) = Math.sqrt(f).toFloat
@@ -10,7 +10,7 @@ object geometry {
   val EPS: Float = 0.0001.toFloat
 }
 
-case class Vector3(x: Float, y: Float, z: Float){
+final case class Vector3(x: Float, y: Float, z: Float){
 
    def /(s: Float) = Vector3(x/s,y/s,z/s)
    def *(s: Float) = Vector3(s*x,s*y,s*z)
@@ -22,7 +22,7 @@ case class Vector3(x: Float, y: Float, z: Float){
 
    def unary_-() = this *(-1)
    def unary_+() = this
-   def =~=(p: Vector3) = (this == p) //TODO: implement properly
+   def =~=(p: Vector3) = (this.equals(p)) //TODO: implement properly
 
    def length : Float = geometry.sqrt(this * this)
    def dist(p: Vector3) = (this-p).length
@@ -45,13 +45,13 @@ object Vector3{ //TODO: use Xor
     val Y    = Vector3(0,1,0)
     val Z    = Vector3(0,0,1)
 
-    implicit val vectorJsonFormat = Json.format[Vector3]
+    implicit val vectorJsonFormat : OFormat[Vector3] = Json.format[Vector3]
 
     def apply(x: Double, y: Double, z: Double) : Vector3 = apply(x.toFloat, y.toFloat, z.toFloat)
 
   }
 
-case class RGB(red: Float = 0, green: Float = 0, blue: Float = 0){
+final case class RGB(red: Float, green: Float, blue: Float){
   def ^(pow: Float) = RGB(Math.pow(red,pow).toFloat,
                           Math.pow(green,pow).toFloat,
                           Math.pow(blue,pow).toFloat)
@@ -80,21 +80,21 @@ case class RGB(red: Float = 0, green: Float = 0, blue: Float = 0){
 
 object RGB{
 
-  implicit val colorJsonFormat = Json.format[RGB]
+  implicit val colorJsonFormat : OFormat[RGB] = Json.format[RGB]
 
-  final val BLACK = RGB(0,0,0)
-  final val WHITE = RGB(1,1,1)
-  final val RED   = RGB(red=1)
-  final val GREEN = RGB(green=1)
-  final val BLUE  = RGB(blue=1)
-  final val CYAN  = RGB(green=1, blue=1)
+  val BLACK = RGB(0,0,0)
+  val WHITE = RGB(1,1,1)
+  val RED   = BLACK.copy(red=1)
+  val GREEN = BLACK.copy(green=1)
+  val BLUE  = BLACK.copy(blue=1)
+  val CYAN  = BLACK.copy(green=1, blue=1)
 
-  final val GAMMA = 2.2f
+  val GAMMA = 2.2f
 
   def apply(r: Double, g: Double, b: Double) : RGB  = apply(r.toFloat, g.toFloat, b.toFloat)
 }
 
-case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1){
+final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1){
   import geometry.EPS
   def march(length: Float) = origin + direction * length
 
@@ -114,4 +114,4 @@ case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 
   }
 }
 
-case class Hit(val distance: Float, val position: Vector3, val normal: Vector3, val color: UnshadedColor)
+final case class Hit(val distance: Float, val position: Vector3, val normal: Vector3, val color: UnshadedColor)

@@ -1,7 +1,7 @@
 import scala.io.Source._
 import play.api.libs.json.Json
 
-case class Config(out: String = "",
+final case class Config(out: String = "",
                   in: String = "",
                   supersampling: Int = 1,
                   verbose: Boolean = false,
@@ -11,30 +11,29 @@ case class Config(out: String = "",
 object Main {
 
   val parser = new scopt.OptionParser[Config]("scopt") {
-    head("scalarty", "0.0.1")
+    val headText = head("scalarty", "0.0.1")
 
-    opt[String]('i', "in").required().valueName("<file>").
+    val file = opt[String]('i', "in").required().valueName("<file>").
       action( (x, c) => c.copy(in = x) ).
       text("scene to be rendered")
 
-    opt[String]('o', "out").required().valueName("<file>").
-      action( (x, c) => c.copy(out = x) ).
-      text("out is a required file for the rendered image")
+    val out = opt[String]('o', "out").required().valueName("<file>").
+      action( (x, c) => c.copy(out = x) )
+      .text("out is a required file for the rendered image")
 
-    opt[Int]('s', "supersampling").action( (x, c) =>
+    val supersampling = opt[Int]('s', "supersampling").action( (x, c) =>
        c.copy(supersampling = x) ).text("foo is an integer property")
 
-    opt[Unit]("verbose").action( (_, c) =>
+    val verbose = opt[Unit]("verbose").action( (_, c) =>
       c.copy(verbose = true) ).text("verbose is a flag")
 
-    opt[Unit]("debug").hidden().action( (_, c) =>
+    val debug = opt[Unit]("debug").hidden().action( (_, c) =>
       c.copy(debug = true) ).text("this option is hidden in the usage text")
 
-    help("help").text("prints this usage text")
+    val helpText = help("help").text("prints this usage text")
 
 
-    note("Simple raytracer written in scala.\n")
-
+    val description = note("Simple raytracer written in scala.\n")
   }
 
 

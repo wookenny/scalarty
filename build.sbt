@@ -29,3 +29,6 @@ coverageHighlighting := {
   else
     false
 }
+
+wartremoverErrors ++= Warts.allBut(Wart.Overloading,Wart.DefaultArguments, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Option2Iterable)
+wartremoverWarnings ++= Warts.allBut(Wart.Overloading,Wart.DefaultArguments)

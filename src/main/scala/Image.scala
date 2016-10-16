@@ -15,7 +15,7 @@ class Image(val width: Int, val height: Int){
   private val g2d: Graphics2D = img.createGraphics
   init
 
-  def save(filename: String) = {
+  def save(filename: String) : Boolean = {
     val (fixedfilename:String,fileType:String) = getFilenameEnding(filename)
     ImageIO.write(img, fileType,  new File(fixedfilename))
   }
@@ -27,11 +27,11 @@ class Image(val width: Int, val height: Int){
       case None => (filename, "png")
     }
 
-  def set(x: Int, y: Int, c: Color) = {
+  def set(x: Int, y: Int, c: Color) : Unit = {
     img.setRGB(x,y,c.getRGB)
   }
 
-  def init = {
+  def init : Unit = {
     g2d setColor Color.BLACK
     g2d.fillRect(0,0,width,height)
   }

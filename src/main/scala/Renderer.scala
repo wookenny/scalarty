@@ -19,7 +19,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
     val colorInfo = hit.color
     val baseColor: RGB = colorInfo.color
-    val backFace = (hit.normal * r.direction <  0)
+    val backFace = (hit.normal * r.direction) >  0
 
 
     //ambient
@@ -44,7 +44,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
         val V = r.direction * - 1 //towards eye
         val L = (l.position - hit.position).normalized // vector pointing towards light
         val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-        baseColor * Math.pow (Math.max (- (R * L), 0), colorInfo.shininess).toFloat * colorInfo.spec * l.intensity //TODO light color?}
+        l.color* Math.pow (Math.max (- (R * L), 0), colorInfo.shininess).toFloat * colorInfo.spec * l.intensity //spec does not use color of object
       }
     } match {
       case Seq() => RGB.BLACK
@@ -52,29 +52,29 @@ class Renderer(val scene: Scene) extends LazyLogging {
     }
 
     //reflection
-    val reflectedColor : RGB = if(Math.pow(colorInfo.reflective,r.depth+1)> 0.00001 && r.depth <= 4) //TODO make configurable
+    val reflectedColor : RGB = if(Math.pow(colorInfo.reflective,r.depth+1)> 0.00001 && r.depth <= 6) //TODO make configurable
       traceRay( r.reflectedAt(hit.position, hit.normal) ) * colorInfo.reflective
     else RGB.BLACK
 
     //refracted ray
     val refractedColor =
-      if(colorInfo.refractive<=0)
-        Renderer.backgroundColor
-      else {
+      if(colorInfo.refractive >0.00001 &&  r.depth <= 6) {
+        //TODO configurable ray depth
         val refractedRay = r.refractedAt(hit.position, hit.normal, colorInfo.n)
-        traceRay(refractedRay)
+        traceRay(refractedRay) * colorInfo.refractive
+      }else {
+        Renderer.backgroundColor
       }
-    val combinedExposure : RGB = (ambientColor+diffuseColor+specColor+refractedColor)*(1f-colorInfo.reflective) + reflectedColor
+    val combinedExposure : RGB = ambientColor+diffuseColor+specColor+refractedColor+reflectedColor
     combinedExposure.exposureCorrected.gammaCorrected
   }
 
-  def traceRay(r: Ray): RGB = {
-    val hit = getFirstHit(r)
-    if(!hit.isDefined)
-        Renderer.backgroundColor
-    else
-        shadeHit(hit.get, r)
-  }
+  def traceRay(r: Ray): RGB =
+    getFirstHit(r) match {
+      case Some(hit) => shadeHit(hit,r)
+      case _         => Renderer.backgroundColor
+    }
+
 
   def getFirstHit(r:Ray) : Option[Hit] = scene.shapes.flatMap{ s => s intersect r } match {
     case Nil => None
@@ -124,7 +124,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val now = System.nanoTime()
     logger.info(s"Raytracing done in ${(now-renderStart)/(1000f*1000*1000)} seconds") //TODO nice time formatter
 
-    img.save(config.out)
+    val saved = img.save(config.out)
     logger.info(s"Total runtime: ${(System.nanoTime()-start)/(1000f*1000*1000)} seconds")
   }
 

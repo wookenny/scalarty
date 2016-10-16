@@ -1,13 +1,13 @@
 package geometry
 
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 
 
-case class Light(position: Vector3, color: RGB, intensity: Float)
+final case class Light(position: Vector3, color: RGB, intensity: Float)
 
 object Light{
-  implicit val lightJsonFormat = Json.format[Light]
+  implicit val lightJsonFormat : Format[Light] = Json.format[Light]
 }
 

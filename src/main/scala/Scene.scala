@@ -1,8 +1,7 @@
-import Material.SingleColorMaterial
 import geometry._
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
-case class Scene(cameraOrigin : Vector3, cameraPointing: Vector3, width: Float, height: Float,
+final case class Scene(cameraOrigin : Vector3, cameraPointing: Vector3, width: Float, height: Float,
                  lights: Seq[Light], shapes: Seq[Shape]) {
 
   // Fixed data
@@ -33,6 +32,6 @@ case class Scene(cameraOrigin : Vector3, cameraPointing: Vector3, width: Float, 
 }
 
 object Scene {
-  implicit val sceneJsonFormat = Json.format[Scene]
+  implicit val sceneJsonFormat : Format[Scene] = Json.format[Scene]
 }
 

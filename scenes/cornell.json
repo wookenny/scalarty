@@ -193,11 +193,11 @@
                     "data": {
                       "c":  {"red": 0, "green": 1, "blue": 1},
                       "ambient": 0,
-                      "diffuse": 0.7,
-                      "spec": 0.15,
-                      "reflective": 0.15,
-                      "refractive" : 0,
-                      "n" : 1,
+                      "diffuse": 0,
+                      "spec": 0.1,
+                      "reflective": 0.0,
+                      "refractive" : 0.9,
+                      "n" : 1.1,
                       "shininess": 64
                     }
                   }
