@@ -60,8 +60,11 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val refractedColor =
       if(colorInfo.refractive >0.00001 &&  r.depth <= 6) {
         //TODO configurable ray depth
-        val refractedRay = r.refractedAt(hit.position, hit.normal, colorInfo.n)
-        traceRay(refractedRay) * colorInfo.refractive
+        r.refractedAt(hit.position, hit.normal, colorInfo.n) match {
+          case Some(refractedRay) => traceRay(refractedRay) * colorInfo.refractive
+          case None               => Renderer.backgroundColor
+        }
+
       }else {
         Renderer.backgroundColor
       }

@@ -32,3 +32,9 @@ coverageHighlighting := {
 
 wartremoverErrors ++= Warts.allBut(Wart.Overloading,Wart.DefaultArguments, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Option2Iterable)
 wartremoverWarnings ++= Warts.allBut(Wart.Overloading,Wart.DefaultArguments)
+wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "AABBSpec.scala"
+wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "MaterialSpec.scala"
+wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "PointSpec.scala"
+wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "RaySpec.scala"
+wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "TriangleSpec.scala"
+wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "SphereSpec.scala"

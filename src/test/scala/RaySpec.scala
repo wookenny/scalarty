@@ -14,7 +14,7 @@ class RaySpec  extends Specification with ScalaCheck {
   s2"""
   A ray should
     calculate the direction of a reflection correctly $testReflection
-    calculate the direction of a refraction correctly
+    calculate the direction of a refraction correctly $testRefraction
     calculate the position for a given marching diretion
 
   """
@@ -22,11 +22,20 @@ class RaySpec  extends Specification with ScalaCheck {
 
     val testReflection = forAll { (dir: Vector3, o: Vector3) => {
       val ray = Ray(origin = o, direction = dir.normalized)
-      val rray = ray.reflectedAt(o + ray.direction, -ray.direction)
-
+      val rray = ray.reflectedAt(o, -ray.direction)
       (rray.direction + ray.direction).length < 0.01 && rray.depth == ray.depth + 1 && ray.n == rray.n
-      //TODO: test position
+      }
     }
+
+      val testRefraction = forAll { (dir: Vector3, o: Vector3, norm: Vector3) => {
+        val ray = Ray(origin = o, direction = dir.normalized, n=1f)
+        val refractedRay = ray.refractedAt(position = o, normal = norm, newN = 1f)
+
+        refractedRay match {
+          case None => false
+          case Some(rray) => (rray.direction - ray.direction).length < 0.01 && rray.depth == ray.depth + 1 && rray.n == 1
+        }
+      }
   }
 
 

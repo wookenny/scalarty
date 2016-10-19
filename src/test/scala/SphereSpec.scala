@@ -1,6 +1,6 @@
 import geometry.{Ray, Vector3}
 import org.scalacheck.Prop._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.specs2.{ScalaCheck, Specification}
 
 
@@ -16,12 +16,12 @@ class SphereSpec  extends Specification with ScalaCheck { def is = s2"""
 
   def sphere1 = Sphere(center = Vector3.ZERO, radius = 4)
 
-  val insersectFromInside                 = forAll { (r: Ray) =>  sphere1.intersect(r) != None }
-  val insersectFromInsideWithCorrectDist  = forAll { (r: Ray) =>  sphere1.intersect(r, 4.1f)}
-  val missedFromInsideDueToDist           = forAll { (r: Ray) =>  !sphere1.intersect(r, 3.9f)}
+  val insersectFromInside : Prop = forAll{ (r:Ray) => sphere1.intersect(r) isDefined }
+  val insersectFromInsideWithCorrectDist = forAll { (r: Ray) =>  sphere1.intersect(r, 4.1f)}
+  val missedFromInsideDueToDist : Prop = forAll { (r: Ray) =>  !sphere1.intersect(r, 3.9f)}
 
-  val intersectFrontal  = forAll { (r: Ray) =>  Sphere(center = r.march( 9),.3f).intersect(r)  != None}
-  val missBackwards     = forAll { (r: Ray) =>  Sphere(center = r.march(-9), .3f).intersect(r) == None}
+  val intersectFrontal = forAll { (r: Ray) =>  Sphere(center = r.march( 9),.3f).intersect(r) isDefined}
+  val missBackwards = forAll{ (r: Ray) =>  Sphere(center = r.march(-9), .3f).intersect(r) isEmpty}
 
 
 

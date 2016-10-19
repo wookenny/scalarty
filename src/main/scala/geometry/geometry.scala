@@ -94,7 +94,7 @@ object RGB{
   def apply(r: Double, g: Double, b: Double) : RGB  = apply(r.toFloat, g.toFloat, b.toFloat)
 }
 
-final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1){
+final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1f){
   import geometry.EPS
   def march(length: Float) = origin + direction * length
 
@@ -104,13 +104,19 @@ final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Fl
   }
 
   def refractedAt(position: Vector3, normal: Vector3, newN: Float) = {
-    //TODO find nicer and/or faster calculation
-    val refractionFactor = n / newN
-    val c1 : Float = - normal *  direction
-    val c2 : Float = Math.sqrt(1 - refractionFactor*refractionFactor * (1 - c1*c1)).toFloat
+   val V = this.direction
+   val refractionFactor : Float = this.n / newN
+   val negCosI = normal * V
+   val (norm,cosI) = if(negCosI < 0) (normal,-negCosI) else (-normal,negCosI)
 
-    val refractedDir: Vector3 = (direction * n) + normal * (n * c1 - c2)
-    Ray(position + refractedDir*EPS, refractedDir, depth+1, newN)
+   val sinT2 : Float = refractionFactor * refractionFactor * (1f-cosI*cosI)
+   if( sinT2 > 1f) //total internal reflection
+     None
+   else {
+     val cosT : Float = Math.sqrt(1f - sinT2).toFloat
+     val refractedDir = (V*refractionFactor + norm*(refractionFactor * cosI - cosT)).normalized
+     Some(Ray(position + refractedDir*EPS, refractedDir, depth + 1, newN))
+   }
   }
 }
 
