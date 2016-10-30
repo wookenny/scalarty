@@ -94,13 +94,13 @@ object RGB{
   def apply(r: Double, g: Double, b: Double) : RGB  = apply(r.toFloat, g.toFloat, b.toFloat)
 }
 
-final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1f){
+final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Float = 1f, source : String = ""){
   import geometry.EPS
   def march(length: Float) = origin + direction * length
 
   def reflectedAt(position: Vector3, normal: Vector3): Ray = {
     val dir = (direction - normal * (direction * normal) * 2).normalized
-    Ray(position + dir*EPS, dir, depth+1, n)
+    this.copy(origin= position + dir*EPS, direction = dir, depth = depth+1)
   }
 
   def refractedAt(position: Vector3, normal: Vector3, newN: Float) = {
@@ -115,7 +115,7 @@ final case class Ray(origin: Vector3, direction: Vector3, depth: Int = 0, n : Fl
    else {
      val cosT : Float = Math.sqrt(1f - sinT2).toFloat
      val refractedDir = (V*refractionFactor + norm*(refractionFactor * cosI - cosT)).normalized
-     Some(Ray(position + refractedDir*EPS, refractedDir, depth + 1, newN))
+     Some( this.copy(origin=position + refractedDir*EPS, direction=refractedDir, depth = depth + 1, n = newN))
    }
   }
 }

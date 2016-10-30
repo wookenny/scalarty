@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.core.JsonParseException
+
 import scala.io.Source._
 import play.api.libs.json.Json
 
@@ -54,9 +56,15 @@ object Main {
 
 
     val sceneFile : String = fromFile(config.in).getLines.mkString
-    val scene : Scene = Json.parse(sceneFile).as[Scene]
-    val renderer = new Renderer(scene)
-    renderer.render(config)
+    try {
+      val scene: Scene = Json.parse(sceneFile).as[Scene]
+      val renderer = new Renderer(scene)
+      renderer.render(config)
+    } catch {
+      case e: JsonParseException =>
+        println(s"Could not parse ${config.in}: \n\t${e.getOriginalMessage}")
+    }
+
   }
 }
 

@@ -30,7 +30,7 @@
                           "c" :{"x":-1, "y":-1,"z": 1},
                           "material" : {"type": "SingleColorMaterial",
                     "data": {
-                      "c":  {"red": 1, "green": 1, "blue": 1},
+                      "c":  {"red": 1, "green": 0.3, "blue": 1},
                       "ambient": 0.05,
                       "diffuse": 0.8,
                       "spec": 0.15,
@@ -66,7 +66,7 @@
                           "c" :{"x": 1, "y": 1,"z": 1},
                           "material" : {"type": "SingleColorMaterial",
                     "data": {
-                      "c":  {"red": 1, "green": 1, "blue": 1},
+                      "c":  {"red": 1, "green": 1, "blue": 0.3},
                       "ambient": 0.05,
                       "diffuse": 0.8,
                       "spec": 0.15,
@@ -156,7 +156,7 @@
                           "c" :{"x":-1, "y":-1,"z": 1},
                           "material" : {"type": "SingleColorMaterial",
                     "data": {
-                      "c":  {"red": 1, "green": 1, "blue": 1},
+                      "c":  {"red": 0.3, "green": 1, "blue": 1},
                       "ambient": 0.05,
                       "diffuse": 0.8,
                       "spec": 0.15,
@@ -174,7 +174,7 @@
                           "c" :{"x": 1, "y":-1,"z": 1},
                           "material" : {"type": "SingleColorMaterial",
                             "data": {
-                              "c":  {"red": 1, "green": 1, "blue": 1},
+                              "c":  {"red": 1, "green": 1, "blue": 0.7},
                               "ambient": 0.05,
                               "diffuse": 0.8,
                               "spec": 0.15,
@@ -187,18 +187,18 @@
                 }
               },
               { "type": "Sphere",
-                "data" : {"center" :{"x": 0.5, "y":-0.6,"z":-0.5},
+                "data" : {"center" :{"x": 0.5, "y":-0.6,"z":-0.3},
                           "radius" : 0.4,
                           "material" : {"type": "SingleColorMaterial",
                     "data": {
-                      "c":  {"red": 0, "green": 1, "blue": 1},
+                      "c":  {"red": 1, "green": 1, "blue": 1},
                       "ambient": 0,
-                      "diffuse": 0,
-                      "spec": 0.1,
+                      "diffuse": 0.05,
+                      "spec": 0.15,
                       "reflective": 0.0,
-                      "refractive" : 0.9,
-                      "n" : 1.1,
-                      "shininess": 64
+                      "refractive" : 0.8,
+                      "n" : 1.55,
+                      "shininess": 128
                     }
                   }
                 }

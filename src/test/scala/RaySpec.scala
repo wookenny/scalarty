@@ -3,9 +3,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop._
 import org.specs2.{ScalaCheck, Specification}
 
-/**
-  * Created by torsten on 10/16/16.
-  */
+
 class RaySpec  extends Specification with ScalaCheck {
 
 

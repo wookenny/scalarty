@@ -21,9 +21,10 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val baseColor: RGB = colorInfo.color
     val backFace = (hit.normal * r.direction) >  0
 
+    //logger.debug(s"shading $r with parameters $colorInfo")
 
     //ambient
-    val ambientColor = if(!backFace) baseColor * colorInfo.ambient else Renderer.backgroundColor
+    val ambientColor = baseColor*colorInfo.ambient
 
     //visible lights
     val visibleLights = scene.lights.filter( l => !backFace && !shadowRay(hit.position, l.position) )
@@ -40,7 +41,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
 
     //specular
-    val specColor=  visibleLights.map{ l => {
+    val specColor =  visibleLights.map{ l => {
         val V = r.direction * - 1 //towards eye
         val L = (l.position - hit.position).normalized // vector pointing towards light
         val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
@@ -52,25 +53,26 @@ class Renderer(val scene: Scene) extends LazyLogging {
     }
 
     //reflection
-    val reflectedColor : RGB = if(Math.pow(colorInfo.reflective,r.depth+1)> 0.00001 && r.depth <= 6) //TODO make configurable
+    val reflectedColor : RGB = if(colorInfo.reflective> 0.01 && r.depth <= 6) //TODO make configurable
       traceRay( r.reflectedAt(hit.position, hit.normal) ) * colorInfo.reflective
     else RGB.BLACK
 
     //refracted ray
     val refractedColor =
-      if(colorInfo.refractive >0.00001 &&  r.depth <= 6) {
+      if(colorInfo.refractive >0.01 &&  r.depth <= 6) {
         //TODO configurable ray depth
         r.refractedAt(hit.position, hit.normal, colorInfo.n) match {
           case Some(refractedRay) => traceRay(refractedRay) * colorInfo.refractive
-          case None               => Renderer.backgroundColor
+          case None               => traceRay( r.reflectedAt(hit.position, -hit.normal) ) * colorInfo.refractive //Total Internal ref
         }
 
       }else {
         Renderer.backgroundColor
       }
-    val combinedExposure : RGB = ambientColor+diffuseColor+specColor+refractedColor+reflectedColor
-    combinedExposure.exposureCorrected.gammaCorrected
-  }
+
+    //logger.debug(s"$r => ambient: $ambientColor, diffuce: $diffuseColor, spec: $specColor, refrac: $refractedColor, reflect: $reflectedColor")
+    ambientColor+diffuseColor+specColor+refractedColor+reflectedColor
+    }
 
   def traceRay(r: Ray): RGB =
     getFirstHit(r) match {
@@ -119,7 +121,8 @@ class Renderer(val scene: Scene) extends LazyLogging {
                   + scene.side*((w*(x+i.toFloat/config.supersampling-shift))/X)
                   - scene.up  *(h*(y+j.toFloat/config.supersampling-shift)/Y))
               rayDir = (rayTarget - scene.cameraOrigin).normalized
-            } yield traceRay(Ray(scene.cameraOrigin, rayDir))
+              description =  s"pixel ($x:$y) sample ${(i)*config.supersampling+(j+1)}/$S"
+            } yield traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected
           ).reduce(_ + _)
         img.set(x, y, (colorSum/S).awtColor() )
       }
