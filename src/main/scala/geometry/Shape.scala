@@ -26,9 +26,11 @@ object Shape{
     }).get //TODO catch a problem here
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
+  var materialMap : Map[String,Material] = _
+  def getMaterial(name: String,pos: Vector3) = materialMap.getOrElse(name,Material.DEFAULT_MATERIAL).getMat(pos)
 
   implicit val shapeFmt : Format[Shape] = Json.format[Shape]
-
   implicit val aabbFmt : Format[AABB] = Json.format[AABB]
   implicit val sphereFmt :  Format[Sphere] = Json.format[Sphere]
   implicit val triangleFmt :  Format[Triangle] = Json.format[Triangle]
@@ -36,7 +38,7 @@ object Shape{
 
 
 
-final case class Sphere(center: Vector3, radius: Float, material: Material = DEFAULT_MATERIAL) extends  Shape{
+final case class Sphere(center: Vector3, radius: Float, material: String = "DEFAULT_MATERIAL") extends  Shape{
   import geometry._
   override def intersect(r: Ray): Option[Hit] = {
     val t_ca : Float  = (center-r.origin) * r.direction
@@ -57,7 +59,7 @@ final case class Sphere(center: Vector3, radius: Float, material: Material = DEF
         case Some(dist) => {
           lazy val pos = r.march(dist)
           lazy val normal = (pos - center).normalized
-          Some(Hit(dist, pos, normal, material.getMat(pos)))
+          Some(Hit(dist, pos, normal, Shape.getMaterial(material,pos)))
         }
         case None => None
       }
@@ -87,7 +89,7 @@ final case class Sphere(center: Vector3, radius: Float, material: Material = DEF
 
 final case class AABB( x_min: Float, x_max : Float,
                  y_min: Float, y_max : Float,
-                 z_min: Float, z_max : Float, material: Material = DEFAULT_MATERIAL) extends  Shape {
+                 z_min: Float, z_max : Float, material: String = "DEFAULT_MATERIAL") extends  Shape {
   import geometry._
   require(x_min < x_max)
   require(y_min < y_max)
@@ -124,7 +126,7 @@ final case class AABB( x_min: Float, x_max : Float,
       val t = if (tmin < 0) tmax else tmin
       val pos = r.march(t)
       //TODO: march with unrotated, normal: fix using rotation
-      Some(Hit(t, pos, normal, material.getMat(pos)))
+      Some(Hit(t, pos, normal,  Shape.getMaterial(material,pos)))
     }
   }
 
@@ -154,7 +156,7 @@ final case class AABB( x_min: Float, x_max : Float,
 
 
 
-final case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material = DEFAULT_MATERIAL) extends  Shape{
+final case class Triangle(a: Vector3, b: Vector3, c: Vector3, material:String = "DEFAULT_MATERIAL") extends  Shape{
   import geometry._
   val edge1 : Vector3 = b-a
   val edge2 : Vector3 = c-a
@@ -193,7 +195,7 @@ final case class Triangle(a: Vector3, b: Vector3, c: Vector3, material: Material
           if (t > EPS) {
             //ray intersection
             val pos = r.march(t)
-            Some(Hit(t, r.march(t), normal, material.getMat(pos)))
+            Some(Hit(t, r.march(t), normal,  Shape.getMaterial(material,pos)))
           } else {
             None
           }

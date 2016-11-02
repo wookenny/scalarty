@@ -40,20 +40,14 @@ object Main {
 
 
   def main(args: Array[String]) {
-
-    //val renderer = new Renderer
-    //renderer.render("/home/torsten/Desktop/image.png")
-     // parser.parse returns Option[C]
-    // parser.parse returns Option[C]
     parser.parse(args, Config()) match {
       case Some(config) => main(config)// do stuff
-      case None =>   // arguments are bad, error message will have been displayed
+      case None =>   // arguments are bad, error message will be displayed
     }
 
   }
 
   def main(config: Config): Unit = {
-
 
     val sceneFile : String = fromFile(config.in).getLines.mkString
     try {

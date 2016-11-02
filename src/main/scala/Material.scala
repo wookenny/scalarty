@@ -6,7 +6,7 @@ import play.api.libs.json.{Format, JsValue, Json}
 object Material {
   val EPS = 0.001
 
-  val DEFAULT_MATERIAL = SingleColorMaterial(RGB(.4,.4,.4),0.05f,0.75f,.15f,.05f)
+  val DEFAULT_MATERIAL = SingleColorMaterial("DEFAULT_MATERIAL", RGB(.4,.4,.4),0.05f,0.75f,.15f,.05f)
 
   def unapply(material: Material): Option[(String, JsValue)] = {
     val (prod: Product, sub) = material match {
@@ -29,9 +29,11 @@ final case class UnshadedColor(color: RGB, ambient: Float, diffuse: Float, spec:
 
 trait Material{
   def getMat(position: Vector3) : UnshadedColor
+  def name: String
 }
 
-final case class SingleColorMaterial(c: RGB, ambient: Float, diffuse: Float, spec: Float, reflective : Float = 0.05f,  refractive: Float = 0, n: Float = 1.33f, shininess: Float = 64) extends Material {
+
+final case class SingleColorMaterial(name: String, c: RGB, ambient: Float, diffuse: Float, spec: Float, reflective : Float = 0.05f,  refractive: Float = 0, n: Float = 1.33f, shininess: Float = 64) extends Material {
   require( Math.abs(ambient+diffuse+spec+reflective+refractive - 1) <= Material.EPS )
 
   override def getMat(position: Vector3) = UnshadedColor(c, ambient, diffuse, spec, reflective, refractive, n, shininess)
