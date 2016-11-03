@@ -18,6 +18,34 @@
                       "refractive" : 0,
                       "n" : 1
                     }
+                  },
+                  {"type": "CheckerMaterial",
+                    "data": {
+                      "name": "ChessboardWhite",
+                      "c1":  {"red": 1, "green": 0, "blue": 1},
+                      "c2":  {"red": 1, "green": 1, "blue": 0},
+                      "steps": 0.0832,
+                      "ambient": 0.05,
+                      "diffuse": 0.8,
+                      "spec": 0.15,
+                      "reflective": 0,
+                      "shininess": 64,
+                      "refractive" : 0,
+                      "n" : 1
+                    }
+                  },
+                  {"type": "SingleColorMaterial",
+                    "data": {
+                      "name": "Glass",
+                      "c":  {"red": 1, "green": 1, "blue": 1},
+                      "ambient": 0.05,
+                      "diffuse": 0.0,
+                      "spec": 0.1,
+                      "reflective": 0,
+                      "shininess": 64,
+                      "refractive" : 0.85,
+                      "n" : 1.55
+                    }
                   }],
   "shapes" : [
     {
@@ -88,13 +116,13 @@
                 "data" : {"a" :{"x": 1, "y": 1,"z": 1},
                           "b" :{"x":-1, "y":-1,"z": 1},
                           "c" :{"x": 1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
+                          "material" : "ChessboardWhite"
                 }
               },
               { "type": "Sphere",
                 "data" : {"center" :{"x": 0.5, "y":-0.6,"z":-0.3},
                           "radius" : 0.4,
-                          "material" : "PlainWhite"
+                          "material" : "Glass"
                 }
               },
               { "type": "AABB",
@@ -102,7 +130,7 @@
                   "x_min":-0.8,    "x_max":-0.2,
                   "y_min":-1,      "y_max":0.3,
                   "z_min": 0.2,    "z_max":0.8,
-                  "material" : "PlainWhite"
+                  "material" : "ChessboardWhite"
                 }
               }
               ]
