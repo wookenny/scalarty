@@ -3,22 +3,25 @@ package math
 import renderer.Hit
 import play.api.libs.json.{Format, JsValue, Json}
 
-
-final case class Triangle(a: Vector3, b: Vector3, c: Vector3, material:String = "DEFAULT_MATERIAL") extends  Shape{
+final case class Triangle(a: Vector3,
+                          b: Vector3,
+                          c: Vector3,
+                          material: String = "DEFAULT_MATERIAL")
+    extends Shape {
   import Math._
-  val edge1 : Vector3 = b-a
-  val edge2 : Vector3 = c-a
+  val edge1: Vector3 = b - a
+  val edge2: Vector3 = c - a
   val normal: Vector3 = -(edge1 cross edge2) normalized
 
   override def intersect(r: Ray): Option[Hit] = {
 
     //Begin calculating determinant - also used to calculate u parameter
-    val p : Vector3 = r.direction cross edge2
+    val p: Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-    val det : Float = edge1 * p
+    val det: Float = edge1 * p
 
     //TODO: Backface culling???
-    if(det > -EPS && det < EPS)
+    if (det > -EPS && det < EPS)
       None
     else {
       val inv_det = 1f / det
@@ -43,7 +46,7 @@ final case class Triangle(a: Vector3, b: Vector3, c: Vector3, material:String = 
           if (t > EPS) {
             //ray intersection
             val pos = r.march(t)
-            Some(Hit(t, r.march(t), normal,  Shape.getMaterial(material,pos)))
+            Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
           } else {
             None
           }
@@ -53,11 +56,11 @@ final case class Triangle(a: Vector3, b: Vector3, c: Vector3, material:String = 
   }
 
   override def intersect(r: Ray, maxDist: Float): Boolean = {
-    val p : Vector3 = r.direction cross edge2
+    val p: Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-    val det : Float = edge1 * p
+    val det: Float = edge1 * p
     //TODO: Backface culling???
-    if(det > -EPS && det < EPS)
+    if (det > -EPS && det < EPS)
       false
     else {
       val inv_det = 1f / det

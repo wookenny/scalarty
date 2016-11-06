@@ -4,11 +4,8 @@ import color.RGB
 import math.Vector3
 import play.api.libs.json.{Format, Json}
 
-
-
 final case class Light(position: Vector3, color: RGB, intensity: Float)
 
-object Light{
-  implicit val lightJsonFormat : Format[Light] = Json.format[Light]
+object Light {
+  implicit val lightJsonFormat: Format[Light] = Json.format[Light]
 }
-
