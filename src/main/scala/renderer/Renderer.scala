@@ -1,8 +1,13 @@
+package renderer
+
 import java.util.Random
 
+import color.RGB
 import com.typesafe.scalalogging._
-import geometry._
-
+import math.{Ray, Vector3}
+import scene.Scene
+import support.Image
+import support.Config
 
 object Renderer{
   val backgroundColor = RGB.BLACK

@@ -1,6 +1,7 @@
-package geometry
+package lightning
 
-
+import color.RGB
+import math.Vector3
 import play.api.libs.json.{Format, Json}
 
 

@@ -1,8 +1,9 @@
-import Material.Material
-import geometry._
-import play.api.libs.json.{Format, Json}
+package scene
 
-import scala.collection.immutable.HashMap
+import lightning.Light
+import material.Material
+import math.{Shape, Vector3}
+import play.api.libs.json.{Format, JsValue, Json}
 
 final case class Scene(cameraOrigin : Vector3, cameraPointing: Vector3, width: Float, height: Float,
                  lights: Seq[Light], shapes: Seq[Shape], materials: Seq[Material]) {

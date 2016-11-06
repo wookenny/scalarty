@@ -1,4 +1,4 @@
-import geometry.Vector3
+import math.Vector3
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import org.specs2.{ScalaCheck, Specification}

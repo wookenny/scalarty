@@ -1,4 +1,4 @@
-import geometry.{Ray, Vector3}
+import math.{Ray, Sphere, Vector3}
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.specs2.{ScalaCheck, Specification}

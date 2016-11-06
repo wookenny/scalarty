@@ -1,8 +1,8 @@
 
-import geometry.{Ray, Vector3}
+import material.Material
+import math.Ray
 import org.specs2.{ScalaCheck, Specification}
 import play.api.libs.json.Json
-import Material._
 
 class MaterialSpec  extends Specification with ScalaCheck {def is = s2"""
        A SingleColorMaterial should

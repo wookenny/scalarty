@@ -1,6 +1,8 @@
+package support
 
-import java.awt.{Color, Graphics2D}
+
 import java.awt.image.BufferedImage
+import java.awt.{Color, Graphics2D}
 import java.io.File
 import javax.imageio.ImageIO
 

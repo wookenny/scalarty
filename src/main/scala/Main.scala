@@ -2,13 +2,11 @@ import com.fasterxml.jackson.core.JsonParseException
 
 import scala.io.Source._
 import play.api.libs.json.Json
+import renderer.Renderer
+import scene.Scene
+import support.Config
 
-final case class Config(out: String = "",
-                  in: String = "",
-                  supersampling: Int = 1,
-                  verbose: Boolean = false,
-                  debug: Boolean = false,
-                  kwargs: Map[String,String] = Map())
+
 
 object Main {
 
