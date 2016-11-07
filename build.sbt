@@ -12,7 +12,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.2",
   "com.github.scopt" %% "scopt" % "3.5.0",
   "org.scalariform" %% "scalariform" % "0.1.8",
-  "com.typesafe.play" %% "play-json" % "2.5.9")
+  "com.typesafe.play" %% "play-json" % "2.5.9",
+  "org.typelevel" %% "cats" % "0.7.2")
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 
@@ -38,18 +39,5 @@ coverageHighlighting := {
     false
 }
 
-wartremoverErrors ++= Warts.allBut(Wart.Overloading,
-                                   Wart.DefaultArguments,
-                                   Wart.Nothing,
-                                   Wart.Product,
-                                   Wart.Serializable,
-                                   Wart.Option2Iterable)
-wartremoverWarnings ++= Warts.allBut(Wart.Overloading, Wart.DefaultArguments)
-wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "AABBSpec.scala"
-wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "MaterialSpec.scala"
-wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "PointSpec.scala"
-wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "RaySpec.scala"
-wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "TriangleSpec.scala"
-wartremoverExcluded += baseDirectory.value / "src" / "test" / "scala" / "SphereSpec.scala"
-
+//wartremoverErrors in (Compile, compile) ++= Warts.unsafe.filterNot(_==Wart.DefaultArguments)
 scalafmtConfig in ThisBuild := Some(file(".scalafmt.conf"))

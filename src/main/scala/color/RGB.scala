@@ -9,7 +9,6 @@ final case class RGB(red: Float, green: Float, blue: Float) {
     Math.pow(blue, pow).toFloat
   )
 
-  //TODO :alpha?
   def awtColor() = new java.awt.Color(
     Math.min(Math.max(0f, red), 1f),
     Math.min(Math.max(0f, green), 1f),
@@ -20,7 +19,7 @@ final case class RGB(red: Float, green: Float, blue: Float) {
   def /(s: Float) = RGB(red / s, green / s, blue / s)
 
   def +(c: RGB) = RGB(red + c.red, green + c.green, blue + c.blue)
-  def -(c: RGB) = RGB(red - c.red, green - c.green, blue + c.blue)
+  def -(c: RGB) = RGB(red - c.red, green - c.green, blue - c.blue)
 
   def unary_-() = this * (-1)
   def unary_+() = this
@@ -47,6 +46,5 @@ object RGB {
 
   val GAMMA = 2.2f
 
-  def apply(r: Double, g: Double, b: Double): RGB =
-    apply(r.toFloat, g.toFloat, b.toFloat)
+  def apply(r: Double, g: Double, b: Double): RGB = apply(r.toFloat, g.toFloat, b.toFloat)
 }

@@ -3,7 +3,7 @@ import org.specs2.{ScalaCheck, Specification}
 
 
 class AABBSpec  extends Specification with ScalaCheck { def is = s2"""
-   An math.AABB should
+   An AABB should
       be intersected frontally ${intersectFrontal}
       be intersected frontally from Inside ${intersectFrontalFromInside}
       be intersected frontally from the side $intersectFrontalFromSide
