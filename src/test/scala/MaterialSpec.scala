@@ -1,22 +1,64 @@
 
-import material.Material
-import math.Ray
+import color.RGB
+import material.{CheckerMaterial, Material, SingleColorMaterial, UnshadedColor}
+import math.Vector3
+import org.scalacheck.{Arbitrary, Gen, Prop}
+import org.scalacheck.Prop._
 import org.specs2.{ScalaCheck, Specification}
 import play.api.libs.json.Json
 
-class MaterialSpec  extends Specification with ScalaCheck {def is = s2"""
+class MaterialSpec  extends Specification with ScalaCheck {
+  def is =
+    s2"""
        A SingleColorMaterial should
-          be parsed from Json ${parseSingleColorMaterial}
+          be parsed from Json $parseSingleColorMaterial
+          have a single color $testSingleColorMaterial
+
+       A CheckerMaterial should
+          be parsed parsed from Json $parseCheckerMaterial
+          have a repeating pattern $testCheckerMaterial
+
     """
 
-  def parseSingleColorMaterial = {
+  implicit lazy val VectorGen: Arbitrary[Vector3] =
+    Arbitrary {
+      for {x: Float <- Gen.choose(-1000f, 1000f)
+           y: Float <- Gen.choose(-1000f, 1000f)
+           z: Float <- Gen.choose(-1000f, 1000f)
+      } yield Vector3(x, y, z)
+    }
 
+  val parseSingleColorMaterial = {
     val in: Material = Material.DEFAULT_MATERIAL
-    val js  = Json.toJson(in)
+    val js = Json.toJson(in)
     val out = Json.fromJson[Material](js).get
     out should be equalTo in
   }
 
+  val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
+    val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4f, 0.2f, 0.1f, 0.1f, 0.2f)
+    val expectedColor = UnshadedColor(RGB.BLUE, mat.ambient, mat.diffuse, mat.spec, mat.reflective, mat.refractive, mat.n, mat.shininess)
+
+    mat.getMat(x) should be equalTo expectedColor
+  }
+
+
+  val parseCheckerMaterial = {
+    val in: Material = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1f, 0.5f, 0.3f, 0.2f)
+
+    val js = Json.toJson(in)
+    val out = Json.fromJson[Material](js).get
+    out should be equalTo in
+  }
+  val testCheckerMaterial: Prop = forAll(Gen.choose(-1000,1000),Gen.choose(-1000,1000),Gen.choose(-1000,1000)) {
+    (x,y,z)  => {
+      val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
+      val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1f, 0.5f, 0.3f, 0.2f)
+      val expectedColor = if ((x%2 + y%2 + z%2 +10) % 2 == 1) RGB.WHITE else RGB.BLACK
+
+      mat.getMat(pos).color shouldEqual expectedColor
+    }
+  }
 }
 
 

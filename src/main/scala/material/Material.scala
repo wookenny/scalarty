@@ -17,6 +17,8 @@ object Material {
     val (prod: Product, sub) = material match {
       case m: SingleColorMaterial =>
         (m, Json.toJson(m)(singleColorMaterialFmt))
+      case m: CheckerMaterial =>
+        (m, Json.toJson(m)(checkerMaterialFmt))
     }
     Some(prod.productPrefix -> sub)
   }
@@ -31,10 +33,8 @@ object Material {
   }
 
   implicit val materialFmt: Format[Material] = Json.format[Material]
-  implicit val singleColorMaterialFmt: Format[SingleColorMaterial] =
-    Json.format[SingleColorMaterial]
-  implicit val checkerMaterialFmt: Format[CheckerMaterial] =
-    Json.format[CheckerMaterial]
+  implicit val singleColorMaterialFmt: Format[SingleColorMaterial] = Json.format[SingleColorMaterial]
+  implicit val checkerMaterialFmt: Format[CheckerMaterial] = Json.format[CheckerMaterial]
 }
 
 final case class UnshadedColor(color: RGB,
@@ -49,4 +49,5 @@ final case class UnshadedColor(color: RGB,
 trait Material {
   def getMat(position: Vector3): UnshadedColor
   def name: String
+
 }

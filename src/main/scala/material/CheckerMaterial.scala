@@ -11,7 +11,7 @@ final case class CheckerMaterial(name: String,
                                  ambient: Float,
                                  diffuse: Float,
                                  spec: Float,
-                                 reflective: Float = 0.05f,
+                                 reflective: Float = 0,
                                  refractive: Float = 0,
                                  n: Float = 1.33f,
                                  shininess: Float = 64)
