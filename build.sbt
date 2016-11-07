@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.5.0",
   "org.scalariform" %% "scalariform" % "0.1.8",
   "com.typesafe.play" %% "play-json" % "2.5.9",
-  "org.typelevel" %% "cats" % "0.7.2")
+  "org.typelevel" %% "cats" % "0.7.2",
+  "com.google.inject" % "guice" % "3.0")
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 

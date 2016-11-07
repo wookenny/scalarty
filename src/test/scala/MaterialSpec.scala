@@ -1,7 +1,7 @@
 
 import color.RGB
 import material.{CheckerMaterial, Material, SingleColorMaterial, UnshadedColor}
-import math.Vector3
+import math.{Shape, Vector3}
 import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.scalacheck.Prop._
 import org.specs2.{ScalaCheck, Specification}
@@ -17,6 +17,8 @@ class MaterialSpec  extends Specification with ScalaCheck {
        A CheckerMaterial should
           be parsed parsed from Json $parseCheckerMaterial
           have a repeating pattern $testCheckerMaterial
+       The default material
+          should be parsed correctly $parseDefaultMaterial
 
     """
 
@@ -28,12 +30,17 @@ class MaterialSpec  extends Specification with ScalaCheck {
       } yield Vector3(x, y, z)
     }
 
-  val parseSingleColorMaterial = {
-    val in: Material = Material.DEFAULT_MATERIAL
+  //TODO make an own matcher with type T out of it
+  private def parseMaterial(in: Material) = {
     val js = Json.toJson(in)
     val out = Json.fromJson[Material](js).get
     out should be equalTo in
   }
+
+  val parseSingleColorMaterial =  parseMaterial(SingleColorMaterial("noname",RGB.RED,0.5f, 0.1f, 0.3f, 0.1f))
+  val parseDefaultMaterial =  parseMaterial(Material.DEFAULT_MATERIAL)
+  val parseCheckerMaterial = parseMaterial(CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1f, 0.5f, 0.3f, 0.2f))
+
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
     val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4f, 0.2f, 0.1f, 0.1f, 0.2f)
@@ -43,13 +50,6 @@ class MaterialSpec  extends Specification with ScalaCheck {
   }
 
 
-  val parseCheckerMaterial = {
-    val in: Material = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1f, 0.5f, 0.3f, 0.2f)
-
-    val js = Json.toJson(in)
-    val out = Json.fromJson[Material](js).get
-    out should be equalTo in
-  }
   val testCheckerMaterial: Prop = forAll(Gen.choose(-1000,1000),Gen.choose(-1000,1000),Gen.choose(-1000,1000)) {
     (x,y,z)  => {
       val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)

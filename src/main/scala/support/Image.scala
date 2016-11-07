@@ -1,19 +1,27 @@
 package support
 
 import java.awt.image.BufferedImage
-import java.awt.{Color, Graphics2D}
+import java.awt.Color
 import java.io.File
 import javax.imageio.ImageIO
 
+trait ImageWriterFactory {
+  def create(w: Int, h: Int): ImageWriter
+}
+
+trait ImageWriter {
+  def setRGB(x: Int, y: Int, c: Int): Unit
+  def save(filename: String)
+}
+
 class Image(val width: Int, val height: Int) {
-  require(width >= 0)
-  require(height >= 0)
+  require(width > 0, "Image width has to be positive.")
+  require(height > 0, "Image height has to be positive.")
 
   private val alpha = 2.2
   private val img =
     new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-  private val g2d: Graphics2D = img.createGraphics
-  init
+  clear
 
   def save(filename: String): Boolean = {
     val (fixedfilename: String, fileType: String) = getFilenameEnding(filename)
@@ -21,19 +29,20 @@ class Image(val width: Int, val height: Int) {
   }
 
   private def getFilenameEnding(filename: String) =
-    filename.split(".").lastOption match {
-      //TODO check that is is at ending, not in between
-      case Some(ending) => (filename.drop(ending.size), ending)
-      case None => (filename, "png")
+    if (filename contains ".") {
+      filename.splitAt(filename.lastIndexOf("."))
+    } else
+      (filename, ".png")
+
+  def clear: Unit = {
+    for {
+      x <- 0 until width
+      y <- 0 until height
+    } {
+      img.setRGB(x, y, Color.BLACK.getRGB)
     }
-
-  def set(x: Int, y: Int, c: Color): Unit = {
-    img.setRGB(x, y, c.getRGB)
   }
 
-  def init: Unit = {
-    g2d setColor Color.BLACK
-    g2d.fillRect(0, 0, width, height)
-  }
+  def set(x: Int, y: Int, c: Color): Unit = img.setRGB(x, y, c.getRGB)
 
 }

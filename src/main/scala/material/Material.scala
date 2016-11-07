@@ -33,8 +33,10 @@ object Material {
   }
 
   implicit val materialFmt: Format[Material] = Json.format[Material]
-  implicit val singleColorMaterialFmt: Format[SingleColorMaterial] = Json.format[SingleColorMaterial]
-  implicit val checkerMaterialFmt: Format[CheckerMaterial] = Json.format[CheckerMaterial]
+  implicit val singleColorMaterialFmt: Format[SingleColorMaterial] =
+    Json.format[SingleColorMaterial]
+  implicit val checkerMaterialFmt: Format[CheckerMaterial] =
+    Json.format[CheckerMaterial]
 }
 
 final case class UnshadedColor(color: RGB,

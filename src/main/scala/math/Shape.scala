@@ -20,7 +20,7 @@ object Shape {
     Some(prod.productPrefix -> sub)
   }
 
-  def apply(`type`: String, data: JsValue): Shape = {// Xor[Error,Shape] = {
+  def apply(`type`: String, data: JsValue): Shape = { // Xor[Error,Shape] = {
     (`type` match {
       case "AABB" => Json.fromJson[AABB](data)(aabbFmt)
       case "Sphere" => Json.fromJson[Sphere](data)(sphereFmt)
