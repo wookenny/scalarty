@@ -1,3 +1,4 @@
+
 import com.fasterxml.jackson.core.JsonParseException
 
 import scala.io.Source._
@@ -50,16 +51,16 @@ object Main {
   }
 
   def main(config: Config): Unit = {
-
     val sceneFile: String = fromFile(config.in).getLines.mkString
     try {
       val scene: Scene = Json.parse(sceneFile).as[Scene]
       val renderer = new Renderer(scene)
-      renderer.render(config)
+      renderer.startRendering(config)
     } catch {
       case e: JsonParseException =>
         println(s"Could not parse ${config.in}: \n\t${e.getOriginalMessage}")
+      case e: IllegalArgumentException =>
+        println(s"Could not parse scene ${config.in}: \n\t$e")
     }
-
   }
 }

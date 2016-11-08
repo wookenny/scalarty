@@ -1,13 +1,14 @@
 package renderer
 
-import java.util.Random
-
 import color.RGB
 import com.typesafe.scalalogging._
+import lightning.Light
 import math.{Ray, Vector3}
 import scene.Scene
 import support.Image
 import support.Config
+
+import scala.Seq
 
 object Renderer {
   val backgroundColor = RGB.BLACK
@@ -26,8 +27,6 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val baseColor: RGB = colorInfo.color
     val backFace = (hit.normal * r.direction) > 0
 
-    //logger.debug(s"shading $r with parameters $colorInfo")
-
     //ambient
     val ambientColor = baseColor * colorInfo.ambient
 
@@ -36,55 +35,58 @@ class Renderer(val scene: Scene) extends LazyLogging {
       !backFace && !shadowRay(hit.position, l.position))
 
     //diffuse
-    val diffuseColor = visibleLights.map { l =>
-      {
-        val L = (l.position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-        baseColor * Math
-          .max((hit.normal * L), 0) * colorInfo.diffuse * l.intensity //TODO light color?
-      }
-    } match {
-      case Seq() => RGB.BLACK
-      case list => list.reduce(_ + _)
-    }
-
-    //specular
-    val specColor = visibleLights.map { l =>
-      {
-        val V = r.direction * -1 //towards eye
-        val L = (l.position - hit.position).normalized // vector pointing towards light
-        val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-        l.color * Math
-          .pow(Math.max(-(R * L), 0), colorInfo.shininess)
-          .toFloat * colorInfo.spec * l.intensity //spec does not use color of object
-      }
-    } match {
-      case Seq() => RGB.BLACK
-      case list => list.reduce(_ + _)
-    }
-
-    //reflection
-    val reflectedColor: RGB =
-      if (colorInfo.reflective > 0.01 && r.depth <= 6) //TODO make configurable
-        traceRay(r.reflectedAt(hit.position, hit.normal)) * colorInfo.reflective
-      else RGB.BLACK
-
-    //refracted ray
-    val refractedColor =
-      if (colorInfo.refractive > 0.01 && r.depth <= 6) {
-        //TODO configurable ray depth
-        r.refractedAt(hit.position, hit.normal, colorInfo.n) match {
-          case Some(refractedRay) =>
-            traceRay(refractedRay) * colorInfo.refractive
-          case None =>
-            traceRay(r.reflectedAt(hit.position, -hit.normal)) * colorInfo.refractive //Total Internal ref
-        }
-
-      } else {
-        Renderer.backgroundColor
-      }
-
-    //logger.debug(s"$r => ambient: $ambientColor, diffuce: $diffuseColor, spec: $specColor, refrac: $refractedColor, reflect: $reflectedColor")
+    val diffuseColor   = shadeDiffuse(hit, r, visibleLights)
+    val specColor      = shadeSpecular(hit, r, visibleLights)
+    val reflectedColor = shadeReflection(hit, r)
+    val refractedColor = shadeRefraction(hit, r)
     ambientColor + diffuseColor + specColor + refractedColor + reflectedColor
+  }
+
+  def shadeRefraction(hit: Hit, r: Ray): RGB = {
+    if (hit.color.refractive > 0.01 && r.depth <= 6) {
+      //TODO configurable ray depth
+      r.refractedAt(hit.position, hit.normal, hit.color.n) match {
+        case Some(refractedRay) =>
+          traceRay(refractedRay) * hit.color.refractive
+        case None =>
+          traceRay(r.reflectedAt(hit.position, -hit.normal)) * hit.color.refractive //Total Internal ref
+      }
+    } else {
+      Renderer.backgroundColor
+    }
+  }
+
+  def shadeReflection(hit: Hit, r: Ray): RGB = {
+    if (hit.color.reflective > 0.01 && r.depth <= 6) //TODO make configurable
+      traceRay(r.reflectedAt(hit.position, hit.normal)) * hit.color.reflective
+    else RGB.BLACK
+  }
+
+  def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[Light]): RGB = {
+    visibleLights.map { l => {
+      val V = r.direction * -1 //towards eye
+      val L = (l.position - hit.position).normalized // vector pointing towards light
+      val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
+      l.color * Math
+        .pow(Math.max(-(R * L), 0), hit.color.shininess)
+        .toFloat * hit.color.spec * l.intensity //spec does not use color of object
+    }
+    } match {
+      case Seq() => RGB.BLACK
+      case list => list.reduce(_ + _)
+    }
+  }
+
+  def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[Light]): RGB = {
+    visibleLights.map { l => {
+      val L = (l.position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
+      hit.color.color * Math
+        .max((hit.normal * L), 0) * hit.color.diffuse * l.intensity //TODO light color?
+    }
+    } match {
+      case Seq() => RGB.BLACK
+      case list => list.reduce(_ + _)
+    }
   }
 
   def traceRay(r: Ray): RGB =
@@ -105,10 +107,21 @@ class Renderer(val scene: Scene) extends LazyLogging {
     s.intersect(r, maxDist)
   }
 
-  def render(config: Config) = {
-
+  def startRendering(config: Config) = {
     val start = System.nanoTime()
     logger.info("Starting to trace")
+
+    val image = render(config)
+
+    val now = System.nanoTime()
+    logger.info(
+      s"Raytracing done in ${(now - start) / (1000f * 1000 * 1000)} seconds") //TODO nice time formatter
+
+    image.save(config.out)
+  }
+
+  def render(config: Config) : Image = {
+
     val img = new Image((scene.width * scene.ppi).toInt,
                         (scene.height * scene.ppi).toInt)
     val w: Float = scene.width
@@ -118,20 +131,17 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val X = img.width
     val Y = img.height
 
-    val renderStart = System.nanoTime()
-
     val iter: Iterator[(Int, Int)] =
       for {
         x <- 0 until X iterator;
         y <- 0 until Y iterator
       } yield (x, y)
-    val rand = new Random(0)
 
     logger.info(
       s"tracing ${config.supersampling}x${config.supersampling} per pixel")
-    iter.toStream.par foreach { //TODO: try to re// nder patches => less overhead for parallelizing
+    iter.toStream.par foreach {
       case (x: Int, y: Int) => {
-        //supersampling //TODO: could be made adaptive //could use multijitter
+        //TODO: could be made adaptive, could use multijitter
         val S = config.supersampling * config.supersampling
         val colorSum: RGB =
           (for {
@@ -149,13 +159,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
         img.set(x, y, (colorSum / S).awtColor())
       }
     }
-    val now = System.nanoTime()
-    logger.info(
-      s"Raytracing done in ${(now - renderStart) / (1000f * 1000 * 1000)} seconds") //TODO nice time formatter
-
-    val saved = img.save(config.out)
-    logger.info(
-      s"Total runtime: ${(System.nanoTime() - start) / (1000f * 1000 * 1000)} seconds")
+    img
   }
 
 }

@@ -1,6 +1,5 @@
 package math
 
-import cats.data.Xor
 import material.Material
 import play.api.libs.json._
 import renderer.Hit
@@ -20,15 +19,15 @@ object Shape {
     Some(prod.productPrefix -> sub)
   }
 
-  def apply(`type`: String, data: JsValue): Shape = { // Xor[Error,Shape] = {
+  def apply(`type`: String, data: JsValue): Shape = {
     (`type` match {
       case "AABB" => Json.fromJson[AABB](data)(aabbFmt)
       case "Sphere" => Json.fromJson[Sphere](data)(sphereFmt)
       case "Triangle" => Json.fromJson[Triangle](data)(triangleFmt)
-    }).get /* match {
-      case JsSuccess(v, _) => Xor.right(v)
-      case JsError(e) =>   Xor.left(new Error(e.toString()))
-    }*/
+    }) match  {
+      case JsSuccess(shape, _) => shape
+      case JsError(errors) => throw new IllegalArgumentException(errors.toString)
+    }
   }
 
   @SuppressWarnings(

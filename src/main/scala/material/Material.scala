@@ -2,7 +2,7 @@ package material
 
 import color.RGB
 import math.Vector3
-import play.api.libs.json.{Format, JsValue, Json}
+import play.api.libs.json._
 
 object Material {
 
@@ -29,7 +29,10 @@ object Material {
         Json.fromJson[SingleColorMaterial](data)(singleColorMaterialFmt)
       case "CheckerMaterial" =>
         Json.fromJson[CheckerMaterial](data)(checkerMaterialFmt)
-    }).get
+    }) match  {
+      case JsSuccess(shape, _) => shape
+      case JsError(errors) => throw new IllegalArgumentException(errors.toString)
+    }
   }
 
   implicit val materialFmt: Format[Material] = Json.format[Material]
