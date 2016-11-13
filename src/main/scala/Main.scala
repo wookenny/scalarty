@@ -26,7 +26,11 @@ object Main {
 
     val supersampling = opt[Int]('s', "supersampling")
       .action((x, c) => c.copy(supersampling = x))
-      .text("foo is an integer property")
+      .text("supersampling is an integer property")
+
+    val adaptivesupersampling = opt[Int]('a', "adaptivesupersampling")
+      .action((x, c) => c.copy(adaptivesupersampling = x))
+      .text("adaptive supersampling is an integer property")
 
     val verbose = opt[Unit]("verbose")
       .action((_, c) => c.copy(verbose = true))

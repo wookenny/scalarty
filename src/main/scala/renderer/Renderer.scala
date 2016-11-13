@@ -117,13 +117,35 @@ class Renderer(val scene: Scene) extends LazyLogging {
     logger.info(
       s"Raytracing done in ${(now - start) / (1000f * 1000 * 1000)} seconds") //TODO nice time formatter
 
-    image.save(config.out)
+    val saved = image.save(config.out)
+    if(!saved)
+      logger.error(s"Could not save image at ${config.out}")
+
   }
 
   def render(config: Config) : Image = {
 
     val img = new Image((scene.width * scene.ppi).toInt,
                         (scene.height * scene.ppi).toInt)
+
+
+
+    logger.info( s"tracing ${config.supersampling}x${config.supersampling} per pixel")
+
+    renderPath(img, config.supersampling, None)
+
+    if(config.adaptivesupersampling > 1 && config.adaptivesupersampling > config.supersampling) {
+      //find edges and supersample those
+      val edges = img.detectEdges()
+      val percentage = 100.0*edges.size/(img.height*img.width)
+      logger.info( s"tracing adaptive supersampling for $percentage% of all pixels with sampling ${config.adaptivesupersampling}x${config.adaptivesupersampling}")
+      renderPath(img, config.adaptivesupersampling, Some(edges))
+    }
+
+    img
+  }
+
+  def renderPath(img: Image, supersampling: Int, selection: Option[Set[(Int,Int)]]): Unit = {
     val w: Float = scene.width
     val h: Float = scene.height
     val corner = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)
@@ -133,33 +155,35 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
     val iter: Iterator[(Int, Int)] =
       for {
-        x <- 0 until X iterator;
-        y <- 0 until Y iterator
+        x <- 0 until img.width iterator;
+        y <- 0 until img.height iterator
       } yield (x, y)
 
-    logger.info(
-      s"tracing ${config.supersampling}x${config.supersampling} per pixel")
     iter.toStream.par foreach {
-      case (x: Int, y: Int) => {
-        //TODO: could be made adaptive, could use multijitter
-        val S = config.supersampling * config.supersampling
-        val colorSum: RGB =
-          (for {
-            i <- 0 until config.supersampling
-            j <- 0 until config.supersampling
-            shift = (config.supersampling - 1) / (2f * config.supersampling)
-            rayTarget = (corner
-              + scene.side * ((w * (x + i.toFloat / config.supersampling - shift)) / X)
-              - scene.up * (h * (y + j.toFloat / config.supersampling - shift) / Y))
-            rayDir = (rayTarget - scene.cameraOrigin).normalized
-            description = s"pixel ($x:$y) sample ${(i) * config.supersampling + (j + 1)}/$S"
-          } yield
-            traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
-            .reduce(_ + _)
-        img.set(x, y, (colorSum / S).awtColor())
+      case (x: Int, y: Int)  => {
+        if(selection==None || selection.get.contains((x,y)) ) {
+
+          val S = supersampling * supersampling
+          val colorSum: RGB =
+            (for {
+              i <- 0 until supersampling
+              j <- 0 until supersampling
+              shift = (supersampling - 1) / (2f * supersampling)
+              rayTarget = (corner
+                + scene.side * ((w * (x + i.toFloat / supersampling - shift)) / X)
+                - scene.up * (h * (y + j.toFloat / supersampling - shift) / Y))
+              rayDir = (rayTarget - scene.cameraOrigin).normalized
+              description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
+            } yield
+              traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
+              .reduce(_ + _)
+
+          //if (selection == None)
+            img.set(x, y, colorSum / S)
+          //else
+          //  img.set(x, y, RGB.RED)
+        }
       }
     }
-    img
   }
-
 }
