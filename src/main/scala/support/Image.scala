@@ -7,6 +7,9 @@ import javax.imageio.ImageIO
 
 import color.RGB
 
+import scala.collection.GenSet
+import scala.collection.parallel.immutable.{ParSeq, ParSet}
+
 trait ImageWriterFactory {
   def create(w: Int, h: Int): ImageWriter
 }
@@ -56,11 +59,16 @@ class Image(val width: Int, val height: Int) {
     RGB(color.getRed/255f, color.getGreen/255f, color.getBlue/255f)
   }
 
-  def detectEdges() : Set[(Int,Int)] =
-      (for {x <- 0 until width
-            y <- 0 until height if sobelFilterMagnitude(x, y) > edgeThreshold}
-      yield (x, y) ).toSet
+  def detectEdges() : GenSet[(Int,Int)] = {
+    lazy val pixelIter: Iterator[(Int, Int)] =
+      for {x <- 0 until width iterator;
+           y <- 0 until height iterator} yield (x, y)
 
+    (pixelIter.toStream.par filter {
+      case (x:Int,y:Int) =>  sobelFilterMagnitude(x, y)  > edgeThreshold
+    }).toSet
+
+  }
   private def sobelFilterMagnitude(x: Int, y: Int) : Double = {
     val kernelx = Seq(Seq(-1,0,1),
                       Seq(-2,0,2),
@@ -76,7 +84,7 @@ class Image(val width: Int, val height: Int) {
 
   }
 
-  def sobelFilterMagnitute(x: Int, y: Int, kernelx: Seq[Seq[Int]], kernely: Seq[Seq[Int]], f: RGB => Float): Double = {
+  private def sobelFilterMagnitute(x: Int, y: Int, kernelx: Seq[Seq[Int]], kernely: Seq[Seq[Int]], f: RGB => Float): Double = {
 
     (for {
       a <- 0 to 2

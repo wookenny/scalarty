@@ -9,9 +9,12 @@ import support.Image
 import support.Config
 
 import scala.Seq
+import scala.collection.GenSet
+import scala.collection.parallel.mutable.ParArray
 
 object Renderer {
-  val backgroundColor = RGB.BLACK
+  private val backgroundColor = RGB.BLACK
+  private val chunkSize = 10
 }
 
 class Renderer(val scene: Scene) extends LazyLogging {
@@ -128,8 +131,6 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val img = new Image((scene.width * scene.ppi).toInt,
                         (scene.height * scene.ppi).toInt)
 
-
-
     logger.info( s"tracing ${config.supersampling}x${config.supersampling} per pixel")
 
     renderPath(img, config.supersampling, None)
@@ -145,7 +146,22 @@ class Renderer(val scene: Scene) extends LazyLogging {
     img
   }
 
-  def renderPath(img: Image, supersampling: Int, selection: Option[Set[(Int,Int)]]): Unit = {
+  def buildRenderChunks(img: Image,  selection: Option[GenSet[(Int,Int)]]) : ParArray[Array[(Int,Int)]] = {
+
+    val allPixels: Array[(Int, Int)] =
+      (for {x <- 0 until img.width
+            y <- 0 until img.height if (None==selection || selection.get.contains((x,y)))
+      } yield (x, y)).toArray
+
+    val chunks: Array[Array[(Int, Int)]] =
+      (for {
+        s <- 0 to allPixels.size / Renderer.chunkSize
+      } yield allPixels.slice(s * Renderer.chunkSize, (s+1) * Renderer.chunkSize)).toArray
+
+    chunks.par
+  }
+
+  def renderPath(img: Image, supersampling: Int, selection: Option[GenSet[(Int,Int)]]): Unit = {
     val w: Float = scene.width
     val h: Float = scene.height
     val corner = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)
@@ -153,37 +169,65 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val X = img.width
     val Y = img.height
 
-    val iter: Iterator[(Int, Int)] =
+    val iter: Iterator[(Int, Int)] = //TODO: iterate in chunks for speedup, make chunks to same sized sets
       for {
         x <- 0 until img.width iterator;
         y <- 0 until img.height iterator
       } yield (x, y)
 
-    iter.toStream.par foreach {
-      case (x: Int, y: Int)  => {
-        if(selection==None || selection.get.contains((x,y)) ) {
+    val workChunks = buildRenderChunks(img, selection)
 
-          val S = supersampling * supersampling
-          val colorSum: RGB =
-            (for {
-              i <- 0 until supersampling
-              j <- 0 until supersampling
-              shift = (supersampling - 1) / (2f * supersampling)
-              rayTarget = (corner
-                + scene.side * ((w * (x + i.toFloat / supersampling - shift)) / X)
-                - scene.up * (h * (y + j.toFloat / supersampling - shift) / Y))
-              rayDir = (rayTarget - scene.cameraOrigin).normalized
-              description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
-            } yield
-              traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
-              .reduce(_ + _)
+    workChunks foreach {
+        pixels => pixels foreach {
+            case (x: Int, y: Int) => {
+              val S = supersampling * supersampling
+              val colorSum: RGB =
+                (for {
+                  i <- 0 until supersampling
+                  j <- 0 until supersampling
+                  shift = (supersampling - 1) / (2f * supersampling)
+                  rayTarget = (corner
+                    + scene.side * ((w * (x + i.toFloat / supersampling - shift)) / X)
+                    - scene.up * (h * (y + j.toFloat / supersampling - shift) / Y))
+                  rayDir = (rayTarget - scene.cameraOrigin).normalized
+                  description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
+                } yield
+                  traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
+                  .reduce(_ + _)
 
-          //if (selection == None)
-            img.set(x, y, colorSum / S)
-          //else
-          //  img.set(x, y, RGB.RED)
+              //if (selection == None)
+              img.set(x, y, colorSum / S)
+              //else
+              //  img.set(x, y, RGB.RED)
+            }
         }
-      }
     }
+      /*
+      iter.toStream.par foreach {
+        case (x: Int, y: Int)  => {
+          if(selection==None || selection.get.contains((x,y)) ) {
+
+            val S = supersampling * supersampling
+            val colorSum: RGB =
+              (for {
+                i <- 0 until supersampling
+                j <- 0 until supersampling
+                shift = (supersampling - 1) / (2f * supersampling)
+                rayTarget = (corner
+                  + scene.side * ((w * (x + i.toFloat / supersampling - shift)) / X)
+                  - scene.up * (h * (y + j.toFloat / supersampling - shift) / Y))
+                rayDir = (rayTarget - scene.cameraOrigin).normalized
+                description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
+              } yield
+                traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
+                .reduce(_ + _)
+
+            //if (selection == None)
+              img.set(x, y, colorSum / S)
+            //else
+            //  img.set(x, y, RGB.RED)
+          }
+        }
+      }*/
   }
 }
