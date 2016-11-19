@@ -169,8 +169,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
     val X = img.width
     val Y = img.height
 
-    val iter: Iterator[(Int, Int)] = //TODO: iterate in chunks for speedup, make chunks to same sized sets
-      for {
+    val iter: Iterator[(Int, Int)] = for {
         x <- 0 until img.width iterator;
         y <- 0 until img.height iterator
       } yield (x, y)
@@ -195,39 +194,10 @@ class Renderer(val scene: Scene) extends LazyLogging {
                   traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
                   .reduce(_ + _)
 
-              //if (selection == None)
               img.set(x, y, colorSum / S)
-              //else
-              //  img.set(x, y, RGB.RED)
             }
         }
     }
-      /*
-      iter.toStream.par foreach {
-        case (x: Int, y: Int)  => {
-          if(selection==None || selection.get.contains((x,y)) ) {
-
-            val S = supersampling * supersampling
-            val colorSum: RGB =
-              (for {
-                i <- 0 until supersampling
-                j <- 0 until supersampling
-                shift = (supersampling - 1) / (2f * supersampling)
-                rayTarget = (corner
-                  + scene.side * ((w * (x + i.toFloat / supersampling - shift)) / X)
-                  - scene.up * (h * (y + j.toFloat / supersampling - shift) / Y))
-                rayDir = (rayTarget - scene.cameraOrigin).normalized
-                description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
-              } yield
-                traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
-                .reduce(_ + _)
-
-            //if (selection == None)
-              img.set(x, y, colorSum / S)
-            //else
-            //  img.set(x, y, RGB.RED)
-          }
-        }
-      }*/
   }
+
 }

@@ -19,6 +19,16 @@ trait ImageWriter {
   def save(filename: String)
 }
 
+object Image{
+  val sobelKernelX = Seq(Seq(-1,0,1),
+                         Seq(-2,0,2),
+                         Seq(-1,0,1))
+
+  val sobelKernelY = Seq(Seq(-1,-2,-1),
+                         Seq( 0, 0, 0),
+                         Seq( 1, 2, 1))
+}
+
 class Image(val width: Int, val height: Int) {
 
   require(width > 0, "Image width has to be positive.")
@@ -50,56 +60,51 @@ class Image(val width: Int, val height: Int) {
     }
   }
 
-  //todo: what about wrong range?
-  def set(x: Int, y: Int, c: RGB): Unit = img.setRGB(x, y, c.awtColor().getRGB)
 
-  //TODO: what about wrong range?
-  def get(x: Int, y: Int): RGB = {
-    val color = new Color(img.getRGB(x, y))
-    RGB(color.getRed/255f, color.getGreen/255f, color.getBlue/255f)
-  }
+  def set(x: Int, y: Int, c: RGB): Boolean = (x,y) match {
+      case (x,y) if x>=0 && y>=0 && x<img.getWidth && y<img.getHeight =>
+          img.setRGB(x,y, c.awtColor().getRGB)
+          true
+      case _ => false
+    }
+
+  def get(x: Int, y: Int): Option[RGB] = (x,y) match {
+      case (x,y) if x>=0 && y>=0 && x<img.getWidth && y<img.getHeight =>
+          val color = new Color(img.getRGB(x, y))
+          Some(RGB(color.getRed/255f, color.getGreen/255f, color.getBlue/255f))
+      case _ => None
+    }
 
   def detectEdges() : GenSet[(Int,Int)] = {
-    lazy val pixelIter: Iterator[(Int, Int)] =
-      for {x <- 0 until width iterator;
-           y <- 0 until height iterator} yield (x, y)
+    val pixelIter: Iterator[(Int, Int)] =
+    for {x <- 0 until width iterator;
+         y <- 0 until height iterator} yield (x, y)
 
     (pixelIter.toStream.par filter {
-      case (x:Int,y:Int) =>  sobelFilterMagnitude(x, y)  > edgeThreshold
+      case (x:Int,y:Int) => sobelFilterMagnitude(x, y)  > edgeThreshold
     }).toSet
-
-  }
-  private def sobelFilterMagnitude(x: Int, y: Int) : Double = {
-    val kernelx = Seq(Seq(-1,0,1),
-                      Seq(-2,0,2),
-                      Seq(-1,0,1))
-
-    val kernely = Seq(Seq(-1,-2,-1),
-                      Seq( 0, 0, 0),
-                      Seq( 1, 2, 1))
-
-    Seq(sobelFilterMagnitute(x, y, kernelx, kernely, (c: RGB) => c.red),
-        sobelFilterMagnitute(x, y, kernelx, kernely, (c: RGB) => c.green),
-        sobelFilterMagnitute(x, y, kernelx, kernely, (c: RGB) => c.blue)).max
-
   }
 
-  private def sobelFilterMagnitute(x: Int, y: Int, kernelx: Seq[Seq[Int]], kernely: Seq[Seq[Int]], f: RGB => Float): Double = {
+  private def sobelFilterMagnitude(x: Int, y: Int) : Double =
+    Seq(sobelFilterMagnitute(x, y, (c: RGB) => c.red),
+        sobelFilterMagnitute(x, y, (c: RGB) => c.green),
+        sobelFilterMagnitute(x, y, (c: RGB) => c.blue)).max
 
+  private def sobelFilterMagnitute(x: Int, y: Int, f: RGB => Float): Double =
     (for {
       a <- 0 to 2
       b <- 0 to 2
       xn = fitToX(x + a - 1)
       yn = fitToY(y + b - 1)
-      rgb = get(xn, yn)
-      mx = f(rgb) * kernelx(a)(b)
-      my = f(rgb) * kernely(a)(b)
+      rgb = get(xn, yn) if rgb.isDefined
+      mx = f(rgb.get) * Image.sobelKernelX(a)(b)
+      my = f(rgb.get) * Image.sobelKernelY(a)(b)
     } yield (mx, my)
       ).foldLeft((0f, 0f)) { case ((a: Float, b: Float), (x: Float, y: Float)) => (a + x, b + y) }
     match{
       case (x,y) => Math.sqrt(x*x+y*y)
     }
-  }
+
 
   private def fitToX(x:Int) = Math.max(0,Math.min(width-1,x))
   private def fitToY(y:Int) = Math.max(0,Math.min(height-1,y))
