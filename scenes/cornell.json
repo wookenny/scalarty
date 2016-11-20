@@ -133,5 +133,10 @@
                   "material" : "ChessboardWhite"
                 }
               }
-              ]
+              ],
+      "objFiles" : [{"filename": "scenes/obj/teapot.obj",
+                     "center"   : {"x": -0.3, "y": -0.5,"z": -0.4},
+                     "maxSide"  : 1,
+                     "rotation" : 0.57}]
+
 }

@@ -1,9 +1,10 @@
 package scene
 
+
 import lightning.Light
 import material.Material
-import math.{Shape, Vector3}
-import play.api.libs.json.{Format, JsValue, Json}
+import math.{Shape, Triangle, Vector3}
+import play.api.libs.json.{Format, Json}
 
 final case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,
@@ -11,15 +12,25 @@ final case class Scene(cameraOrigin: Vector3,
                        height: Float,
                        lights: Seq[Light],
                        shapes: Seq[Shape],
-                       materials: Seq[Material]) {
+                       materials: Seq[Material],
+                       objFiles: Option[Seq[ObjObject]]) {
 
   // Fixed data
   val ppi = 400
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
+  lazy val allShapes = if(objFiles.isDefined) shapes ++ parseObjFiles(objFiles.get)
+                  else shapes
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
+
+  def parseObjFiles(objFiles: Seq[ObjObject]) : Seq[Triangle] = {
+    objFiles.flatMap(_.getTriangles)
+  }
 }
+
+
+
 
 object Scene {
   implicit val sceneJsonFormat: Format[Scene] = Json.format[Scene]

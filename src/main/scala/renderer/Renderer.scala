@@ -99,26 +99,27 @@ class Renderer(val scene: Scene) extends LazyLogging {
     }
 
   def getFirstHit(r: Ray): Option[Hit] =
-    scene.shapes.flatMap { s =>
+    scene.allShapes.flatMap { s =>
       s intersect r
     } match {
       case Nil => None
       case xs => Some(xs.minBy(_.distance))
     }
 
-  def anyHit(r: Ray, maxDist: Float): Boolean = scene.shapes.exists { s =>
+  def anyHit(r: Ray, maxDist: Float): Boolean = scene.allShapes.exists { s =>
     s.intersect(r, maxDist)
   }
 
   def startRendering(config: Config) = {
     val start = System.nanoTime()
     logger.info("Starting to trace")
+    logger.info(s"scene comntains ${scene.allShapes.size} shapes")
 
     val image = render(config)
 
     val now = System.nanoTime()
     logger.info(
-      s"Raytracing done in ${(now - start) / (1000f * 1000 * 1000)} seconds") //TODO nice time formatter
+      f"Raytracing done in ${(now - start) / (1000f * 1000 * 1000)}%2.2f seconds") //TODO nice time formatter
 
     val saved = image.save(config.out)
     if(!saved)
@@ -139,7 +140,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
       //find edges and supersample those
       val edges = img.detectEdges()
       val percentage = 100.0*edges.size/(img.height*img.width)
-      logger.info( s"tracing adaptive supersampling for $percentage% of all pixels with sampling ${config.adaptivesupersampling}x${config.adaptivesupersampling}")
+      logger.info( f"tracing adaptive supersampling for $percentage%2.1f%% of all pixels with sampling ${config.adaptivesupersampling}x${config.adaptivesupersampling}")
       renderPath(img, config.adaptivesupersampling, Some(edges))
     }
 
