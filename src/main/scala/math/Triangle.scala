@@ -88,4 +88,12 @@ final case class Triangle(a: Vector3,
     }
   }
 
+  override def boundingBox(): AABB = {
+    val points : Seq[Vector3] = Seq(a,b,c)
+    AABB(points.map(_.x).min, points.map(_.x).max,
+         points.map(_.y).min, points.map(_.y).max,
+         points.map(_.z).min, points.map(_.z).max )
+  }
+
+  override def midpoint: Vector3 = (a+b+c)/3
 }

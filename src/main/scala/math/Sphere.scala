@@ -51,4 +51,9 @@ final case class Sphere(center: Vector3,
     }
   }
 
+  override def boundingBox(): AABB = AABB(center.x-radius, center.x+radius,
+                                          center.y-radius, center.y+radius,
+                                          center.z-radius, center.z+radius)
+
+  override def midpoint: Vector3 = center
 }

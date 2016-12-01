@@ -21,7 +21,8 @@ class SceneSpec extends Specification{
     val scene = Scene(Vector3.ZERO,  Vector3.Z, 2f, 2f,
                       Seq(Light(Vector3(1,2,3),RGB.WHITE,12)),
                       Seq.empty,
-                      Seq(mat1, mat2))
+                      Seq(mat1, mat2),
+                      None)
 
 
     Shape.materialMap should havePairs("mat1" -> mat1, "mat2" -> mat2)

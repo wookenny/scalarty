@@ -1,5 +1,6 @@
 import java.awt.Color
 
+import color.RGB
 import org.specs2.Specification
 import org.specs2.specification.core.SpecStructure
 import support.Image
@@ -33,7 +34,7 @@ class ImageSpec extends Specification {
 
   val testSetColors = {
     val img = new Image(400,600)
-    img.set(12,10, Color.RED)
+    img.set(12,10, RGB.RED)
     //TODO: injection for proper test
     1 must beLessThan(2)
   }

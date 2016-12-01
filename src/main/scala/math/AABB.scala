@@ -2,7 +2,7 @@ package math
 
 import renderer.Hit
 
-final case class AABB(x_min: Float,
+sealed case class AABB(x_min: Float,
                       x_max: Float,
                       y_min: Float,
                       y_max: Float,
@@ -11,11 +11,9 @@ final case class AABB(x_min: Float,
                       material: String = "DEFAULT_MATERIAL")
     extends Shape {
   import Math._
-  require(x_min < x_max)
-  require(y_min < y_max)
-  require(z_min < z_max)
-
-  val y_rotation = 45
+  require(x_min <= x_max)
+  require(y_min <= y_max)
+  require(z_min <= z_max)
 
   override def intersect(r: Ray): Option[Hit] = {
 
@@ -36,7 +34,7 @@ final case class AABB(x_min: Float,
       .zip(Seq(Vector3.X, Vector3.Y, Vector3.Z))
       .map { case ((x, y), n) => if (x < y) (x, n * (-1)) else (y, n) }
       .maxBy(_._1)
-    val tmax: Float = distances.map { case (x, y) => max(x, y) }.min
+    val tmax: Float = distances.map { case (x, y) => x max y }.min
 
     if (tmax < EPS || tmin > tmax) {
       None
@@ -63,10 +61,36 @@ final case class AABB(x_min: Float,
     val t6 = (z_max - r.origin.z) * dirfrac.z
 
     val distances = Seq((t1, t2), (t3, t4), (t5, t6))
-    val tmin = distances.map { case (x, y) => min(x, y) }.max
-    val tmax: Float = distances.map { case (x, y) => max(x, y) }.min
+    val tmin = distances.map { case (x, y) => x min y }.max
+    val tmax: Float = distances.map { case (x, y) => x max y }.min
     if (tmax < EPS || tmin > tmax)
       false
     else tmin < maxDist
   }
+
+  override def boundingBox: AABB = this
+
+  override def midpoint: Vector3 = Vector3( (x_max+x_min)/2,
+                                            (y_max+y_min)/2,
+                                            (z_max+z_min)/2 )
+
+  def contains(vec: Vector3) =
+    x_min <= vec.x && vec.x <= x_max &&
+    y_min <= vec.y && vec.y <= y_max &&
+    z_min <= vec.z && vec.z <= z_max
+
+}
+
+object AABB{
+  def union(a: AABB, b: AABB)      : AABB = union(Seq(a,b))
+  def union(boxes : Iterable[AABB]): AABB = {
+    if(boxes.isEmpty)
+       AABB.empty
+    else
+       boxes.reduce{ (a: AABB, b: AABB) => AABB(a.x_min min b.x_min, a.x_max max b.x_max,
+                                                a.y_min min b.y_min, a.y_max max b.y_max,
+                                                a.z_min min b.z_min, a.z_max max b.z_max)}
+  }
+  //TODO: empty is not really an empty element and mightbreak
+  val empty = AABB(0,0,0,0,0,0)
 }

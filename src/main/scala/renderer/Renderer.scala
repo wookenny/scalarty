@@ -98,22 +98,14 @@ class Renderer(val scene: Scene) extends LazyLogging {
       case _ => Renderer.backgroundColor
     }
 
-  def getFirstHit(r: Ray): Option[Hit] =
-    scene.allShapes.flatMap { s =>
-      s intersect r
-    } match {
-      case Nil => None
-      case xs => Some(xs.minBy(_.distance))
-    }
+  def getFirstHit(r: Ray): Option[Hit] = scene.allShapes.intersect(r)
 
-  def anyHit(r: Ray, maxDist: Float): Boolean = scene.allShapes.exists { s =>
-    s.intersect(r, maxDist)
-  }
+  def anyHit(r: Ray, maxDist: Float): Boolean = scene.allShapes.intersectionTest(r,maxDist)
 
   def startRendering(config: Config) = {
     val start = System.nanoTime()
     logger.info("Starting to trace")
-    logger.info(s"scene comntains ${scene.allShapes.size} shapes")
+    logger.info(s"scene contains ${scene.allShapes.size} shapes")
 
     val image = render(config)
 

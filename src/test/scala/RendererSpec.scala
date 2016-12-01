@@ -35,7 +35,8 @@ class RendererSpec extends Specification  {
                             height = 2,
                             lights = Seq(),
                             shapes = Seq(),
-                            materials = Seq())
+                            materials = Seq(),
+                            None)
 
     val renderEmpty = {
       val config = Config()

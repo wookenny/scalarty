@@ -4,6 +4,7 @@ package scene
 import lightning.Light
 import material.Material
 import math.{Shape, Triangle, Vector3}
+import bounding.{BVH, ShapeContainer, ShapeSeq}
 import play.api.libs.json.{Format, Json}
 
 final case class Scene(cameraOrigin: Vector3,
@@ -19,8 +20,10 @@ final case class Scene(cameraOrigin: Vector3,
   val ppi = 400
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
-  lazy val allShapes = if(objFiles.isDefined) shapes ++ parseObjFiles(objFiles.get)
-                  else shapes
+  lazy val allShapes : ShapeContainer = if(objFiles.isDefined)
+                           BVH( shapes ++ parseObjFiles(objFiles.get) )
+                        else
+                           BVH(shapes)
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
 
@@ -28,7 +31,6 @@ final case class Scene(cameraOrigin: Vector3,
     objFiles.flatMap(_.getTriangles)
   }
 }
-
 
 
 
