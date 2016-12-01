@@ -11,7 +11,6 @@ abstract class Node{
   val boundingBox:  Option[AABB]
 
   def countNodes : Int
-  //def getMyDepth = fold(0,(n:Node)=> n.getDepth)(_ max _)
 
   def intersectingBoundingBox(ray: Ray) : Boolean =  boundingBox match {
       case None       => false
@@ -145,3 +144,7 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 4) extends ShapeConta
     }
 
 }
+/*
+object BVH{
+  val shapeIntersectionCost: Int
+}*/

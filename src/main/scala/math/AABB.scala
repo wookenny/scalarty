@@ -79,6 +79,8 @@ sealed case class AABB(x_min: Float,
     y_min <= vec.y && vec.y <= y_max &&
     z_min <= vec.z && vec.z <= z_max
 
+  def area = 2*((x_max-x_min)*(y_max-y_min) + (x_max-x_min)*(z_max-z_min) * (y_max-y_min)*(z_max-z_min))
+
 }
 
 object AABB{
