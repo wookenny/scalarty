@@ -3,30 +3,31 @@ package scene
 import com.typesafe.scalalogging.LazyLogging
 import math.{Triangle, Vector3}
 import play.api.libs.json.{Format, Json}
-
 import scala.io.Source._
-
+import math.Math.π
 
 case class ObjObject(filename: String, center: Vector3, maxSide: Double, rotation: Double) extends LazyLogging{
-  //TODO: texture name and smooth shading: boolean => vertices have an own normal
+  var triangles = scala.collection.mutable.ArrayBuffer.empty[(Array[Int],Array[Int],Array[Int])]
+  var normals   = scala.collection.mutable.ArrayBuffer.empty[Vector3]
+  var vertices  = scala.collection.mutable.ArrayBuffer.empty[Vector3]
 
-  var triangles = scala.collection.mutable.ListBuffer.empty[(Array[Int],Array[Int],Array[Int])]
-  var normals   = scala.collection.mutable.ListBuffer.empty[Vector3]
-  var vertices  = scala.collection.mutable.ListBuffer.empty[Vector3]
+  def transformVertex(vector: Vector3, currentCenter: Vector3, targetCenter: Vector3, scalingFactor: Double, rotation: Double): Vector3 = {
 
-  def transformVertex(vector: Vector3, currentCenter: Vector3, targetCenter: Vector3, scalingFactor: Double, rotationSin: Double, rotationCos: Double): Vector3 = {
-
+    val sin : Double = Math.sin(2 * π * rotation/360)
+    val cos : Double = Math.cos(2 * π * rotation/360)
     val p = (vector - currentCenter) * scalingFactor
-    //TODO: move rotation code to vector class and generalize
-
-    Vector3(p.x * rotationCos - p.z * rotationSin,
-            p.y,
-            p.x * rotationSin + p.z * rotationCos) + targetCenter
+    Vector3(p.x * cos - p.z * sin ,
+            p.y ,
+            p.x * sin + p.z * cos) + targetCenter
   }
 
-  def transformNormal(vector: Vector3, rotationSin: Double, rotationCos: Double) =    Vector3(vector.x * rotationCos - vector.z * rotationSin,
-                                                                                              vector.y,
-                                                                                              vector.x * rotationSin + vector.z * rotationCos)
+  def transformNormal(vector: Vector3, rotation: Double) = {
+    val sin : Double = Math.sin(2 * π * rotation/360)
+    val cos : Double = Math.cos(2 * π * rotation/360)
+    Vector3(vector.x * cos - vector.z * sin,
+            vector.y,
+            vector.x * sin + vector.z * cos)
+  }
 
   def getTriangles : Seq[Triangle] = {
 
@@ -51,19 +52,13 @@ case class ObjObject(filename: String, center: Vector3, maxSide: Double, rotatio
     val currentCenter = Vector3((coordinates_x.max - coordinates_x.min)/2 + coordinates_x.min,
                                 (coordinates_y.max - coordinates_y.min)/2 + coordinates_y.min,
                                 (coordinates_z.max - coordinates_z.min)/2 + coordinates_z.min)
-    logger.info(s"Transforming vertices")
 
-    val sin : Double = Math.sin(2*Math.PI * rotation/360)
-    val cos : Double = Math.cos(2*Math.PI * rotation/360)
 
     for(i <- vertices.indices.par)
-      vertices(i) = transformVertex(vertices(i), currentCenter, center, scalingFactor, sin, cos)
+      vertices(i) = transformVertex(vertices(i), currentCenter, center, scalingFactor, rotation)
 
-    logger.info(s"Transforming normals")
     for(i <- normals.indices.par)
-      normals(i) = transformNormal(normals(i), sin, cos).normalized
-
-    logger.info(s"Creating ${triangles.size} triangles")
+      normals(i) = transformNormal(normals(i), rotation).normalized
 
     val ts = if (normals.size>=vertices.size)
       triangles.par.map {

@@ -10,9 +10,9 @@ final case class Triangle(a: Vector3,
                           normals : Option[Seq[Vector3]] = None)
     extends Shape {
   import Math._
-  val edge1: Vector3 = b - a
-  val edge2: Vector3 = c - a
-  val normal: Vector3 = -(edge1 cross edge2) normalized
+  lazy val edge1: Vector3 = b - a
+  lazy val edge2: Vector3 = c - a
+  lazy val normal: Vector3 = -(edge1 cross edge2) normalized
 
   override def intersect(r: Ray): Option[Hit] = {
 

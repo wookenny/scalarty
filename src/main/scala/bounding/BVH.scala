@@ -62,22 +62,13 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
   private def getBoundingBox(shapes: Seq[Shape]) : Option[AABB] = AABB.wrapping(shapes)
 
 
-  private def trySplit(shapes: Seq[Shape], aabb: AABB) : (Seq[Shape],Seq[Shape]) = {
-    val split : Seq[Shape] = (aabb.x_max-aabb.x_min, aabb.y_max-aabb.y_min, aabb.z_max-aabb.z_min) match {
-      case (x,y,z) if x >= y && x >= z =>  shapes.sortBy(_.midpoint.x)
-      case (x,y,z) if y >= x && y >= z =>  shapes.sortBy(_.midpoint.y)
-      case _                           =>  shapes.sortBy(_.midpoint.z)
-    }
-
-    (split.take(split.size/2), split.drop(split.size/2))
-  }
 
   private def splitPrimitives(shapes: Seq[Shape], aabb: Option[AABB]) :  Option[(Seq[Shape],Seq[Shape])] = {
     //primitive split: select max dim and choose mean midpoint
     if(aabb.isEmpty || shapes.size <= leaf_node_limit)
       None
     else {
-      val split = trySplit(shapes,aabb.get)
+      val split = getSplit(shapes,aabb.get)
       split match {
         case (a, b) if (a.size min b.size) <= leaf_node_limit => None
         case (a, b) => Some(a, b)
@@ -86,25 +77,35 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
   }
 
 
+  private def getSplit(shapes: Seq[Shape], aabb: AABB) : (Seq[Shape],Seq[Shape]) = {
+    val split : Seq[Shape] = (aabb.x_max-aabb.x_min, aabb.y_max-aabb.y_min, aabb.z_max-aabb.z_min) match {
+      case (x,y,z) if x >= y && x >= z =>  shapes.sortBy(_.midpoint.x)
+      case (x,y,z) if y >= x && y >= z =>  shapes.sortBy(_.midpoint.y)
+      case _                           =>  shapes.sortBy(_.midpoint.z)
+    }
+    (split.take(split.size/2), split.drop(split.size/2))
+  }
+
   private def splitPrimitivesSAH(shapes: Seq[Shape], aabb: Option[AABB]) :  Option[(Seq[Shape],Seq[Shape])] = {
 
-    if(aabb.isDefined && shapes.size >= leaf_node_limit) {
+    if(shapes.size >= leaf_node_limit && aabb.isDefined) {
+      val box = aabb.get
       val shapesSorted = Seq(shapes.sortBy(_.midpoint.x),
         shapes.sortBy(_.midpoint.y),
         shapes.sortBy(_.midpoint.z))
-      val lengths = Seq(aabb.get.x_max-aabb.get.x_min, aabb.get.y_max-aabb.get.y_min, aabb.get.z_max-aabb.get.z_min)
+      val lengths = Seq(box.x_max-box.x_min, box.y_max-box.y_min, box.z_max-box.z_min)
       val dimension = lengths.indexOf(lengths.max)
       val (splitDimension, splitIndex, _) = (for {
         //dimension <- 0 to 2
         split <- shapes.indices
-        costs = splitCost(shapesSorted(dimension), split, aabb.get)
+        costs = splitCost(shapesSorted(dimension), split, box)
       } yield (dimension, split, costs)).minBy(_._3)
 
       if (splitIndex == 0 || splitIndex == shapes.size - 1)
         None
       else {
-        Option(shapesSorted(splitDimension).slice(0, splitIndex),
-          shapesSorted(splitDimension).slice(splitIndex, shapes.size))
+        Option(shapesSorted(splitDimension).take(splitIndex),
+               shapesSorted(splitDimension).drop(splitIndex))
       }
     }else{
       None
