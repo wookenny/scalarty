@@ -6,13 +6,13 @@ import math.Math._
 
 final case class SingleColorMaterial(name: String,
                                      c: RGB,
-                                     ambient: Float,
-                                     diffuse: Float,
-                                     spec: Float,
-                                     reflective: Float = 0,
-                                     refractive: Float = 0,
-                                     n: Float = 1.33f,
-                                     shininess: Float = 64)
+                                     ambient: Double,
+                                     diffuse: Double,
+                                     spec: Double,
+                                     reflective: Double = 0,
+                                     refractive: Double = 0,
+                                     n: Double = 1.33f,
+                                     shininess: Double = 64)
     extends Material {
   require(
     Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)

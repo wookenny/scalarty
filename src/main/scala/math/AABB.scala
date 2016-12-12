@@ -2,12 +2,12 @@ package math
 
 import renderer.Hit
 
-sealed case class AABB(x_min: Float,
-                      x_max: Float,
-                      y_min: Float,
-                      y_max: Float,
-                      z_min: Float,
-                      z_max: Float,
+sealed case class AABB(x_min: Double,
+                      x_max: Double,
+                      y_min: Double,
+                      y_max: Double,
+                      z_min: Double,
+                      z_max: Double,
                       material: String = "DEFAULT_MATERIAL")
     extends Shape {
   import Math._
@@ -34,7 +34,7 @@ sealed case class AABB(x_min: Float,
       .zip(Seq(Vector3.X, Vector3.Y, Vector3.Z))
       .map { case ((x, y), n) => if (x < y) (x, n * (-1)) else (y, n) }
       .maxBy(_._1)
-    val tmax: Float = distances.map { case (x, y) => x max y }.min
+    val tmax: Double = distances.map { case (x, y) => x max y }.min
 
     if (tmax < EPS || tmin > tmax) {
       None
@@ -47,7 +47,7 @@ sealed case class AABB(x_min: Float,
   }
 
   //TODO: should only generate needed data, not too much in advance
-  override def intersect(r: Ray, maxDist: Float): Boolean = {
+  override def intersect(r: Ray, maxDist: Double): Boolean = {
     val dirfrac =
       Vector3(1 / r.direction.x, 1 / r.direction.y, 1 / r.direction.z)
 
@@ -62,7 +62,7 @@ sealed case class AABB(x_min: Float,
 
     val distances = Seq((t1, t2), (t3, t4), (t5, t6))
     val tmin = distances.map { case (x, y) => x min y }.max
-    val tmax: Float = distances.map { case (x, y) => x max y }.min
+    val tmax: Double = distances.map { case (x, y) => x max y }.min
     if (tmax < EPS || tmin > tmax)
       false
     else tmin < maxDist
@@ -70,20 +70,44 @@ sealed case class AABB(x_min: Float,
 
   override def boundingBox: AABB = this
 
-  override def midpoint: Vector3 = Vector3( (x_max+x_min)/2,
-                                            (y_max+y_min)/2,
-                                            (z_max+z_min)/2 )
+  override def midpoint: Vector3 = Vector3((x_max+x_min)/2, (y_max+y_min)/2, (z_max+z_min)/2)
 
-  def contains(vec: Vector3) =
+  override def minX: Double = x_min
+
+  override def minY: Double = y_min
+
+  override def minZ: Double = z_min
+
+  override def maxX: Double = x_max
+
+  override def maxY: Double = y_max
+
+  override def maxZ: Double = z_max
+
+
+  def contains(vec: Vector3): Boolean =
     x_min <= vec.x && vec.x <= x_max &&
     y_min <= vec.y && vec.y <= y_max &&
     z_min <= vec.z && vec.z <= z_max
 
-  def area = 2*((x_max-x_min)*(y_max-y_min) + (x_max-x_min)*(z_max-z_min) * (y_max-y_min)*(z_max-z_min))
+  def area: Double = 2*((x_max-x_min)*(y_max-y_min) + (x_max-x_min)*(z_max-z_min) * (y_max-y_min)*(z_max-z_min))
 
 }
 
 object AABB{
+
+  def wrapping(shapes: Seq[Shape]): Option[AABB] = {
+    if(shapes.isEmpty)
+      None
+    else
+
+      Some(
+        AABB( shapes.tail.foldLeft(shapes.head.minX)(_ min _.minX)-Math.EPS, shapes.tail.foldLeft(shapes.head.maxX)(_ max _.maxX)+Math.EPS,
+              shapes.tail.foldLeft(shapes.head.minY)(_ min _.minY)-Math.EPS, shapes.tail.foldLeft(shapes.head.maxY)(_ max _.maxY)+Math.EPS,
+              shapes.tail.foldLeft(shapes.head.minZ)(_ min _.minZ)-Math.EPS, shapes.tail.foldLeft(shapes.head.maxZ)(_ max _.maxZ)+Math.EPS)
+      )
+  }
+
   def union(a: AABB, b: AABB)      : AABB = union(Seq(a,b))
   def union(boxes : Iterable[AABB]): AABB = {
     if(boxes.isEmpty)

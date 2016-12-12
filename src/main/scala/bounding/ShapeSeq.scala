@@ -14,7 +14,7 @@ final case class ShapeSeq(shapes: Seq[Shape]) extends ShapeContainer{
     case xs => Some(xs.minBy(_.distance))
   }
 
-  override def intersectionTest(r: Ray, maxDist: Float): Boolean = shapes.exists { s =>
+  override def intersectionTest(r: Ray, maxDist: Double): Boolean = shapes.exists { s =>
     s.intersect(r, maxDist)
   }
 }

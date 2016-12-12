@@ -11,11 +11,11 @@ final case class ShapeMetaContainer(shapes: ShapeContainer*) extends ShapeContai
   override def intersect(r: Ray): Option[Hit] =  shapes.foldLeft(Option.empty[Hit])( (h: Option[Hit],seq: ShapeContainer) => h match {
     case None => seq.intersect(r)
     case Some(hit) => seq.intersect(r) match {
-      case Some(otherHit) if (otherHit.distance < hit.distance) => Some(otherHit)
+      case Some(otherHit) if otherHit.distance < hit.distance => Some(otherHit)
       case _ => Some(hit)
     }
   })
 
 
-  override def intersectionTest(r: Ray, maxDist: Float): Boolean = shapes.foldLeft(false)(_ || _.intersectionTest(r,maxDist))
+  override def intersectionTest(r: Ray, maxDist: Double): Boolean = shapes.foldLeft(false)(_ || _.intersectionTest(r,maxDist))
 }

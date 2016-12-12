@@ -17,7 +17,7 @@ class BVHSpec extends Specification with ScalaCheck { def is = s2"""
     x <- 1 to 3
     y <- 1 to 3
     z <- 1 to 3
-  } yield Sphere(Vector3(x,y,z), radius=0.2f)
+  } yield Sphere(Vector3(x, y, z), radius=0.2f)
 
   val sphereBVH = BVH(spheres, 2)
 

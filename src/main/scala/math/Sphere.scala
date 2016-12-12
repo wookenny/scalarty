@@ -3,20 +3,20 @@ package math
 import renderer.Hit
 
 final case class Sphere(center: Vector3,
-                        radius: Float,
+                        radius: Double,
                         material: String = "DEFAULT_MATERIAL")
     extends Shape {
   import Math._
   override def intersect(r: Ray): Option[Hit] = {
-    val t_ca: Float = (center - r.origin) * r.direction
-    val t_hc2: Float = radius * radius - (center - r.origin) * (center - r.origin) + t_ca * t_ca
+    val t_ca: Double = (center - r.origin) * r.direction
+    val t_hc2: Double = radius * radius - (center - r.origin) * (center - r.origin) + t_ca * t_ca
     if (t_hc2 < 0) //No hit
       None
     else {
-      val a = t_ca - sqrt(t_hc2)
-      val b = t_ca + sqrt(t_hc2)
-      val dist: Option[Float] = (a > EPS, b > EPS) match {
-        case (true, true) => Some(min(a, b))
+      val a = t_ca - scala.math.sqrt(t_hc2)
+      val b = t_ca + scala.math.sqrt(t_hc2)
+      val dist: Option[Double] = (a > EPS, b > EPS) match {
+        case (true, true) => Some(a min b)
         case (true, _) => Some(a)
         case (_, true) => Some(b)
         case _ => None
@@ -33,17 +33,17 @@ final case class Sphere(center: Vector3,
     }
   }
 
-  override def intersect(r: Ray, maxDist: Float): Boolean = {
-    val t_ca: Float = (center - r.origin) * r.direction
-    val t_hc2: Float = radius * radius - (center - r.origin) * (center - r.origin) + t_ca * t_ca
+  override def intersect(r: Ray, maxDist: Double): Boolean = {
+    val t_ca: Double = (center - r.origin) * r.direction
+    val t_hc2: Double = radius * radius - (center - r.origin) * (center - r.origin) + t_ca * t_ca
     if (t_hc2 < 0) //No hit
       false
     else {
-      val a = t_ca - sqrt(t_hc2)
+      val a = t_ca - scala.math.sqrt(t_hc2)
       if (a > EPS && a < maxDist)
         true
       else {
-        val b = t_ca + sqrt(t_hc2)
+        val b = t_ca + scala.math.sqrt(t_hc2)
         if (b > EPS && b < maxDist)
           true
         else false
@@ -56,4 +56,16 @@ final case class Sphere(center: Vector3,
                                           center.z-radius, center.z+radius)
 
   override def midpoint: Vector3 = center
+
+  override def minX = center.x - radius
+
+  override def minY = center.y - radius
+
+  override def minZ = center.z - radius
+
+  override def maxX = center.x + radius
+
+  override def maxY = center.y + radius
+
+  override def maxZ = center.z + radius
 }

@@ -90,7 +90,7 @@ class Image(val width: Int, val height: Int) {
         sobelFilterMagnitute(x, y, (c: RGB) => c.green),
         sobelFilterMagnitute(x, y, (c: RGB) => c.blue)).max
 
-  private def sobelFilterMagnitute(x: Int, y: Int, f: RGB => Float): Double =
+  private def sobelFilterMagnitute(x: Int, y: Int, f: RGB => Double): Double =
     (for {
       a <- 0 to 2
       b <- 0 to 2
@@ -100,7 +100,7 @@ class Image(val width: Int, val height: Int) {
       mx = f(rgb.get) * Image.sobelKernelX(a)(b)
       my = f(rgb.get) * Image.sobelKernelY(a)(b)
     } yield (mx, my)
-      ).foldLeft((0f, 0f)) { case ((a: Float, b: Float), (x: Float, y: Float)) => (a + x, b + y) }
+      ).foldLeft((0.0, 0.0)) { case ((a: Double, b: Double), (x: Double, y: Double)) => (a + x, b + y) }
     match{
       case (x,y) => Math.sqrt(x*x+y*y)
     }

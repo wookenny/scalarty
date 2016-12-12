@@ -7,21 +7,21 @@ import math.Math._
 final case class CheckerMaterial(name: String,
                                  c1: RGB,
                                  c2: RGB,
-                                 steps: Float,
-                                 ambient: Float,
-                                 diffuse: Float,
-                                 spec: Float,
-                                 reflective: Float = 0,
-                                 refractive: Float = 0,
-                                 n: Float = 1.33f,
-                                 shininess: Float = 64)
+                                 steps: Double,
+                                 ambient: Double,
+                                 diffuse: Double,
+                                 spec: Double,
+                                 reflective: Double = 0,
+                                 refractive: Double = 0,
+                                 n: Double = 1.33f,
+                                 shininess: Double = 64)
     extends Material {
   require(
     Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
-  private def mod(x: Float, m: Float) = (x % m + m) % m
+  private def mod(x: Double, m: Double) = (x % m + m) % m
 
-  private def inStep(pos: Float): Boolean = mod(pos, 2 * steps) >= steps
+  private def inStep(pos: Double): Boolean = mod(pos, 2 * steps) >= steps
   private def inStep(pos: Vector3): Boolean =
     inStep(pos.x) ^ inStep(pos.y) ^ inStep(pos.z)
   override def getMat(position: Vector3) =

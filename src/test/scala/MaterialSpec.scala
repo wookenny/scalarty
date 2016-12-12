@@ -24,9 +24,9 @@ class MaterialSpec  extends Specification with ScalaCheck {
 
   implicit lazy val VectorGen: Arbitrary[Vector3] =
     Arbitrary {
-      for {x: Float <- Gen.choose(-1000f, 1000f)
-           y: Float <- Gen.choose(-1000f, 1000f)
-           z: Float <- Gen.choose(-1000f, 1000f)
+      for {x: Double <- Gen.choose(-1000f, 1000f)
+           y: Double <- Gen.choose(-1000f, 1000f)
+           z: Double <- Gen.choose(-1000f, 1000f)
       } yield Vector3(x, y, z)
     }
 

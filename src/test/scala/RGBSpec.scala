@@ -22,32 +22,32 @@ class RGBSpec  extends Specification with ScalaCheck {
       gamma correct its values accordingly $testGammaCorrection
      """
 
-  def toSeq(c: RGB): Seq[Float] = Seq(c.red, c.green, c.blue)
+  def toSeq(c: RGB): Seq[Double] = Seq(c.red, c.green, c.blue)
 
   implicit lazy val RGBGenerator: Arbitrary[RGB] =
     Arbitrary {
-      for {r: Float <- FloatGenerator.arbitrary
-           g: Float <- FloatGenerator.arbitrary
-           b: Float <- FloatGenerator.arbitrary
+      for {r: Double <- DoubleGenerator.arbitrary
+           g: Double <- DoubleGenerator.arbitrary
+           b: Double <- DoubleGenerator.arbitrary
       } yield RGB(r, g, b)
     }
 
-  implicit lazy val FloatGenerator: Arbitrary[Float] =
+  implicit lazy val DoubleGenerator: Arbitrary[Double] =
     Arbitrary {
-      Gen.choose(0f, Float.MaxValue)
+      Gen.choose(0f, Double.MaxValue)
     }
 
   val addCorrectly: Prop = forAll { (a: RGB, b: RGB) => a + b should be equalTo RGB(a.red + b.red, a.green + b.green, a.blue + b.blue) }
   val subtractCorrectly: Prop = forAll { (a: RGB, b: RGB) => a - b should be equalTo RGB(a.red - b.red, a.green - b.green, a.blue - b.blue) }
-  val multiplyCorrectly: Prop = forAll { (a: RGB, s: Float) => a * s should be equalTo RGB(a.red * s, a.green * s, a.blue * s) }
-  val divideCorrectly: Prop = forAll { (a: RGB, s: Float) => a / s should be equalTo RGB(a.red / s, a.green / s, a.blue / s) }
+  val multiplyCorrectly: Prop = forAll { (a: RGB, s: Double) => a * s should be equalTo RGB(a.red * s, a.green * s, a.blue * s) }
+  val divideCorrectly: Prop = forAll { (a: RGB, s: Double) => a / s should be equalTo RGB(a.red / s, a.green / s, a.blue / s) }
 
   val negateCorrectly: Prop = forAll { (a: RGB) => -a should be equalTo RGB(-a.red, -a.green, -a.blue) }
   val positiveCorrectly: Prop = forAll { (a: RGB) => +a should be equalTo a }
 
   val awtColor: Prop = forAll { (a: RGB) => val awtColor = a.awtColor
     val expectedColors = toSeq(a).map { c => Math.max(Math.min(c, 1), 0) }.map { c => 255 * c }
-    val awtSeq = Seq(awtColor.getRed.toFloat, awtColor.getGreen.toFloat, awtColor.getBlue.toFloat)
+    val awtSeq = Seq(awtColor.getRed.toDouble, awtColor.getGreen.toDouble, awtColor.getBlue.toDouble)
     val maxDifference = awtSeq.zip(expectedColors).map { case (x, y) => x - y }.max
     maxDifference should be lessThanOrEqualTo (1)
   }
@@ -64,9 +64,9 @@ class RGBSpec  extends Specification with ScalaCheck {
     (a ^ 2 should be equalTo RGB(a.red * a.red, a.green * a.green, a.blue * a.blue))
   }
 
-  val testGammaCorrection: Prop = forAll { (a: RGB) => val expectedColor =  RGB(Math.pow(a.red,1/RGB.GAMMA).toFloat,
-                                                                                Math.pow(a.green,1/RGB.GAMMA).toFloat,
-                                                                                Math.pow(a.blue,1/RGB.GAMMA).toFloat)
+  val testGammaCorrection: Prop = forAll { (a: RGB) => val expectedColor =  RGB(Math.pow(a.red,1/RGB.GAMMA).toDouble,
+                                                                                Math.pow(a.green,1/RGB.GAMMA).toDouble,
+                                                                                Math.pow(a.blue,1/RGB.GAMMA).toDouble)
                                             a.gammaCorrected should be equalTo expectedColor
   }
 

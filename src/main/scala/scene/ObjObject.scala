@@ -7,35 +7,37 @@ import play.api.libs.json.{Format, Json}
 import scala.io.Source._
 
 
-case class ObjObject(filename: String, center: Vector3, maxSide: Float, rotation: Float) extends LazyLogging{
+case class ObjObject(filename: String, center: Vector3, maxSide: Double, rotation: Double) extends LazyLogging{
   //TODO: texture name and smooth shading: boolean => vertices have an own normal
 
-  var triangles = scala.collection.mutable.ListBuffer.empty[(Int,Int,Int)]
+  var triangles = scala.collection.mutable.ListBuffer.empty[(Array[Int],Array[Int],Array[Int])]
+  var normals   = scala.collection.mutable.ListBuffer.empty[Vector3]
   var vertices  = scala.collection.mutable.ListBuffer.empty[Vector3]
 
-  def transformVertex(vector: Vector3, currentCenter: Vector3, targetCenter: Vector3, scalingFactor: Float, rotation: Float): Vector3 = {
-
+  def transformVertex(vector: Vector3, currentCenter: Vector3, targetCenter: Vector3, scalingFactor: Double, rotationSin: Double, rotationCos: Double): Vector3 = {
 
     val p = (vector - currentCenter) * scalingFactor
-
     //TODO: move rotation code to vector class and generalize
-    val sin = Math.sin(rotation)
-    val cos = Math.cos(rotation)
-    Vector3(p.x * cos - p.z * sin,
-            p.y,
-            p.x * sin + p.z * cos) + targetCenter
 
+    Vector3(p.x * rotationCos - p.z * rotationSin,
+            p.y,
+            p.x * rotationSin + p.z * rotationCos) + targetCenter
   }
 
+  def transformNormal(vector: Vector3, rotationSin: Double, rotationCos: Double) =    Vector3(vector.x * rotationCos - vector.z * rotationSin,
+                                                                                              vector.y,
+                                                                                              vector.x * rotationSin + vector.z * rotationCos)
+
   def getTriangles : Seq[Triangle] = {
-    //TODO: run only once
+
+    logger.info(s"Reading $filename")
     val objFile = fromFile(filename).getLines
 
     objFile foreach{
       case line if line.trim.isEmpty => Unit //skip empty lines
       case line if line.trim.startsWith("#")  => Unit //comment
-      case line if line.trim.startsWith("g") => Unit //TODO: parse normal
-      case line if line.trim.startsWith("vn") => Unit //TODO: parse normal
+      case line if line.trim.startsWith("g") => Unit //TODO: parse what?
+      case line if line.trim.startsWith("vn") => parseNormal(line)
       case line if line.trim.startsWith("v")  => parseVertex(line)
       case line if line.trim.startsWith("f")  => parseFace(line)
       case line => logger.error(s"ERROR: Cannot parse this line: <$line>")
@@ -47,32 +49,50 @@ case class ObjObject(filename: String, center: Vector3, maxSide: Float, rotation
                                       coordinates_z.max - coordinates_z.min).max
 
     val currentCenter = Vector3((coordinates_x.max - coordinates_x.min)/2 + coordinates_x.min,
-                         (coordinates_y.max - coordinates_y.min)/2 + coordinates_y.min,
-                         (coordinates_z.max - coordinates_z.min)/2 + coordinates_z.min)
+                                (coordinates_y.max - coordinates_y.min)/2 + coordinates_y.min,
+                                (coordinates_z.max - coordinates_z.min)/2 + coordinates_z.min)
+    logger.info(s"Transforming vertices")
 
-    for(i <- vertices.indices){
-      vertices(i) = transformVertex(vertices(i), currentCenter, center, scalingFactor, rotation)
-    }
+    val sin : Double = Math.sin(2*Math.PI * rotation/360)
+    val cos : Double = Math.cos(2*Math.PI * rotation/360)
 
-    triangles.map{
-      case (a,b,c) => Triangle(vertices(a-1), vertices(b-1), vertices(c-1))
-    }
+    for(i <- vertices.indices.par)
+      vertices(i) = transformVertex(vertices(i), currentCenter, center, scalingFactor, sin, cos)
+
+    logger.info(s"Transforming normals")
+    for(i <- normals.indices.par)
+      normals(i) = transformNormal(normals(i), sin, cos).normalized
+
+    logger.info(s"Creating ${triangles.size} triangles")
+
+    val ts = if (normals.size>=vertices.size)
+      triangles.par.map {
+        case (a, b, c) => val norms = Some(Seq(normals(a.last - 1), normals(b.last - 1), normals(c.last - 1)))
+          Triangle(vertices(a.head - 1), vertices(b.head - 1), vertices(c.head - 1), normals = norms)
+      }
+    else triangles.par.map { case (a,b,c) => Triangle(vertices(a.head - 1), vertices(b.head - 1), vertices(c.head - 1))}
+
+    logger.info(s"Object read with ${vertices.size} vertices, ${normals.size} normals and ${triangles.size} triangles")
+    ts.toList
   }
 
-  def parseVertex(line:  String) = {
-    line.split("\\s+").slice(1,4) match {
-      case Array(a, b, c) => vertices += Vector3(a.toFloat, b.toFloat, c.toFloat)
+  def parseVertex(line:  String) = line.split("\\s+").slice(1,4) match {
+    case Array(a, b, c) => vertices += Vector3(a.toDouble, b.toDouble, c.toDouble)
     }
 
+  def parseNormal(line:  String) = line.split("\\s+").slice(1,4) match {
+    case Array(a, b, c) => normals += Vector3(a.toDouble, b.toDouble, c.toDouble)
   }
+
+  private def toIntList(s:String) : Array[Int] = s.trim.split("/").filter(_!="").map(_.trim.toInt)
 
   def parseFace(line: String) = {
     line.split("\\s+").slice(1, 5) match {
       case Array(a, b, c, d) =>
-        triangles += Tuple3(a.toInt, b.toInt, c.toInt)
-        triangles += Tuple3(a.toInt, c.toInt, d.toInt)
+        triangles += Tuple3(toIntList(a), toIntList(b), toIntList(c))
+        triangles += Tuple3(toIntList(a), toIntList(c), toIntList(d))
       case Array(a, b, c) =>
-        triangles += Tuple3(a.toInt, b.toInt, c.toInt)
+        triangles += Tuple3(toIntList(a), toIntList(b), toIntList(c))
     }
   }
 

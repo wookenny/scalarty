@@ -6,10 +6,17 @@ import renderer.Hit
 
 trait Shape {
   def intersect(r: Ray): Option[Hit] //TODO: should only generate needed data, not too much in advance
-  def intersect(r: Ray, maxDist: Float): Boolean
+  def intersect(r: Ray, maxDist: Double): Boolean
 
   def boundingBox : AABB
   def midpoint : Vector3
+
+  def minX : Double
+  def minY : Double
+  def minZ : Double
+  def maxX : Double
+  def maxY : Double
+  def maxZ : Double
 }
 
 object Shape {

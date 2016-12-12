@@ -1,38 +1,30 @@
 package math
 
-import Math._
+
 import play.api.libs.json.{Format, Json}
 
-final case class Vector3(x: Float, y: Float, z: Float) {
+final case class Vector3(x: Double, y: Double, z: Double) {
 
-  def /(s: Float) = Vector3(x / s, y / s, z / s)
-  def *(s: Float) = Vector3(s * x, s * y, s * z)
+  def /(s: Double) = Vector3(x / s, y / s, z / s)
+  def *(s: Double) = Vector3(s * x, s * y, s * z)
 
   def +(p: Vector3) = Vector3(x + p.x, y + p.y, z + p.z)
   def -(p: Vector3) = Vector3(x - p.x, y - p.y, z - p.z)
-  def *(p: Vector3) = x * p.x + y * p.y + z * p.z
+  def *(p: Vector3) : Double = x * p.x + y * p.y + z * p.z
 
   def unary_-() = this * (-1)
   def unary_+() = this
   def =~=(p: Vector3) = (this.equals(p)) //TODO: implement properly
 
-  def length: Float = sqrt(this * this)
+  def length: Double = scala.math.sqrt(this * this)
   def dist(p: Vector3) = (this - p).length
   def normalized = this / (this.length)
-  def cross(p: Vector3) = Vector3(
-    y * p.z - z * p.y,
-    z * p.x - x * p.z,
-    x * p.y - y * p.x
-  )
+  def cross(p: Vector3) = Vector3(y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x)
 
-  def pow(exp: Float) =
-    Vector3(scala.math.pow(x, exp).toFloat,
-            scala.math.pow(y, exp).toFloat,
-            scala.math.pow(z, exp).toFloat)
+  def pow(exp: Double) =
+    Vector3(scala.math.pow(x, exp), scala.math.pow(y, exp), scala.math.pow(z, exp))
   def expf =
-    Vector3(scala.math.exp(x).toFloat,
-            scala.math.exp(y).toFloat,
-            scala.math.exp(z).toFloat)
+    Vector3(scala.math.exp(x), scala.math.exp(y), scala.math.exp(z))
 
 }
 
@@ -46,7 +38,7 @@ object Vector3 { //TODO: use Xor
 
   implicit val vectorJsonFormat: Format[Vector3] = Json.format[Vector3]
 
-  def apply(x: Double, y: Double, z: Double): Vector3 =
-    apply(x.toFloat, y.toFloat, z.toFloat)
+  //def apply(x: Double, y: Double, z: Double): Vector3 =
+  //  apply(x.toDouble, y.toDouble, z.toDouble)
 
 }

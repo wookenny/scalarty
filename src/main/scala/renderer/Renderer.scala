@@ -1,5 +1,7 @@
 package renderer
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import color.RGB
 import com.typesafe.scalalogging._
 import lightning.Light
@@ -18,6 +20,8 @@ object Renderer {
 }
 
 class Renderer(val scene: Scene) extends LazyLogging {
+
+  private val tracedPixels :  AtomicInteger = new AtomicInteger(0)
 
   def shadowRay(position: Vector3, light: Vector3): Boolean = {
     val vectorToLight = (light - position)
@@ -72,7 +76,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
       val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
       l.color * Math
         .pow(Math.max(-(R * L), 0), hit.color.shininess)
-        .toFloat * hit.color.spec * l.intensity //spec does not use color of object
+        .toDouble * hit.color.spec * l.intensity //spec does not use color of object
     }
     } match {
       case Seq() => RGB.BLACK
@@ -100,7 +104,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
   def getFirstHit(r: Ray): Option[Hit] = scene.allShapes.intersect(r)
 
-  def anyHit(r: Ray, maxDist: Float): Boolean = scene.allShapes.intersectionTest(r,maxDist)
+  def anyHit(r: Ray, maxDist: Double): Boolean = scene.allShapes.intersectionTest(r,maxDist)
 
   def startRendering(config: Config) = {
     val start = System.nanoTime()
@@ -143,7 +147,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
 
     val allPixels: Array[(Int, Int)] =
       (for {x <- 0 until img.width
-            y <- 0 until img.height if (None==selection || selection.get.contains((x,y)))
+            y <- 0 until img.height if None==selection || selection.get.contains((x,y))
       } yield (x, y)).toArray
 
     val chunks: Array[Array[(Int, Int)]] =
@@ -155,8 +159,8 @@ class Renderer(val scene: Scene) extends LazyLogging {
   }
 
   def renderPath(img: Image, supersampling: Int, selection: Option[GenSet[(Int,Int)]]): Unit = {
-    val w: Float = scene.width
-    val h: Float = scene.height
+    val w: Double = scene.width
+    val h: Double = scene.height
     val corner = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)
 
     val X = img.width
@@ -177,10 +181,10 @@ class Renderer(val scene: Scene) extends LazyLogging {
                 (for {
                   i <- 0 until supersampling
                   j <- 0 until supersampling
-                  shift = (supersampling - 1) / (2f * supersampling)
+                  shift = (supersampling - 1) / (2.0 * supersampling)
                   rayTarget = (corner
-                    + scene.side * ((w * (x + i.toFloat / supersampling - shift)) / X)
-                    - scene.up * (h * (y + j.toFloat / supersampling - shift) / Y))
+                    + scene.side * ((w * (x + i.toDouble / supersampling - shift)) / X)
+                    - scene.up * (h * (y + j.toDouble / supersampling - shift) / Y))
                   rayDir = (rayTarget - scene.cameraOrigin).normalized
                   description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
                 } yield
@@ -188,6 +192,10 @@ class Renderer(val scene: Scene) extends LazyLogging {
                   .reduce(_ + _)
 
               img.set(x, y, colorSum / S)
+              val status = tracedPixels.incrementAndGet()
+              val one_percent = X*Y/100
+              if(status%(5*one_percent) ==0)
+                logger.info(s"traced $status pixels -> ${status/one_percent}%")
             }
         }
     }

@@ -6,7 +6,8 @@ import play.api.libs.json.{Format, JsValue, Json}
 final case class Triangle(a: Vector3,
                           b: Vector3,
                           c: Vector3,
-                          material: String = "DEFAULT_MATERIAL")
+                          material: String = "DEFAULT_MATERIAL",
+                          normals : Option[Seq[Vector3]] = None)
     extends Shape {
   import Math._
   val edge1: Vector3 = b - a
@@ -18,7 +19,7 @@ final case class Triangle(a: Vector3,
     //Begin calculating determinant - also used to calculate u parameter
     val p: Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-    val det: Float = edge1 * p
+    val det: Double = edge1 * p
 
     //TODO: Backface culling???
     if (det > -EPS && det < EPS)
@@ -26,7 +27,7 @@ final case class Triangle(a: Vector3,
     else {
       val inv_det = 1f / det
       //calculate distance from V1 to ray origin
-      val t_vec = (r.origin - a) //I normalized this???
+      val t_vec = r.origin - a //I normalized this???
 
       //Calculate u parameter and test bound
       val u = (t_vec * p) * inv_det
@@ -46,7 +47,13 @@ final case class Triangle(a: Vector3,
           if (t > EPS) {
             //ray intersection
             val pos = r.march(t)
-            Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
+
+            normals match{
+              case Some(Seq(a,b,c)) =>
+                        val interpolatedNormal = a*(1-u-v) + b*u + c *v
+                        Some(Hit(t, r.march(t), interpolatedNormal , Shape.getMaterial(material, pos)))
+              case _ => Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
+            }
           } else {
             None
           }
@@ -55,10 +62,10 @@ final case class Triangle(a: Vector3,
     }
   }
 
-  override def intersect(r: Ray, maxDist: Float): Boolean = {
+  override def intersect(r: Ray, maxDist: Double): Boolean = {
     val p: Vector3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-    val det: Float = edge1 * p
+    val det: Double = edge1 * p
     //TODO: Backface culling???
     if (det > -EPS && det < EPS)
       false
@@ -88,7 +95,7 @@ final case class Triangle(a: Vector3,
     }
   }
 
-  override def boundingBox(): AABB = {
+  override def boundingBox: AABB = {
     val points : Seq[Vector3] = Seq(a,b,c)
     AABB(points.map(_.x).min, points.map(_.x).max,
          points.map(_.y).min, points.map(_.y).max,
@@ -96,4 +103,16 @@ final case class Triangle(a: Vector3,
   }
 
   override def midpoint: Vector3 = (a+b+c)/3
+
+  override def minX: Double = a.x min b.x min c.x
+
+  override def minY: Double = a.y min b.y min c.y
+
+  override def minZ: Double = a.z min b.z min c.z
+
+  override def maxX: Double = a.x max b.x max c.x
+
+  override def maxY: Double = a.y max b.y max c.y
+
+  override def maxZ: Double = a.z max b.z max c.z
 }

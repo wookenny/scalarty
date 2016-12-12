@@ -28,10 +28,10 @@ class SphereSpec  extends Specification with ScalaCheck { def is = s2"""
   //TODO:  maybe just a vector3 generator!!
   implicit lazy val HittingRayGen: Arbitrary[Ray] =
     Arbitrary {
-      for{ x : Float <- Gen.choose(-.9f, .9f)
-           y : Float <- Gen.choose(-.9f, .9f)
-           z : Float <- Gen.choose(-.9f, .9f)
-      } yield Ray(Vector3(0,0,0) , Vector3(x,y,z).normalized)
+      for{ x : Double <- Gen.choose(-.9f, .9f)
+           y : Double <- Gen.choose(-.9f, .9f)
+           z : Double <- Gen.choose(-.9f, .9f)
+      } yield Ray(Vector3(0, 0, 0) , Vector3(x, y, z).normalized)
     }
 
 

@@ -134,9 +134,9 @@
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/teapot.obj",
+      "objFiles" : [{"filename": "scenes/obj/armadillo.obj",
                      "center"   : {"x": -0.3, "y": -0.5,"z": -0.4},
-                     "maxSide"  : 1,
-                     "rotation" : 0.57}]
+                     "maxSide"  : 1.1,
+                     "rotation" : 0}]
 
 }

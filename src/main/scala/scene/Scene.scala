@@ -9,8 +9,8 @@ import play.api.libs.json.{Format, Json}
 
 final case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,
-                       width: Float,
-                       height: Float,
+                       width: Double,
+                       height: Double,
                        lights: Seq[Light],
                        shapes: Seq[Shape],
                        materials: Seq[Material],
@@ -22,14 +22,13 @@ final case class Scene(cameraOrigin: Vector3,
   val side = Vector3(1, 0, 0)
   lazy val allShapes : ShapeContainer = if(objFiles.isDefined)
                           ShapeMetaContainer( ShapeSeq(shapes), BVH( parseObjFiles(objFiles.get)) )
-                          ////TODO Multiple BVH's for each object? Or is it ok?
-                        else
+                       else
                           ShapeSeq(shapes)
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
 
-  def parseObjFiles(objFiles: Seq[ObjObject]) : Seq[Triangle] = {
-    objFiles.flatMap(_.getTriangles)
+  def parseObjFiles(objFiles: Seq[ObjObject]) : Array[Triangle] = {
+    objFiles.flatMap(_.getTriangles).toArray
   }
 }
 

@@ -39,10 +39,10 @@ class RaySpec  extends Specification with ScalaCheck {
 
   implicit lazy val VectorGen: Arbitrary[Vector3] =
     Arbitrary {
-      for{ x : Float <- Gen.choose(-.9f, .9f)
-           y : Float <- Gen.choose(-.9f, .9f)
-           z : Float <- Gen.choose(-.9f, .9f)
-      } yield Vector3(x,y,z)
+      for{ x : Double <- Gen.choose(-.9f, .9f)
+           y : Double <- Gen.choose(-.9f, .9f)
+           z : Double <- Gen.choose(-.9f, .9f)
+      } yield Vector3(x, y, z)
     }
 
 }
