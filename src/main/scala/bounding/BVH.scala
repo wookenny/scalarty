@@ -1,8 +1,9 @@
 package bounding
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.{LazyLogging, Logger}
 import math.{AABB, Ray, Shape}
 import renderer.Hit
+import support.Util._
 
 
 abstract class Node{
@@ -46,8 +47,11 @@ final case class Leaf(boundingBox: Option[AABB], shapes:  Seq[Shape], depth: Int
 
 case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeContainer with LazyLogging {
   logger.info("Building BVH ...")
+
+  implicit val timelogger: Logger = logger
+
   var nodesCreated : Int = 0
-  val root : Node = buildBVH(shapes,0)
+  val root : Node = time("Building BVH took"){  buildBVH(shapes,0) }
 
   logger.info(s"Build BVH tree with ${size} primitives, ${numNodes} nodes and depth $depth")
 

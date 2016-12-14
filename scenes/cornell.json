@@ -134,7 +134,7 @@
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/armadillo.obj",
+      "objFiles" : [{"filename": "scenes/obj/dragon2.obj",
                      "center"   : {"x": -0.3, "y": -0.5,"z": -0.4},
                      "maxSide"  : 1.1,
                      "rotation" : 0}]

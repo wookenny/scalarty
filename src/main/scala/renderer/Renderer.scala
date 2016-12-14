@@ -9,6 +9,7 @@ import math.{Ray, Vector3}
 import scene.Scene
 import support.Image
 import support.Config
+import support.Util._
 
 import scala.Seq
 import scala.collection.GenSet
@@ -21,6 +22,7 @@ object Renderer {
 
 class Renderer(val scene: Scene) extends LazyLogging {
 
+  implicit val timelogger: Logger = logger
   private val tracedPixels :  AtomicInteger = new AtomicInteger(0)
 
   def shadowRay(position: Vector3, light: Vector3): Boolean = {
@@ -111,7 +113,7 @@ class Renderer(val scene: Scene) extends LazyLogging {
     logger.info("Starting to trace")
     logger.info(s"scene contains ${scene.allShapes.size} shapes")
 
-    val image = render(config)
+    val image = time("Rendering scene took"){render(config) }
 
     val now = System.nanoTime()
     logger.info(
