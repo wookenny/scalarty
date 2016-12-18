@@ -1,12 +1,14 @@
 package scene
 
 import com.typesafe.scalalogging.LazyLogging
+import material.Material.DEFAULT_MATERIAL
 import math.{Triangle, Vector3}
 import play.api.libs.json.{Format, Json}
+
 import scala.io.Source._
 import math.Math.π
 
-case class ObjObject(filename: String, center: Vector3, maxSide: Double, rotation: Double) extends LazyLogging{
+case class ObjObject(filename: String, center: Vector3, maxSide: Double, rotation: Double, material: Option[String]) extends LazyLogging{
   var triangles = scala.collection.mutable.ArrayBuffer.empty[(Array[Int],Array[Int],Array[Int])]
   var normals   = scala.collection.mutable.ArrayBuffer.empty[Vector3]
   var vertices  = scala.collection.mutable.ArrayBuffer.empty[Vector3]
@@ -60,10 +62,15 @@ case class ObjObject(filename: String, center: Vector3, maxSide: Double, rotatio
     for(i <- normals.indices.par)
       normals(i) = transformNormal(normals(i), rotation).normalized
 
+    val mat : String = material match {
+      case None => DEFAULT_MATERIAL.name
+      case Some(m) => m
+    }
+
     val ts = if (normals.size>=vertices.size)
       triangles.par.map {
         case (a, b, c) => val norms = Some(Seq(normals(a.last - 1), normals(b.last - 1), normals(c.last - 1)))
-          Triangle(vertices(a.head - 1), vertices(b.head - 1), vertices(c.head - 1), normals = norms)
+          Triangle(vertices(a.head - 1), vertices(b.head - 1), vertices(c.head - 1), mat, norms)
       }
     else triangles.par.map { case (a,b,c) => Triangle(vertices(a.head - 1), vertices(b.head - 1), vertices(c.head - 1))}
 

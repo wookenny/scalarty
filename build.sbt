@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "org.scalariform" %% "scalariform" % "0.1.8",
   "com.typesafe.play" %% "play-json" % "2.5.9",
   "org.typelevel" %% "cats" % "0.7.2",
+  "org.mockito" % "mockito-core" % "2.3.7",
   "com.google.inject" % "guice" % "3.0")
 
 scalacOptions in Test ++= Seq("-Yrangepos")

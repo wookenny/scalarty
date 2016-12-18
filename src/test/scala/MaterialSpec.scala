@@ -24,9 +24,9 @@ class MaterialSpec  extends Specification with ScalaCheck {
 
   implicit lazy val VectorGen: Arbitrary[Vector3] =
     Arbitrary {
-      for {x: Double <- Gen.choose(-1000f, 1000f)
-           y: Double <- Gen.choose(-1000f, 1000f)
-           z: Double <- Gen.choose(-1000f, 1000f)
+      for {x: Double <- Gen.choose(-1000d, 1000d)
+           y: Double <- Gen.choose(-1000d, 1000d)
+           z: Double <- Gen.choose(-1000d, 1000d)
       } yield Vector3(x, y, z)
     }
 
@@ -37,13 +37,13 @@ class MaterialSpec  extends Specification with ScalaCheck {
     out should be equalTo in
   }
 
-  val parseSingleColorMaterial =  parseMaterial(SingleColorMaterial("noname",RGB.RED,0.5f, 0.1f, 0.3f, 0.1f))
+  val parseSingleColorMaterial =  parseMaterial(SingleColorMaterial("noname",RGB.RED,0.5, 0.1, 0.3, 0.1))
   val parseDefaultMaterial =  parseMaterial(Material.DEFAULT_MATERIAL)
-  val parseCheckerMaterial = parseMaterial(CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1f, 0.5f, 0.3f, 0.2f))
+  val parseCheckerMaterial = parseMaterial(CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1, 0.5, 0.3, 0.2))
 
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
-    val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4f, 0.2f, 0.1f, 0.1f, 0.2f)
+    val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4, 0.2, 0.1, 0.1, 0.2)
     val expectedColor = UnshadedColor(RGB.BLUE, mat.ambient, mat.diffuse, mat.spec, mat.reflective, mat.refractive, mat.n, mat.shininess)
 
     mat.getMat(x) should be equalTo expectedColor
@@ -53,7 +53,7 @@ class MaterialSpec  extends Specification with ScalaCheck {
   val testCheckerMaterial: Prop = forAll(Gen.choose(-1000,1000),Gen.choose(-1000,1000),Gen.choose(-1000,1000)) {
     (x,y,z)  => {
       val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
-      val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1f, 0.5f, 0.3f, 0.2f)
+      val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1, 0.5, 0.3, 0.2)
       val expectedColor = if ((x%2 + y%2 + z%2 +10) % 2 == 1) RGB.WHITE else RGB.BLACK
 
       mat.getMat(pos).color shouldEqual expectedColor

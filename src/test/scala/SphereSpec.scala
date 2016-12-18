@@ -17,20 +17,20 @@ class SphereSpec  extends Specification with ScalaCheck { def is = s2"""
   def sphere1 = Sphere(center = Vector3.ZERO, radius = 4)
 
   val insersectFromInside : Prop = forAll{ (r:Ray) => sphere1.intersect(r) isDefined }
-  val insersectFromInsideWithCorrectDist = forAll { (r: Ray) =>  sphere1.intersect(r, 4.1f)}
-  val missedFromInsideDueToDist : Prop = forAll { (r: Ray) =>  !sphere1.intersect(r, 3.9f)}
+  val insersectFromInsideWithCorrectDist = forAll { (r: Ray) =>  sphere1.intersect(r, 4.1)}
+  val missedFromInsideDueToDist : Prop = forAll { (r: Ray) =>  !sphere1.intersect(r, 3.9)}
 
-  val intersectFrontal = forAll { (r: Ray) =>  Sphere(center = r.march( 9),.3f).intersect(r) isDefined}
-  val missBackwards = forAll{ (r: Ray) =>  Sphere(center = r.march(-9), .3f).intersect(r) isEmpty}
+  val intersectFrontal = forAll { (r: Ray) =>  Sphere(center = r.march( 9),.3).intersect(r) isDefined}
+  val missBackwards = forAll{ (r: Ray) =>  Sphere(center = r.march(-9), .3).intersect(r) isEmpty}
 
 
 
   //TODO:  maybe just a vector3 generator!!
   implicit lazy val HittingRayGen: Arbitrary[Ray] =
     Arbitrary {
-      for{ x : Double <- Gen.choose(-.9f, .9f)
-           y : Double <- Gen.choose(-.9f, .9f)
-           z : Double <- Gen.choose(-.9f, .9f)
+      for{ x : Double <- Gen.choose(-.9, .9)
+           y : Double <- Gen.choose(-.9, .9)
+           z : Double <- Gen.choose(-.9, .9)
       } yield Ray(Vector3(0, 0, 0) , Vector3(x, y, z).normalized)
     }
 

@@ -26,7 +26,7 @@ class RaySpec  extends Specification with ScalaCheck {
     }
 
       val testRefraction = forAll { (dir: Vector3, o: Vector3, norm: Vector3) => {
-        val ray = Ray(origin = o, direction = dir.normalized, n=1f)
+        val ray = Ray(origin = o, direction = dir.normalized)
         val refractedRay = ray.refractedAt(position = o, normal = norm, newN = 1f)
 
         refractedRay match {
@@ -39,9 +39,9 @@ class RaySpec  extends Specification with ScalaCheck {
 
   implicit lazy val VectorGen: Arbitrary[Vector3] =
     Arbitrary {
-      for{ x : Double <- Gen.choose(-.9f, .9f)
-           y : Double <- Gen.choose(-.9f, .9f)
-           z : Double <- Gen.choose(-.9f, .9f)
+      for{ x : Double <- Gen.choose(-.9, .9)
+           y : Double <- Gen.choose(-.9, .9)
+           z : Double <- Gen.choose(-.9, .9)
       } yield Vector3(x, y, z)
     }
 

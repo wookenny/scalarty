@@ -42,13 +42,13 @@ class VectorSpec extends Specification with ScalaCheck { def is = s2"""
 
   implicit lazy val PointGen: Arbitrary[Vector3] =
     Arbitrary {
-      for{ x : Double <- Gen.choose(-1000f,1000f)
-           y : Double <- Gen.choose(-1000f,1000f)
-           z : Double <- Gen.choose(-1000f,1000f)
+      for{ x : Double <- Gen.choose(-1000d,1000d)
+           y : Double <- Gen.choose(-1000d,1000d)
+           z : Double <- Gen.choose(-1000d,1000d)
       } yield Vector3(x, y, z)
     }
 
-  implicit lazy val DoubleGen: Arbitrary[Double] = Arbitrary { Gen.choose(-10f,10f)}
+  implicit lazy val DoubleGen: Arbitrary[Double] = Arbitrary { Gen.choose(-10d,10d)}
 
 
   val EPS = 0.001

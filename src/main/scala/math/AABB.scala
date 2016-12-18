@@ -1,5 +1,6 @@
 package math
 
+import material.Material.DEFAULT_MATERIAL
 import renderer.Hit
 
 sealed case class AABB(x_min: Double,
@@ -8,7 +9,7 @@ sealed case class AABB(x_min: Double,
                       y_max: Double,
                       z_min: Double,
                       z_max: Double,
-                      material: String = "DEFAULT_MATERIAL")
+                      material: String = DEFAULT_MATERIAL.name)
     extends Shape {
   import Math._
   require(x_min <= x_max)
@@ -91,6 +92,8 @@ sealed case class AABB(x_min: Double,
     z_min <= vec.z && vec.z <= z_max
 
   def area: Double = 2*((x_max-x_min)*(y_max-y_min) + (x_max-x_min)*(z_max-z_min) * (y_max-y_min)*(z_max-z_min))
+
+  def union(otherAABB: AABB) = AABB.union(this, otherAABB)
 
 }
 

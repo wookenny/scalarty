@@ -5,6 +5,9 @@ import math.{AABB, Ray, Shape}
 import renderer.Hit
 import support.Util._
 
+import scala.annotation.tailrec
+import scala.collection.mutable
+
 
 abstract class Node{
   def getDepth : Int
@@ -25,8 +28,8 @@ abstract class Node{
 }
 
 final case class InnerNode(boundingBox: Option[AABB], children:  Seq[Node], depth: Int) extends Node{
-  override def closestHit(ray: Ray)  = None
-  override def getDepth = children.map{  _ getDepth }.max
+  override def closestHit(ray: Ray) = None
+  override def getDepth: Int = children.map{  _ getDepth }.max
 
   override def countNodes: Int = 1+children.foldLeft(0)(_ + _.countNodes)
 }
@@ -48,7 +51,7 @@ final case class Leaf(boundingBox: Option[AABB], shapes:  Seq[Shape], depth: Int
 case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeContainer with LazyLogging {
   logger.info("Building BVH ...")
 
-  implicit val timelogger: Logger = logger
+  implicit val log : (String) => Unit = s => logger.info(s)
 
   var nodesCreated : Int = 0
   val root : Node = time("Building BVH took"){  buildBVH(shapes,0) }
@@ -74,7 +77,7 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
     else {
       val split = getSplit(shapes,aabb.get)
       split match {
-        case (a, b) if (a.size min b.size) <= leaf_node_limit => None
+        case (a, b) if (a.size min b.size) == 0 /* leaf_node_limit*/ => None
         case (a, b) => Some(a, b)
       }
     }
@@ -87,7 +90,15 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
       case (x,y,z) if y >= x && y >= z =>  shapes.sortBy(_.midpoint.y)
       case _                           =>  shapes.sortBy(_.midpoint.z)
     }
-    (split.take(split.size/2), split.drop(split.size/2))
+
+    val splitIndex = if(BVH.splitSAH) {
+      val forw = BVH.findBoundingBoxes(split.toIndexedSeq)
+      val backw = BVH.findBoundingBoxes(split.toIndexedSeq.reverse).reverse
+      getOptimalSplit(forw, backw, aabb.area)
+    }else
+      split.size/2
+
+    (split.take(splitIndex), split.drop(splitIndex))
   }
 
   private def splitPrimitivesSAH(shapes: Seq[Shape], aabb: Option[AABB]) :  Option[(Seq[Shape],Seq[Shape])] = {
@@ -135,6 +146,23 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
       BVH.CostAABBIntersection
         + (areaLeft/wholeSurfaceArea)*nodesLeft*BVH.CostShapeIntersection +
           (areaRight/wholeSurfaceArea)*nodesRight*BVH.CostShapeIntersection
+  }
+
+  def getOptimalSplit(forw: Seq[Double],backw: Seq[Double], wholeSurfaceArea: Double) : Int= {
+    require(forw.size==backw.size)
+
+    var index = 0
+    var cost : Double = shapes.size*BVH.CostShapeIntersection
+    for(i <- 1 until forw.size-1){
+        val splitcost : Double = BVH.CostAABBIntersection +
+                                  (forw(i)/wholeSurfaceArea) * i  * BVH.CostShapeIntersection +
+                                 (backw(i+1)/wholeSurfaceArea) * (backw.size-i) * BVH.CostShapeIntersection
+        if (splitcost < cost) {
+            index = i
+            cost = splitcost
+        }
+    }
+    index
   }
 
   private def buildBVH(shapes: Seq[Shape], depth: Int) : Node = {
@@ -191,7 +219,6 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
     }
   }
   override def intersectionTest(ray: Ray, maxDist: Double): Boolean =
-    //TODO: implement better
     intersect(ray) match {
       case Some(hit) if hit.distance <= maxDist => true
       case _ => false
@@ -201,6 +228,33 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit : Int = 20) extends ShapeCont
 
 object BVH{
   private val CostShapeIntersection: Int = 1
-  private val CostAABBIntersection : Int = 8
+  private val CostAABBIntersection : Int = 3
+
+  private def findMax(l: Seq[Int]) : Seq[Int] =  l match {
+    case Nil => Seq.empty[Int]
+    case (head::tail) =>  findMaxRec(tail,head,Nil)
+  }
+
+  @tailrec
+  private def findMaxRec(l: Seq[Int], value: Int, acc: Seq[Int]) : Seq[Int]  =  l match {
+    case Nil => acc
+    case (head::tail) => val v : Int = value max head; findMaxRec(tail, v, acc:+v )
+  }
+
+  private def findBoundingBoxes(l: Seq[Shape]) : Seq[Double] =  l match {
+    case Nil => Seq.empty
+    case x => findBoundingBoxesRec(x.tail,x.head.boundingBox,new mutable.ArraySeq[Double](l.size), 0)
+  }
+
+  @tailrec
+  private def findBoundingBoxesRec(l: Seq[Shape], value: AABB, acc: mutable.ArraySeq[Double], position: Int) : Seq[Double]  =  l match {
+    case Nil => acc
+    case x if position == l.size => acc
+    case x => val v  = value union x(position).boundingBox
+              acc(position) = v.area
+              findBoundingBoxesRec(x, v, acc, position+1)
+  }
+
+  val splitSAH = false
 
 }

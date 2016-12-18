@@ -21,31 +21,31 @@ class TriangleSpec  extends Specification with ScalaCheck { def is = s2"""
 
   def intersectFrontal = {
 
-    val hitFront = triangle.intersect( Ray( Vector3(-0.2f, -0.2f, 0.0f),  Vector3.Z))
-    val hitBack =  triangle.intersect( Ray( Vector3(-0.2f, -0.2f, 2.0f), -Vector3.Z))
+    val hitFront = triangle.intersect( Ray( Vector3(-0.2, -0.2, 0),  Vector3.Z))
+    val hitBack =  triangle.intersect( Ray( Vector3(-0.2, -0.2, 2), -Vector3.Z))
 
     (hitFront shouldNotEqual None) and (hitBack shouldNotEqual None)
   }
 
   def intersectAccordingToDistance = {
-    val hitFront  = triangle.intersect( Ray( Vector3(-0.2f, -0.2f, 0.0f), Vector3.Z) , 1+.1f)
-    val missFront = triangle.intersect( Ray( Vector3(-0.2f, -0.2f, 0.0f), -Vector3.Z), 1-.1f)
+    val hitFront  = triangle.intersect( Ray( Vector3(-0.2, -0.2, 0), Vector3.Z) , 1+.1)
+    val missFront = triangle.intersect( Ray( Vector3(-0.2, -0.2, 0), -Vector3.Z), 1-.1)
 
-    val hitBack =  triangle.intersect( Ray( Vector3(-0.2f, -0.2f, 2.0f), -Vector3.Z),  1+.1f)
-    val missBack =  triangle.intersect( Ray( Vector3(-0.2f, -0.2f, 2.0f), -Vector3.Z), 1-.1f)
+    val hitBack =  triangle.intersect( Ray( Vector3(-0.2, -0.2, 2), -Vector3.Z),  1+.1)
+    val missBack =  triangle.intersect( Ray( Vector3(-0.2, -0.2, 2), -Vector3.Z), 1-.1)
 
 
     (hitFront, hitBack, missFront, missBack)  should beEqualTo((true,true,false,false))
   }
 
-  val hittingTest      = forAll { (r: Ray) =>  triangle.intersect(r) != None } //FAILS
-  val hittingTestDist  = forAll { (r: Ray) =>  triangle.intersect(r, 1.1f) }   //FAILS
-  val missingTestDist  = forAll { (r: Ray) =>  !triangle.intersect(r,  .9f)}   //FAILS
+  val hittingTest      = forAll { (r: Ray) =>  triangle.intersect(r).isDefined} //FAILS
+  val hittingTestDist  = forAll { (r: Ray) =>  triangle.intersect(r, 1.1) }   //FAILS
+  val missingTestDist  = forAll { (r: Ray) =>  !triangle.intersect(r,  .9)}   //FAILS
 
   implicit lazy val HittingRayGen: Arbitrary[Ray] =
     Arbitrary {
-      for{ x : Double <- Gen.choose(-.9f,.9f)
-           y : Double <- Gen.choose(-.9f, x )
+      for{ x : Double <- Gen.choose(-.9,.9)
+           y : Double <- Gen.choose(-.9, x )
       } yield Ray(Vector3(x, y, 0) , Vector3.Z)
     }
 

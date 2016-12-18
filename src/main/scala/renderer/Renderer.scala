@@ -22,11 +22,11 @@ object Renderer {
 
 class Renderer(val scene: Scene) extends LazyLogging {
 
-  implicit val timelogger: Logger = logger
+  implicit val log : (String) => Unit = s => logger.info(s)
   private val tracedPixels :  AtomicInteger = new AtomicInteger(0)
 
   def shadowRay(position: Vector3, light: Vector3): Boolean = {
-    val vectorToLight = (light - position)
+    val vectorToLight = light - position
     anyHit(Ray(position, vectorToLight.normalized), vectorToLight.length)
   }
 
