@@ -10,9 +10,9 @@ final case class RGB(red: Double, green: Double, blue: Double) {
   )
 
   def awtColor() = new java.awt.Color(
-    (0f max red.toFloat)   min 1f,
+    (0f max red.toFloat) min 1f,
     (0f max green.toFloat) min 1f,
-    (0f max blue.toFloat)  min 1f
+    (0f max blue.toFloat) min 1f
   )
 
   def *(s: Double) = RGB(red * s, green * s, blue * s)

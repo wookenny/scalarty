@@ -16,16 +16,14 @@ class ImageSpec extends Specification {
       be invalid with negtive widtht $testNegativeWidth
     """
 
-
-
   val testInitImage = {
-    val img = new Image(400,600)
+    val img = new Image(400, 600)
     //TODO: injection for proper test
     1 must beLessThan(2)
   }
 
   val testSaveImage = {
-    val img = new Image(400,600)
+    val img = new Image(400, 600)
     img.save("blub.image.jpg")
     img.save("blub")
     //TODO: injection for proper test
@@ -33,18 +31,18 @@ class ImageSpec extends Specification {
   }
 
   val testSetColors = {
-    val img = new Image(400,600)
-    img.set(12,10, RGB.RED)
+    val img = new Image(400, 600)
+    img.set(12, 10, RGB.RED)
     //TODO: injection for proper test
     1 must beLessThan(2)
   }
 
   val testNegativeHeight = {
-    (new Image(-2,10)) must throwA[IllegalArgumentException]
+    (new Image(-2, 10)) must throwA[IllegalArgumentException]
   }
 
   val testNegativeWidth = {
-    (new Image(200,-121)) must throwA[IllegalArgumentException]
+    (new Image(200, -121)) must throwA[IllegalArgumentException]
   }
 
 }

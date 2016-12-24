@@ -8,15 +8,15 @@ trait Shape {
   def intersect(r: Ray): Option[Hit] //TODO: should only generate needed data, not too much in advance
   def intersect(r: Ray, maxDist: Double): Boolean
 
-  def boundingBox : AABB
-  def midpoint : Vector3
+  def boundingBox: AABB
+  def midpoint: Vector3
 
-  def minX : Double
-  def minY : Double
-  def minZ : Double
-  def maxX : Double
-  def maxY : Double
-  def maxZ : Double
+  def minX: Double
+  def minY: Double
+  def minZ: Double
+  def maxX: Double
+  def maxY: Double
+  def maxZ: Double
 }
 
 object Shape {
@@ -34,9 +34,10 @@ object Shape {
       case "AABB" => Json.fromJson[AABB](data)(aabbFmt)
       case "Sphere" => Json.fromJson[Sphere](data)(sphereFmt)
       case "Triangle" => Json.fromJson[Triangle](data)(triangleFmt)
-    }) match  {
+    }) match {
       case JsSuccess(shape, _) => shape
-      case JsError(errors) => throw new IllegalArgumentException(errors.toString)
+      case JsError(errors) =>
+        throw new IllegalArgumentException(errors.toString)
     }
   }
 

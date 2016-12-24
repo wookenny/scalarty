@@ -21,7 +21,7 @@ final case class Ray(origin: Vector3,
     val (norm, cosI) =
       if (negCosI < 0) (normal, -negCosI) else (-normal, negCosI)
 
-    val sinT2  = refractionFactor * refractionFactor * (1f - cosI * cosI)
+    val sinT2 = refractionFactor * refractionFactor * (1f - cosI * cosI)
     if (sinT2 > 1f) //total internal reflection
       None
     else {

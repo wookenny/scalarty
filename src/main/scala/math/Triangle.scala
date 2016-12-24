@@ -7,7 +7,7 @@ final case class Triangle(a: Vector3,
                           b: Vector3,
                           c: Vector3,
                           material: String = "DEFAULT_MATERIAL",
-                          normals : Option[Seq[Vector3]] = None)
+                          normals: Option[Seq[Vector3]] = None)
     extends Shape {
   import Math._
   lazy val edge1: Vector3 = b - a
@@ -48,11 +48,17 @@ final case class Triangle(a: Vector3,
             //ray intersection
             val pos = r.march(t)
 
-            normals match{
-              case Some(Seq(a,b,c)) =>
-                        val interpolatedNormal = a*(1-u-v) + b*u + c *v
-                        Some(Hit(t, r.march(t), interpolatedNormal , Shape.getMaterial(material, pos)))
-              case _ => Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
+            normals match {
+              case Some(Seq(a, b, c)) =>
+                val interpolatedNormal = a * (1 - u - v) + b * u + c * v
+                Some(
+                  Hit(t,
+                      r.march(t),
+                      interpolatedNormal,
+                      Shape.getMaterial(material, pos)))
+              case _ =>
+                Some(
+                  Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
             }
           } else {
             None
@@ -96,13 +102,16 @@ final case class Triangle(a: Vector3,
   }
 
   override def boundingBox: AABB = {
-    val points : Seq[Vector3] = Seq(a,b,c)
-    AABB(points.map(_.x).min, points.map(_.x).max,
-         points.map(_.y).min, points.map(_.y).max,
-         points.map(_.z).min, points.map(_.z).max )
+    val points: Seq[Vector3] = Seq(a, b, c)
+    AABB(points.map(_.x).min,
+         points.map(_.x).max,
+         points.map(_.y).min,
+         points.map(_.y).max,
+         points.map(_.z).min,
+         points.map(_.z).max)
   }
 
-  override def midpoint: Vector3 = (a+b+c)/3
+  override def midpoint: Vector3 = (a + b + c) / 3
 
   override def minX: Double = a.x min b.x min c.x
 

@@ -19,14 +19,10 @@ trait ImageWriter {
   def save(filename: String)
 }
 
-object Image{
-  val sobelKernelX = Seq(Seq(-1,0,1),
-                         Seq(-2,0,2),
-                         Seq(-1,0,1))
+object Image {
+  val sobelKernelX = Seq(Seq(-1, 0, 1), Seq(-2, 0, 2), Seq(-1, 0, 1))
 
-  val sobelKernelY = Seq(Seq(-1,-2,-1),
-                         Seq( 0, 0, 0),
-                         Seq( 1, 2, 1))
+  val sobelKernelY = Seq(Seq(-1, -2, -1), Seq(0, 0, 0), Seq(1, 2, 1))
 }
 
 class Image(val width: Int, val height: Int) {
@@ -35,14 +31,16 @@ class Image(val width: Int, val height: Int) {
   require(height > 0, "Image height has to be positive.")
 
   private val alpha = 2.2
-  val edgeThreshold : Double = 1
+  val edgeThreshold: Double = 1
 
-  private val img =  new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+  private val img =
+    new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
   clear
 
   def save(filename: String): Boolean = {
     val (fixedfilename: String, fileType: String) = getFilenameEnding(filename)
-    ImageIO.write(img, "png", new File(fixedfilename+fileType)) //TODO: use filetype!!!
+    ImageIO
+      .write(img, "png", new File(fixedfilename + fileType)) //TODO: use filetype!!!
   }
 
   private def getFilenameEnding(filename: String) =
@@ -60,32 +58,34 @@ class Image(val width: Int, val height: Int) {
     }
   }
 
+  def set(x: Int, y: Int, c: RGB): Boolean = (x, y) match {
+    case (x, y) if x >= 0 && y >= 0 && x < img.getWidth && y < img.getHeight =>
+      img.setRGB(x, y, c.awtColor().getRGB)
+      true
+    case _ => false
+  }
 
-  def set(x: Int, y: Int, c: RGB): Boolean = (x,y) match {
-      case (x,y) if x>=0 && y>=0 && x<img.getWidth && y<img.getHeight =>
-          img.setRGB(x,y, c.awtColor().getRGB)
-          true
-      case _ => false
-    }
+  def get(x: Int, y: Int): Option[RGB] = (x, y) match {
+    case (x, y) if x >= 0 && y >= 0 && x < img.getWidth && y < img.getHeight =>
+      val color = new Color(img.getRGB(x, y))
+      Some(
+        RGB(color.getRed / 255f, color.getGreen / 255f, color.getBlue / 255f))
+    case _ => None
+  }
 
-  def get(x: Int, y: Int): Option[RGB] = (x,y) match {
-      case (x,y) if x>=0 && y>=0 && x<img.getWidth && y<img.getHeight =>
-          val color = new Color(img.getRGB(x, y))
-          Some(RGB(color.getRed/255f, color.getGreen/255f, color.getBlue/255f))
-      case _ => None
-    }
-
-  def detectEdges() : GenSet[(Int,Int)] = {
+  def detectEdges(): GenSet[(Int, Int)] = {
     val pixelIter: Iterator[(Int, Int)] =
-    for {x <- 0 until width iterator;
-         y <- 0 until height iterator} yield (x, y)
+      for {
+        x <- 0 until width iterator;
+        y <- 0 until height iterator
+      } yield (x, y)
 
     (pixelIter.toStream.par filter {
-      case (x:Int,y:Int) => sobelFilterMagnitude(x, y)  > edgeThreshold
+      case (x: Int, y: Int) => sobelFilterMagnitude(x, y) > edgeThreshold
     }).toSet
   }
 
-  private def sobelFilterMagnitude(x: Int, y: Int) : Double =
+  private def sobelFilterMagnitude(x: Int, y: Int): Double =
     Seq(sobelFilterMagnitute(x, y, (c: RGB) => c.red),
         sobelFilterMagnitute(x, y, (c: RGB) => c.green),
         sobelFilterMagnitute(x, y, (c: RGB) => c.blue)).max
@@ -99,14 +99,13 @@ class Image(val width: Int, val height: Int) {
       rgb = get(xn, yn) if rgb.isDefined
       mx = f(rgb.get) * Image.sobelKernelX(a)(b)
       my = f(rgb.get) * Image.sobelKernelY(a)(b)
-    } yield (mx, my)
-      ).foldLeft((0.0, 0.0)) { case ((a: Double, b: Double), (x: Double, y: Double)) => (a + x, b + y) }
-    match{
-      case (x,y) => Math.sqrt(x*x+y*y)
+    } yield (mx, my)).foldLeft((0.0, 0.0)) {
+      case ((a: Double, b: Double), (x: Double, y: Double)) => (a + x, b + y)
+    } match {
+      case (x, y) => Math.sqrt(x * x + y * y)
     }
 
-
-  private def fitToX(x:Int) = Math.max(0,Math.min(width-1,x))
-  private def fitToY(y:Int) = Math.max(0,Math.min(height-1,y))
+  private def fitToX(x: Int) = Math.max(0, Math.min(width - 1, x))
+  private def fitToY(y: Int) = Math.max(0, Math.min(height - 1, y))
 
 }

@@ -1,4 +1,3 @@
-
 import com.fasterxml.jackson.core.JsonParseException
 
 import scala.io.Source._
