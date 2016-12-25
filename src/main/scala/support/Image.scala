@@ -39,14 +39,15 @@ class Image(val width: Int, val height: Int) {
   def save(filename: String): Boolean = {
     val (fixedfilename: String, fileType: String) = getFilenameEnding(filename)
     ImageIO
-      .write(img, "png", new File(fixedfilename + fileType)) //TODO: use filetype!!!
+      .write(img, fileType, new File(fixedfilename +"."+ fileType)) //TODO: use filetype!!!
   }
 
   private def getFilenameEnding(filename: String) =
     if (filename contains ".") {
-      filename.splitAt(filename.lastIndexOf("."))
+      val index = filename.lastIndexOf(".")
+      (filename.take(index), filename.drop(index+1).toLowerCase)
     } else
-      (filename, ".png")
+      (filename, "png")
 
   def clear: Unit = {
     for {
@@ -101,10 +102,10 @@ class Image(val width: Int, val height: Int) {
     } yield (mx, my)).foldLeft((0.0, 0.0)) {
       case ((a: Double, b: Double), (x: Double, y: Double)) => (a + x, b + y)
     } match {
-      case (x, y) => Math.sqrt(x * x + y * y)
+      case (xi, yi) => Math.sqrt(xi * xi + yi * yi)
     }
 
-  private def fitToX(x: Int) = Math.max(0, Math.min(width - 1, x))
-  private def fitToY(y: Int) = Math.max(0, Math.min(height - 1, y))
+  private def fitToX(x: Int) = 0 max (width - 1)  min  x
+  private def fitToY(y: Int) = 0 max (height - 1) min  y
 
 }
