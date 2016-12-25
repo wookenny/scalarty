@@ -20,9 +20,8 @@ trait ImageWriter {
 }
 
 object Image {
-  val sobelKernelX = Seq(Seq(-1, 0, 1), Seq(-2, 0, 2), Seq(-1, 0, 1))
-
-  val sobelKernelY = Seq(Seq(-1, -2, -1), Seq(0, 0, 0), Seq(1, 2, 1))
+  private val sobelKernelX = Seq(Seq(-1, 0, 1), Seq(-2, 0, 2), Seq(-1, 0, 1))
+  private val sobelKernelY = Seq(Seq(-1, -2, -1), Seq(0, 0, 0), Seq(1, 2, 1))
 }
 
 class Image(val width: Int, val height: Int) {

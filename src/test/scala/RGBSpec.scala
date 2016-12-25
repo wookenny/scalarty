@@ -73,18 +73,18 @@ class RGBSpec extends Specification with ScalaCheck {
                      awtColor.getBlue.toDouble)
     val maxDifference =
       awtSeq.zip(expectedColors).map { case (x, y) => x - y }.max
-    maxDifference should be lessThanOrEqualTo (1)
+    maxDifference should be lessThanOrEqualTo 1
   }
 
   val testExposure: Prop = forAll { (a: RGB) =>
     val exposure = a.exposureCorrected
     val values = toSeq(exposure)
-    (values.max should be lessThanOrEqualTo (1)) and
-      (values.min should be greaterThanOrEqualTo (0))
+    (values.max should be lessThanOrEqualTo 1) and
+      (values.min should be greaterThanOrEqualTo 0)
   }
 
   val testPower: Prop = forAll { (a: RGB) =>
-    (a ^ 0 should be equalTo RGB(1f, 1f, 1f)) and
+    (a ^ 0 should be equalTo RGB(1d, 1d, 1d)) and
       (a ^ 1 should be equalTo a) and
       (a ^ 2 should be equalTo RGB(a.red * a.red,
                                    a.green * a.green,
@@ -92,9 +92,9 @@ class RGBSpec extends Specification with ScalaCheck {
   }
 
   val testGammaCorrection: Prop = forAll { (a: RGB) =>
-    val expectedColor = RGB(Math.pow(a.red, 1 / RGB.GAMMA).toDouble,
-                            Math.pow(a.green, 1 / RGB.GAMMA).toDouble,
-                            Math.pow(a.blue, 1 / RGB.GAMMA).toDouble)
+    val expectedColor = RGB(Math.pow(a.red, 1 / RGB.GAMMA),
+                            Math.pow(a.green, 1 / RGB.GAMMA),
+                            Math.pow(a.blue, 1 / RGB.GAMMA))
     a.gammaCorrected should be equalTo expectedColor
   }
 

@@ -46,6 +46,4 @@ object RGB {
 
   val GAMMA = 2.2
 
-  //def apply(r: Double, g: Double, b: Double): RGB =
-  //  apply(r.toDouble, g.toDouble, b.toDouble)
 }
