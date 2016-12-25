@@ -1,12 +1,14 @@
 import org.specs2.Specification
 import support.Util
+import org.specs2.mock._
 
-case class timeProvider(first: Long, successive: Long) {
-  var called = false
-  def time = if (!called) { called = true; first } else successive
+trait TimeProvider {
+  def time() :  Long
 }
 
-class UtilSpec extends Specification {
+class UtilSpec extends Specification with Mockito {
+
+
 
   override def is =
     s2"""
@@ -20,33 +22,28 @@ class UtilSpec extends Specification {
         3 hours $executionTimeLoggedFor3Hours
       """
 
-  private def ZeroNanoseconds         = timeProvider(0, 0).time _
-  private def SixteenNanoseconds      = timeProvider(0, 16).time _
-  private def TwentyEightMicroseconds = timeProvider(0, 28 * 1000).time _
-  private def ThirtyFiveMilliseconds  = timeProvider(0, 35 * 1000 * 1000).time _
-  private def ThirtyNineSeconds       = timeProvider(0, 39 * 1000 * 1000 * 1000).time _
-  private def TwelveMinutes           = timeProvider(0, 12 * 1000 * 1000 * 1000 * 60).time _
-  private def ThreeHours              = timeProvider(0, 39 * 1000 * 1000 * 1000 * 60 * 60).time _
 
-  val executionTimeLoggedForZeroNanoseconds = executionTimeLogged(ZeroNanoseconds, "0 nanoseconds")
-  val executionTimeLoggedFor16Nanoseconds   =  executionTimeLogged(ZeroNanoseconds, "16 nanoseconds")
-  val executionTimeLoggedFor28microseconds  = executionTimeLogged(TwentyEightMicroseconds, "28 microseconds")
-  val executionTimeLoggedFor35Milliseconds  = executionTimeLogged(ThirtyFiveMilliseconds, "35 milliseconds")
-  val executionTimeLoggedFor39Seconds       = executionTimeLogged(ThirtyNineSeconds, "39 seconds")
-  val executionTimeLoggedFor12Minutes       = executionTimeLogged(TwelveMinutes, "12 minutes")
-  val executionTimeLoggedFor3Hours          = executionTimeLogged(ThreeHours, "3 hours")
+  val executionTimeLoggedForZeroNanoseconds = executionTimeLogged(0, "0 nanoseconds")
+  val executionTimeLoggedFor16Nanoseconds   = executionTimeLogged(16, "16 nanoseconds")
+  val executionTimeLoggedFor28microseconds  = executionTimeLogged(28L*1000, "28 microseconds")
+  val executionTimeLoggedFor35Milliseconds  = executionTimeLogged(35L*1000*1000, "35 milliseconds")
+  val executionTimeLoggedFor39Seconds       = executionTimeLogged(39L*1000*1000*1000, "39 seconds")
+  val executionTimeLoggedFor12Minutes       = executionTimeLogged(12L*1000*1000*1000*60, "12 minutes")
+  val executionTimeLoggedFor3Hours          = executionTimeLogged( 3L*1000*1000*1000*60*60, "3 hours")
 
-  def executionTimeLogged(time: () => Long,  expectedMessage: String) = {
+  def executionTimeLogged(elapsedTime: Long,  expectedMessage: String) = {
+    val timeProvider = mock[TimeProvider]
+    timeProvider.time() returns 0 thenReturn elapsedTime
 
     val msg = "Logging msg"
     val block = { val x = 12; x}
     var logMessages: Seq[String] = Seq.empty
-    val result = Util.time(msg) {block}((s: String) => logMessages = s +: logMessages,  time)
+    val result = Util.time(msg) {block}((s: String) => logMessages = s +: logMessages,  timeProvider.time)
 
     val messageLogged = logMessages.headOption.getOrElse("")
 
-    result should be equalTo block
-    messageLogged must contain(expectedMessage)
-    messageLogged must contain(msg)
+    (result should be equalTo block) and
+      (messageLogged should contain(expectedMessage)) and
+      (messageLogged should contain(msg))
   }
 }
