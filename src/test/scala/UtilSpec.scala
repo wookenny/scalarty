@@ -43,7 +43,6 @@ class UtilSpec extends Specification with Mockito {
     val messageLogged = logMessages.headOption.getOrElse("")
 
     (result should be equalTo block) and
-      (messageLogged should contain(expectedMessage)) and
-      (messageLogged should contain(msg))
+      (messageLogged should contain(expectedMessage)) and (messageLogged should contain(msg))
   }
 }
