@@ -3,13 +3,12 @@ import material.Material.DEFAULT_MATERIAL
 import math.{Ray, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
-import org.specs2.specification.core.SpecStructure
 import renderer.Hit
 
 
 class ShapeMetaContainerSpec extends Specification with Mockito{
 
-  override def is: SpecStructure = s2"""
+  override def is = s2"""
     ShapeMetaContainer should
       return the number of all elements for
         an empty meta-container $getSizeForEmptyMetaContainer
