@@ -7,7 +7,7 @@ import renderer.Hit
 
 class ShapeSeqSpec  extends Specification with Mockito {
 
-    override def is = s2""""
+    override def is = s2"""
        A ShapeSeq should
             return the correct size for an empty Seq $testSizeForEmptySeq
             return the correct size for a non-empty Seq $testSizeForNonEmptySeq
@@ -16,7 +16,7 @@ class ShapeSeqSpec  extends Specification with Mockito {
           test for intersection correctly for
             an empty Seq $intersectionTestForEmptySeq
             a non-empty Seq $intersectionTestForNonEmptySeq
-    """"
+    """
 
     val ray = Ray(Vector3.ZERO, Vector3.X)
     val emptyShapeSeq = ShapeSeq(Seq.empty[Shape])

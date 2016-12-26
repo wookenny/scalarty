@@ -13,7 +13,7 @@ final case class Scene(cameraOrigin: Vector3,
                        lights: Seq[Light],
                        shapes: Seq[Shape],
                        materials: Seq[Material],
-                       objFiles: Option[Seq[ObjObject]]) {
+                       objFiles: Option[Seq[ObjObject]] = None) {
 
   // Fixed data
   val ppi = 400
@@ -26,7 +26,7 @@ final case class Scene(cameraOrigin: Vector3,
       ShapeSeq(shapes)
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
-  def parseObjFiles(objFiles: Seq[ObjObject]): Array[Triangle] = {
+  private def parseObjFiles(objFiles: Seq[ObjObject]): Array[Triangle] = {
     objFiles.flatMap(_.getTriangles).toArray
   }
 }
