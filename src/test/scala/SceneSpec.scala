@@ -6,6 +6,8 @@ import org.specs2.Specification
 import org.specs2.mock.Mockito
 import org.specs2.specification.core.SpecStructure
 import scene.{ObjObject, Scene}
+import support.Implicits._
+
 
 class SceneSpec extends Specification with Mockito{
 
@@ -69,7 +71,5 @@ class SceneSpec extends Specification with Mockito{
   }
 
   //TODO: BVH, ShapeContainer,... should be injected for nicer tests
-
-
 
 }

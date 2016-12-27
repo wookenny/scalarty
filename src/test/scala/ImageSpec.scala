@@ -81,7 +81,7 @@ class ImageSpec extends Specification {
   }
 
   val testDetectEdges = {
-    var img = new Image(400, 600)
+    val img = new Image(400, 600)
 
     Set( (4,4), (4,5), (4,6),
          (5,4),        (5,6),

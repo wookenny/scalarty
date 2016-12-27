@@ -5,6 +5,7 @@ import material.Material
 import math.{Shape, Triangle, Vector3}
 import bounding.{BVH, ShapeContainer, ShapeMetaContainer, ShapeSeq}
 import play.api.libs.json.{Format, Json}
+import support.Implicits._
 
 final case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,

@@ -4,22 +4,23 @@ import com.typesafe.scalalogging.LazyLogging
 import material.Material.DEFAULT_MATERIAL
 import math.{Triangle, Vector3}
 import play.api.libs.json.{Format, Json}
-
-import scala.io.Source._
 import math.Math.π
+
+import scala.io.BufferedSource
 
 case class ObjObject(filename: String,
                      center: Vector3,
                      maxSide: Double,
                      rotation: Double,
-                     material: Option[String])
+                     material: Option[String] = None)
     extends LazyLogging {
-  var triangles = scala.collection.mutable.ArrayBuffer
-    .empty[(Array[Int], Array[Int], Array[Int])]
-  var normals = scala.collection.mutable.ArrayBuffer.empty[Vector3]
-  var vertices = scala.collection.mutable.ArrayBuffer.empty[Vector3]
 
-  def transformVertex(vector: Vector3,
+  val triangles = scala.collection.mutable.ArrayBuffer
+    .empty[(Array[Int], Array[Int], Array[Int])]
+  val normals = scala.collection.mutable.ArrayBuffer.empty[Vector3]
+  val vertices = scala.collection.mutable.ArrayBuffer.empty[Vector3]
+
+  private def transformVertex(vector: Vector3,
                       currentCenter: Vector3,
                       targetCenter: Vector3,
                       scalingFactor: Double,
@@ -31,7 +32,7 @@ case class ObjObject(filename: String,
     Vector3(p.x * cos - p.z * sin, p.y, p.x * sin + p.z * cos) + targetCenter
   }
 
-  def transformNormal(vector: Vector3, rotation: Double) = {
+  private def transformNormal(vector: Vector3, rotation: Double) = {
     val sin: Double = Math.sin(2 * π * rotation / 360)
     val cos: Double = Math.cos(2 * π * rotation / 360)
     Vector3(vector.x * cos - vector.z * sin,
@@ -39,10 +40,10 @@ case class ObjObject(filename: String,
             vector.x * sin + vector.z * cos)
   }
 
-  def getTriangles: Seq[Triangle] = {
+  def getTriangles()(implicit reader: (String)=>BufferedSource): Seq[Triangle] = {
 
     logger.info(s"Reading $filename")
-    val objFile = fromFile(filename).getLines
+    val objFile = reader(filename).getLines
 
     objFile foreach {
       case line if line.trim.isEmpty => Unit //skip empty lines
@@ -76,10 +77,7 @@ case class ObjObject(filename: String,
     for (i <- normals.indices.par)
       normals(i) = transformNormal(normals(i), rotation).normalized
 
-    val mat: String = material match {
-      case None => DEFAULT_MATERIAL.name
-      case Some(m) => m
-    }
+    val mat: String = material.getOrElse(DEFAULT_MATERIAL.name)
 
     val ts =
       if (normals.size >= vertices.size)
@@ -99,7 +97,8 @@ case class ObjObject(filename: String,
           case (a, b, c) =>
             Triangle(vertices(a.head - 1),
                      vertices(b.head - 1),
-                     vertices(c.head - 1))
+                     vertices(c.head - 1),
+                     mat)
         }
 
     logger.info(
@@ -107,12 +106,12 @@ case class ObjObject(filename: String,
     ts.toList
   }
 
-  def parseVertex(line: String) = line.split("\\s+").slice(1, 4) match {
+  private def parseVertex(line: String) = line.split("\\s+").slice(1, 4) match {
     case Array(a, b, c) =>
       vertices += Vector3(a.toDouble, b.toDouble, c.toDouble)
   }
 
-  def parseNormal(line: String) = line.split("\\s+").slice(1, 4) match {
+  private def parseNormal(line: String) = line.split("\\s+").slice(1, 4) match {
     case Array(a, b, c) =>
       normals += Vector3(a.toDouble, b.toDouble, c.toDouble)
   }
@@ -120,7 +119,7 @@ case class ObjObject(filename: String,
   private def toIntList(s: String): Array[Int] =
     s.trim.split("/").filter(_ != "").map(_.trim.toInt)
 
-  def parseFace(line: String) = {
+  private def parseFace(line: String) = {
     line.split("\\s+").slice(1, 5) match {
       case Array(a, b, c, d) =>
         triangles += Tuple3(toIntList(a), toIntList(b), toIntList(c))
