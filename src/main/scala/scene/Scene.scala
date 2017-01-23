@@ -1,6 +1,6 @@
 package scene
 
-import lightning.PointLight
+import lightning.LightSource
 import material.Material
 import math.{Shape, Triangle, Vector3}
 import bounding.{BVH, ShapeContainer, ShapeMetaContainer, ShapeSeq}
@@ -11,7 +11,7 @@ final case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,
                        width: Double,
                        height: Double,
-                       lights: Seq[PointLight],
+                       lights: Seq[LightSource],
                        shapes: Seq[Shape],
                        materials: Seq[Material],
                        objFiles: Option[Seq[ObjObject]] = None) {

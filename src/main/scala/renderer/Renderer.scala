@@ -4,14 +4,13 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import color.RGB
 import com.typesafe.scalalogging._
-import lightning.PointLight
+import lightning.{LightSource, PointLight}
 import math.{Ray, Vector3}
 import scene.Scene
 import support.Image
 import support.Config
 import support.Util._
 import support.Implicits.imageWriter
-
 
 import scala.Seq
 import scala.collection.GenSet
@@ -20,6 +19,9 @@ import scala.collection.parallel.mutable.ParArray
 object Renderer {
   private val backgroundColor = RGB.BLACK
   private val chunkSize = 10
+
+  //TODO: make configurable
+  private val lightSampling = 2
 }
 
 class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
@@ -42,8 +44,10 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     val ambientColor = baseColor * colorInfo.ambient
 
     //visible lights
+    //TODO: sampling here => return percentage of hits and light source
     val visibleLights = scene.lights.filter(l =>
       !backFace && !shadowRay(hit.position, l.position))
+
 
     //diffuse
     val diffuseColor = shadeDiffuse(hit, r, visibleLights)
@@ -73,7 +77,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     else RGB.BLACK
   }
 
-  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[PointLight]): RGB = {
+  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[LightSource]): RGB = {
     visibleLights.map { l =>
       {
         val V = r.direction * -1 //towards eye
@@ -88,7 +92,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     }
   }
 
-  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[PointLight]): RGB = {
+  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[LightSource]): RGB = {
     visibleLights.map { l =>
       {
         val L = (l.position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
