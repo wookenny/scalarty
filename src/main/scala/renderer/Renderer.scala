@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import color.RGB
 import com.typesafe.scalalogging._
-import lightning.Light
+import lightning.PointLight
 import math.{Ray, Vector3}
 import scene.Scene
 import support.Image
@@ -73,14 +73,14 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     else RGB.BLACK
   }
 
-  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[Light]): RGB = {
+  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[PointLight]): RGB = {
     visibleLights.map { l =>
       {
         val V = r.direction * -1 //towards eye
         val L = (l.position - hit.position).normalized // vector pointing towards light
         val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
         l.color * Math
-          .pow(Math.max(-(R * L), 0), hit.color.shininess) * hit.color.spec * l.power(hit.position) //spec does not use color of object
+          .pow(Math.max(-(R * L), 0), hit.color.shininess) * hit.color.spec * l.intensity(hit.position) //spec does not use color of object
       }
     } match {
       case Seq() => RGB.BLACK
@@ -88,12 +88,12 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     }
   }
 
-  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[Light]): RGB = {
+  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[PointLight]): RGB = {
     visibleLights.map { l =>
       {
         val L = (l.position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
         hit.color.color * Math
-          .max((hit.normal * L), 0) * hit.color.diffuse * l.power(hit.position) //TODO light color?
+          .max((hit.normal * L), 0) * hit.color.diffuse * l.intensity(hit.position) //TODO light color?
       }
     } match {
       case Seq() => RGB.BLACK
