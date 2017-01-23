@@ -53,7 +53,7 @@ object Main {
 
   }
 
-  def main(config: Config): Unit = {
+  def main(implicit config: Config): Unit = {
     val sceneFile: String = fromFile(config.in).getLines.mkString
     try {
       val scene: Scene = Json.parse(sceneFile).as[Scene]

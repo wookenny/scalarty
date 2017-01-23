@@ -1,11 +1,18 @@
+import java.awt.image.{BufferedImage, RenderedImage}
+import java.io.File
+
 import color.RGB
 import org.specs2.Specification
+import org.specs2.mock.Mockito
 import org.specs2.specification.core.SpecStructure
 import support.Image
+import org.hamcrest.CoreMatchers
 
-class ImageSpec extends Specification {
 
 
+class ImageSpec extends Specification with Mockito {
+
+//TODO: test clear
 
   override def is: SpecStructure =
     s2"""
@@ -39,10 +46,18 @@ class ImageSpec extends Specification {
 
   val testSaveImage = {
     val img = new Image(400, 600)
-    img.save("blub.image.jpg")
-    img.save("blub")
-    //TODO: injection for proper test
-    1 must beLessThan(2)
+
+    trait SaveImage { def save(r:RenderedImage, s:String, f:File): Boolean = true}
+    val saveImage = mock[SaveImage]
+
+    img.save("blub.image.jpg")(saveImage.save)
+    //img.save("blub")(saveImage.save)
+    //img.save("other.png")(saveImage.save)
+
+    //there was one(saveImage).save(any[BufferedImage], beLike[String]{case s: String => 1 should be equalTo 1}, any[File])
+    //TODO: add a real test here
+    there was one(saveImage).save(any[BufferedImage], any[String], any[File])
+
   }
 
   val testSetColorsForCorrectIndices = {

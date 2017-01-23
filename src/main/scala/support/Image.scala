@@ -1,14 +1,10 @@
 package support
 
-import java.awt.image.BufferedImage
+import java.awt.image.{BufferedImage, RenderedImage}
 import java.awt.Color
 import java.io.File
-import javax.imageio.ImageIO
-
 import color.RGB
-
 import scala.collection.GenSet
-import scala.collection.parallel.immutable.{ParSeq, ParSet}
 
 trait ImageWriterFactory {
   def create(w: Int, h: Int): ImageWriter
@@ -20,8 +16,8 @@ trait ImageWriter {
 }
 
 object Image {
-  private val sobelKernelX = Seq(Seq(-1, 0, 1), Seq(-2, 0, 2), Seq(-1, 0, 1))
-  private val sobelKernelY = Seq(Seq(-1, -2, -1), Seq(0, 0, 0), Seq(1, 2, 1))
+  private val sobelKernelX = Seq(Seq(-1,  0,  1), Seq(-2, 0, 2), Seq(-1, 0, 1))
+  private val sobelKernelY = Seq(Seq(-1, -2, -1), Seq( 0, 0, 0), Seq( 1, 2, 1))
 }
 
 class Image(val width: Int, val height: Int) {
@@ -36,10 +32,9 @@ class Image(val width: Int, val height: Int) {
     new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
   clear
 
-  def save(filename: String): Boolean = {
+  def save(filename: String)(implicit write: (RenderedImage, String, File) => Boolean): Boolean = {
     val (fixedfilename: String, fileType: String) = getFilenameEnding(filename)
-    ImageIO
-      .write(img, fileType, new File(fixedfilename +"."+ fileType)) //TODO: use filetype!!!
+    write(img, fileType, new File(fixedfilename +"."+ fileType))
   }
 
   private def getFilenameEnding(filename: String) =
@@ -59,14 +54,14 @@ class Image(val width: Int, val height: Int) {
   }
 
   def set(x: Int, y: Int, c: RGB): Boolean = (x, y) match {
-    case (x, y) if x >= 0 && y >= 0 && x < img.getWidth && y < img.getHeight =>
+    case (a, b) if a >= 0 && b >= 0 && a < img.getWidth && b < img.getHeight =>
       img.setRGB(x, y, c.awtColor().getRGB)
       true
     case _ => false
   }
 
   def get(x: Int, y: Int): Option[RGB] = (x, y) match {
-    case (x, y) if x >= 0 && y >= 0 && x < img.getWidth && y < img.getHeight =>
+    case (a, b) if a >= 0 && b >= 0 && a < img.getWidth && b < img.getHeight =>
       val color = new Color(img.getRGB(x, y))
       Some(
         RGB(color.getRed / 255f, color.getGreen / 255f, color.getBlue / 255f))

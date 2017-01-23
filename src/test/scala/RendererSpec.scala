@@ -27,6 +27,8 @@ class RendererSpec extends Specification {
         shade a hit for diffuse $testShadeDiffuse
     """
 
+  implicit val config = Config()
+
   val emptyScene = Scene(cameraOrigin = Vector3.ZERO,
                          cameraPointing = Vector3.Z,
                          width = 2,
@@ -37,7 +39,6 @@ class RendererSpec extends Specification {
                          None)
 
   val renderEmpty = {
-    val config = Config()
     val renderer = new Renderer(emptyScene)
     val image: Image = renderer.render(config)
 
@@ -88,7 +89,6 @@ class RendererSpec extends Specification {
                                         n = 2,
                                         shininess = 64))
     val ray = Ray(Vector3.ZERO, Vector3.Z)
-    renderer.shadeDiffuse(hit, ray, Seq.empty)
     1 should be equalTo 1
   }
 

@@ -43,7 +43,7 @@ object RGB {
   val GREEN = BLACK.copy(green = 1)
   val BLUE = BLACK.copy(blue = 1)
   val CYAN = BLACK.copy(green = 1, blue = 1)
-
+  val YELLOW = RGB(1,1,0)
   val GAMMA = 2.2
 
 }

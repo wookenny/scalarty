@@ -1,7 +1,9 @@
 package bounding
 
+import color.RGB
 import com.typesafe.scalalogging.{LazyLogging, Logger}
-import math.{AABB, Ray, Shape}
+import material.{Material, SingleColorMaterial, UnshadedColor}
+import math.{AABB, Ray, Shape, Vector3}
 import renderer.Hit
 import support.Util._
 
@@ -55,7 +57,7 @@ final case class Leaf(boundingBox: Option[AABB],
   override def countNodes: Int = 1
 }
 
-case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
+case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)//(implicit config: Config)
     extends ShapeContainer
     with LazyLogging {
   logger.info("Building BVH ...")
@@ -69,6 +71,8 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
     s"Build BVH tree with ${size} primitives, ${numNodes} nodes and depth $depth")
 
   override def size = shapes.size
+
+  Shape.materialMap = Shape.materialMap + (BVH.leafMaterial.name -> BVH.leafMaterial)
 
   lazy val numNodes: Int = root.countNodes
   lazy val depth: Int = root.getDepth
@@ -185,7 +189,12 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
   private def buildBVH(shapes: Seq[Shape], depth: Int): Node = {
     val aabb = getBoundingBox(shapes)
     splitPrimitives(shapes, aabb) match {
-      case None => Leaf(aabb, shapes, depth)
+      case None => if(BVH.showLeaves) {
+        val box = aabb.get //TODO: do nicer, getOrElse
+        Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name) , depth)
+      }else {
+        Leaf(aabb, shapes, depth)
+      }
       case Some((a: Seq[Shape], b: Seq[Shape])) =>
         InnerNode(aabb,
                   Seq(buildBVH(a, depth + 1), buildBVH(b, depth + 1)),
@@ -194,24 +203,14 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
 
   }
 
-  private def getCandidatesWithCloseHits(
-      node: InnerNode,
-      ray: Ray,
-      closestHit: Option[Hit]): Seq[Candidate] = {
-
+  private def getCandidatesWithCloseHits(node: InnerNode, ray: Ray, closestHitDist: Double): Seq[Candidate] = {
     val candidates = node.children map { (node: Node) =>
       node.intersectBoundingBox(ray) match {
         case None => Candidate(node, Double.MaxValue)
         case Some(dist) => Candidate(node, dist)
       }
     }
-
-    candidates filter { (candidate: Candidate) =>
-      candidate.distance < (closestHit match {
-        case None => Double.MaxValue
-        case Some(hit) => hit.distance
-      })
-    }
+    candidates filter { _.distance < closestHitDist }
 
   }
 
@@ -223,10 +222,23 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
       val nodeStack = scala.collection.mutable.Queue[Node]()
       nodeStack += root
       while (nodeStack.nonEmpty) {
+        val closestHitDist = closestHit match {
+          case None => Double.MaxValue
+          case Some(hit) => hit.distance
+        }
         nodeStack.dequeue match {
           case node: InnerNode =>
             val nodeBoundingBoxHits: Seq[Candidate] =
-              getCandidatesWithCloseHits(node, ray, closestHit)
+              getCandidatesWithCloseHits(node, ray, closestHitDist)
+            //remember closest aabb hit if this hould be shown
+            if(BVH.showInnerNodes && nodeBoundingBoxHits.nonEmpty){
+              val aabbHitDist = nodeBoundingBoxHits.map(_.distance).min
+              if(aabbHitDist<closestHitDist)
+                closestHit = Some( Hit( distance = aabbHitDist,
+                                        position = ray.march(aabbHitDist),
+                                        normal = Vector3.X, /*not needed for shading*/
+                                        color  = BVH.innerNodeMaterial.getMat(Vector3.ZERO)))
+            }
             //add to stack
             nodeStack ++= nodeBoundingBoxHits
               .sortBy((c: Candidate) => c.distance)
@@ -234,7 +246,7 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
           case node: Leaf =>
             node.closestHit(ray) match {
               case Some(hit)
-                  if closestHit.isEmpty || hit.distance < closestHit.get.distance =>
+                  if hit.distance < closestHitDist =>
                 closestHit = Some(hit)
               case _ => Unit
             }
@@ -244,6 +256,8 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
       closestHit
     }
   }
+
+  //TODO: is there a more efficient implemention using the fact, that there is a range bound?
   override def intersectionTest(ray: Ray, maxDist: Double): Boolean =
     intersect(ray) match {
       case Some(hit) if hit.distance <= maxDist => true
@@ -253,6 +267,13 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)
 }
 
 object BVH {
+  private val showLeaves = false
+  private val showInnerNodes = false
+  private val leafMaterial = SingleColorMaterial("BVH_Leaf_Material",RGB.RED, ambient =  0.1, diffuse = 0, spec = 0, refractive = .9, n = 1)
+  private val innerNodeMaterial = SingleColorMaterial("BVH_Inner_Node_Material",RGB.YELLOW, ambient =  0.01, diffuse = 0, spec = 0, refractive = .99, n = 1)
+  val splitSAH = false
+
+
   private val CostShapeIntersection: Int = 1
   private val CostAABBIntersection: Int = 3
 
@@ -291,6 +312,5 @@ object BVH {
       findBoundingBoxesRec(x, v, acc, position + 1)
   }
 
-  val splitSAH = false
 
 }
