@@ -21,7 +21,7 @@ object Renderer {
   private val chunkSize = 10
 
   //TODO: make configurable
-  private val lightSampling = 2
+  private val lightSampling = 5
 }
 
 class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
@@ -43,11 +43,15 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     //ambient
     val ambientColor = baseColor * colorInfo.ambient
 
-    //visible lights
-    //TODO: sampling here => return percentage of hits and light source
-    val visibleLights = scene.lights.filter(l =>
-      !backFace && !shadowRay(hit.position, l.position))
-
+    val visibleLights : Seq[(LightSource,Double,Vector3)] = if(backFace)
+      Seq.empty
+    else
+      for {
+        lightSource  <- scene.lights
+        lightSampling  = lightSource.sample(Renderer.lightSampling)
+        n = lightSampling.size
+        lightSample <- lightSampling if !shadowRay(hit.position, lightSample)
+      } yield (lightSource,1d/n,lightSample)
 
     //diffuse
     val diffuseColor = shadeDiffuse(hit, r, visibleLights)
@@ -77,33 +81,35 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     else RGB.BLACK
   }
 
-  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[LightSource]): RGB = {
-    visibleLights.map { l =>
-      {
-        val V = r.direction * -1 //towards eye
-        val L = (l.position - hit.position).normalized // vector pointing towards light
-        val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-        l.color * Math
-          .pow(Math.max(-(R * L), 0), hit.color.shininess) * hit.color.spec * l.intensity(hit.position) //spec does not use color of object
-      }
+  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[(LightSource,Double,Vector3)]): RGB = {
+    visibleLights.map { case (l:LightSource, weight: Double, pos: Vector3) =>
+    {
+      val V = r.direction * -1 //towards eye
+    val L = (pos - hit.position).normalized // vector pointing towards light
+    val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
+      l.color * Math.pow(Math.max(-(R * L), 0), hit.color.shininess)*
+        hit.color.spec * l.intensity(hit.position, Some(pos)) * weight //spec does not use color of object
+    }
     } match {
       case Seq() => RGB.BLACK
       case list => list.reduce(_ + _)
     }
   }
 
-  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[LightSource]): RGB = {
-    visibleLights.map { l =>
-      {
-        val L = (l.position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-        hit.color.color * Math
-          .max((hit.normal * L), 0) * hit.color.diffuse * l.intensity(hit.position) //TODO light color?
-      }
+  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[(LightSource,Double,Vector3)]): RGB = {
+
+    visibleLights.map { case (l:LightSource, weight: Double, pos: Vector3) =>
+    {
+      val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
+      hit.color.color * Math.max((hit.normal * L), 0) *
+        hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight//TODO light color?
+    }
     } match {
       case Seq() => RGB.BLACK
       case list => list.reduce(_ + _)
     }
   }
+
 
   private  def traceRay(r: Ray): RGB =
     getFirstHit(r) match {

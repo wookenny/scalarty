@@ -3,9 +3,13 @@
   "cameraPointing": {"x":0, "y":0,"z":4},
   "width"  : 2,
   "height" : 2,
-  "lights" : [{"position" : {"x":0, "y": 0.8,"z":0},
-               "color"    : {"red": 1, "green": 1, "blue": 1},
-               "intensity": 1}],
+  "lights" : [ {"type": "PlaneLight",
+               "data": {"position" : {"x":0, "y": 0.9,"z":0},
+                        "width":0.2, "length": 0.2,
+                       "color"    : {"red": 1, "green": 1, "blue": 1},
+                       "power": 1}
+                }
+              ],
   "materials" : [{"type": "SingleColorMaterial",
                     "data": {
                       "name": "PlainWhite",
@@ -134,10 +138,10 @@
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/tyra.obj",
-                     "center"   : {"x": -0.3, "y": -0.5,"z": -0.4},
+      "objFiles" : [{"filename": "scenes/obj/teapot.obj",
+                     "center"   : {"x": -0.3, "y": -0.5,"z": -0.6},
                      "maxSide"  : 1.1,
-                     "rotation" : 90
+                     "rotation" : 75
                     }]
 
 }
