@@ -21,7 +21,7 @@ object Renderer {
   private val chunkSize = 10
 
   //TODO: make configurable
-  private val lightSampling = 5
+  private val lightSampling = 2
 }
 
 class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {

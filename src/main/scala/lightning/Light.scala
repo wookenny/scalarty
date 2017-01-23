@@ -4,6 +4,8 @@ import color.RGB
 import math.Vector3
 import play.api.libs.json._
 
+import scala.util.Random
+
 trait LightSource{
   def intensity(p: Vector3, positionOnLight : Option[Vector3] = None) : Double
   def sample(n: Int) : Seq[Vector3]
@@ -19,24 +21,29 @@ final case class PointLight(position: Vector3, color: RGB, power: Double) extend
 
 final case class PlaneLight(position: Vector3, width: Double, length: Double,
                             color: RGB, power: Double) extends LightSource{
+
+  private def randomOffset(n: Int, s: Double) = s/n * (LightSource.rand.nextDouble() - 0.5)
+
   override def intensity(pos: Vector3, positionOnLight: Option[Vector3]) =
     positionOnLight match {
       case None => power /((position-pos)*(position-pos))
       case Some(positionOnLightSource) =>  power /((positionOnLightSource-pos)*(positionOnLightSource-pos))
     }
 
-  //TODO implement a clever way of sampling
   override def sample(n: Int) =
     for {
       x <- (-n+1) to (n-1) by 2
       y <- (-n+1) to (n-1) by 2
-    } yield Vector3( (x.toDouble/n)*width + position.x,
-                     (y.toDouble/n)*length + position.y,
+    } yield Vector3( (x.toDouble/n)*width + position.x  + randomOffset(n,width),
+                     (y.toDouble/n)*length + position.y + randomOffset(n,length),
                       position.z)
+
 
 }
 
 object LightSource {
+
+  val rand : Random = new Random(0)
 
   def unapply(light: LightSource): Option[(String, JsValue)] = {
     val (prod: Product, sub) = light match {
