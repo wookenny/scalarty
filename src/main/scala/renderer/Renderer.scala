@@ -21,7 +21,7 @@ object Renderer {
   private val chunkSize = 10
 
   //TODO: make configurable
-  private val lightSampling = 2
+  private val lightSampling = 3
 }
 
 class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
@@ -51,7 +51,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
         lightSampling  = lightSource.sample(Renderer.lightSampling)
         n = lightSampling.size
         lightSample <- lightSampling if !shadowRay(hit.position, lightSample)
-      } yield (lightSource,1d/n,lightSample)
+      } yield (lightSource, 1d/n, lightSample)
 
     //diffuse
     val diffuseColor = shadeDiffuse(hit, r, visibleLights)

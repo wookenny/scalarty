@@ -22,7 +22,9 @@ final case class PointLight(position: Vector3, color: RGB, power: Double) extend
 final case class PlaneLight(position: Vector3, width: Double, length: Double,
                             color: RGB, power: Double) extends LightSource{
 
-  private def randomOffset(n: Int, s: Double) = s/n * (LightSource.rand.nextDouble() - 0.5)
+  private def randomOffset(s: Double) =  {
+    s * (LightSource.rand.nextDouble() - 0.5)
+  }
 
   override def intensity(pos: Vector3, positionOnLight: Option[Vector3]) =
     positionOnLight match {
@@ -30,14 +32,12 @@ final case class PlaneLight(position: Vector3, width: Double, length: Double,
       case Some(positionOnLightSource) =>  power /((positionOnLightSource-pos)*(positionOnLightSource-pos))
     }
 
-  override def sample(n: Int) =
-    for {
-      x <- (-n+1) to (n-1) by 2
-      y <- (-n+1) to (n-1) by 2
-    } yield Vector3( (x.toDouble/n)*width + position.x  + randomOffset(n,width),
-                     (y.toDouble/n)*length + position.y + randomOffset(n,length),
-                      position.z)
-
+  override def sample(n: Int) = for {
+      x <- (-n + 1) to (n - 1) by 2
+      z <- (-n + 1) to (n - 1) by 2
+    } yield Vector3((x.toDouble / n) * width + position.x + randomOffset(width / n),
+                     position.y,
+                    (z.toDouble / n) * length + position.z + randomOffset(length / n))
 
 }
 
