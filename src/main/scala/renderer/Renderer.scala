@@ -4,13 +4,12 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import color.RGB
 import com.typesafe.scalalogging._
-import lightning.{LightSource, PointLight}
+import lightning.LightSource
 import math.{Ray, Vector3}
 import scene.Scene
-import support.Image
-import support.Config
-import support.Util._
+import support.{Config, Image}
 import support.Implicits.imageWriter
+import support.Util._
 
 import scala.Seq
 import scala.collection.GenSet
@@ -21,7 +20,7 @@ object Renderer {
   private val chunkSize = 10
 
   //TODO: make configurable
-  private val lightSampling = 3
+  private val lightSampling = 1
 }
 
 class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {

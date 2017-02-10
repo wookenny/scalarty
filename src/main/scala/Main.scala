@@ -3,7 +3,7 @@ import com.fasterxml.jackson.core.JsonParseException
 import scala.io.Source._
 import play.api.libs.json.Json
 import renderer.Renderer
-import scene.Scene
+import scene.{Scene, SceneDTO}
 import support.Config
 
 object Main {
@@ -56,7 +56,7 @@ object Main {
   def main(implicit config: Config): Unit = {
     val sceneFile: String = fromFile(config.in).getLines.mkString
     try {
-      val scene: Scene = Json.parse(sceneFile).as[Scene]
+      val scene: Scene = Scene(Json.parse(sceneFile).as[SceneDTO])
       val renderer = new Renderer(scene)
       renderer.startRendering(config)
     } catch {

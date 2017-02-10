@@ -5,6 +5,7 @@ import com.typesafe.scalalogging.{LazyLogging, Logger}
 import material.{Material, SingleColorMaterial, UnshadedColor}
 import math.{AABB, Ray, Shape, Vector3}
 import renderer.Hit
+import support.Config
 import support.Util._
 
 import scala.annotation.tailrec
@@ -57,7 +58,7 @@ final case class Leaf(boundingBox: Option[AABB],
   override def countNodes: Int = 1
 }
 
-case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)//(implicit config: Config)
+case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)(implicit config: Config)
     extends ShapeContainer
     with LazyLogging {
   logger.info("Building BVH ...")
