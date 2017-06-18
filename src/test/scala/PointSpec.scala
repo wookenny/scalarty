@@ -27,8 +27,7 @@ class VectorSpec extends Specification with ScalaCheck {
   val distTest = forAll { (a: Vector3, b: Vector3) =>
     approx(
       a.dist(b),
-      Math.sqrt(
-        (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z)))
+      Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z)))
   }
   val normalizedTest = forAll { (p: Vector3) =>
     approx(1, p.normalized.length)
@@ -58,16 +57,13 @@ class VectorSpec extends Specification with ScalaCheck {
   }
 
   val powTest = forAll { (a: Vector3, f: Double) =>
-    approx(a.pow(f),
-           Vector3(Math.pow(a.x, f).toDouble,
-                   Math.pow(a.y, f).toDouble,
-                   Math.pow(a.z, f).toDouble))
+    approx(
+      a.pow(f),
+      Vector3(Math.pow(a.x, f).toDouble, Math.pow(a.y, f).toDouble, Math.pow(a.z, f).toDouble))
   }
 
   val expTest = forAll { (a: Vector3) =>
-    a.expf == Vector3(Math.exp(a.x).toDouble,
-                      Math.exp(a.y).toDouble,
-                      Math.exp(a.z).toDouble)
+    a.expf == Vector3(Math.exp(a.x).toDouble, Math.exp(a.y).toDouble, Math.exp(a.z).toDouble)
   }
 
   implicit lazy val PointGen: Arbitrary[Vector3] =

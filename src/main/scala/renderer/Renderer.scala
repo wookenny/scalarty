@@ -39,15 +39,16 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     //ambient
     val ambientColor = baseColor * colorInfo.ambient
 
-    val visibleLights : Seq[(LightSource,Double,Vector3)] = if(backFace)
-      Seq.empty
-    else
-      for {
-        lightSource  <- scene.lights
-        lightSampling  = lightSource.sample(config.shadowsampling)
-        n = lightSampling.size
-        lightSample <- lightSampling if !shadowRay(hit.position, lightSample)
-      } yield (lightSource, 1d/n, lightSample)
+    val visibleLights: Seq[(LightSource, Double, Vector3)] =
+      if (backFace)
+        Seq.empty
+      else
+        for {
+          lightSource <- scene.lights
+          lightSampling = lightSource.sample(config.shadowsampling)
+          n = lightSampling.size
+          lightSample <- lightSampling if !shadowRay(hit.position, lightSample)
+        } yield (lightSource, 1d / n, lightSample)
 
     //diffuse
     val diffuseColor = shadeDiffuse(hit, r, visibleLights)
@@ -58,7 +59,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
   }
 
   private def shadeRefraction(hit: Hit, r: Ray): RGB = {
-    if (hit.color.refractive > 0.01 && r.depth <=24) {
+    if (hit.color.refractive > 0.01 && r.depth <= 24) {
       //TODO configurable ray depth
       r.refractedAt(hit.position, hit.normal, hit.color.n) match {
         case Some(refractedRay) =>
@@ -77,37 +78,40 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     else RGB.BLACK
   }
 
-  private def shadeSpecular(hit: Hit, r: Ray, visibleLights: Seq[(LightSource,Double,Vector3)]): RGB = {
-    visibleLights.map { case (l:LightSource, weight: Double, pos: Vector3) =>
-    {
-      val V = r.direction * -1 //towards eye
-    val L = (pos - hit.position).normalized // vector pointing towards light
-    val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-      l.color * Math.pow(Math.max(-(R * L), 0), hit.color.shininess)*
-        hit.color.spec * l.intensity(hit.position, Some(pos)) * weight //spec does not use color of object
-    }
+  private def shadeSpecular(hit: Hit,
+                            r: Ray,
+                            visibleLights: Seq[(LightSource, Double, Vector3)]): RGB = {
+    visibleLights.map {
+      case (l: LightSource, weight: Double, pos: Vector3) => {
+        val V = r.direction * -1 //towards eye
+        val L = (pos - hit.position).normalized // vector pointing towards light
+        val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
+        l.color * Math.pow(Math.max(-(R * L), 0), hit.color.shininess) *
+          hit.color.spec * l.intensity(hit.position, Some(pos)) * weight //spec does not use color of object
+      }
     } match {
       case Seq() => RGB.BLACK
       case list => list.reduce(_ + _)
     }
   }
 
-  private def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[(LightSource,Double,Vector3)]): RGB = {
+  private def shadeDiffuse(hit: Hit,
+                           r: Ray,
+                           visibleLights: Seq[(LightSource, Double, Vector3)]): RGB = {
 
-    visibleLights.map { case (l:LightSource, weight: Double, pos: Vector3) =>
-    {
-      val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-      hit.color.color * Math.max((hit.normal * L), 0) *
-        hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight//TODO light color?
-    }
+    visibleLights.map {
+      case (l: LightSource, weight: Double, pos: Vector3) => {
+        val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
+        hit.color.color * Math.max((hit.normal * L), 0) *
+          hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight //TODO light color?
+      }
     } match {
       case Seq() => RGB.BLACK
       case list => list.reduce(_ + _)
     }
   }
 
-
-  private  def traceRay(r: Ray): RGB =
+  private def traceRay(r: Ray): RGB =
     getFirstHit(r) match {
       case Some(hit) => shadeHit(hit, r)
       case _ => Renderer.backgroundColor
@@ -126,8 +130,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     val image = time("Rendering scene took") { render(config) }
 
     val now = System.nanoTime()
-    logger.info(
-      f"Raytracing done in ${(now - start) / (1000f * 1000 * 1000)}%2.2f seconds") //TODO nice time formatter
+    logger.info(f"Raytracing done in ${(now - start) / (1000f * 1000 * 1000)}%2.2f seconds") //TODO nice time formatter
 
     val saved = image.save(config.out)
     if (!saved)
@@ -137,11 +140,9 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
 
   def render(config: Config): Image = {
 
-    val img = new Image((scene.width * scene.ppi).toInt,
-                        (scene.height * scene.ppi).toInt)
+    val img = new Image((scene.width * scene.ppi).toInt, (scene.height * scene.ppi).toInt)
 
-    logger.info(
-      s"tracing ${config.supersampling}x${config.supersampling} per pixel")
+    logger.info(s"tracing ${config.supersampling}x${config.supersampling} per pixel")
 
     renderPath(img, config.supersampling, None)
 
@@ -171,15 +172,14 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     val chunks: Array[Array[(Int, Int)]] =
       (for {
         s <- 0 to allPixels.size / Renderer.chunkSize
-      } yield
-        allPixels.slice(s * Renderer.chunkSize, (s + 1) * Renderer.chunkSize)).toArray
+      } yield allPixels.slice(s * Renderer.chunkSize, (s + 1) * Renderer.chunkSize)).toArray
 
     chunks.par
   }
 
   private def renderPath(img: Image,
-                 supersampling: Int,
-                 selection: Option[GenSet[(Int, Int)]]): Unit = {
+                         supersampling: Int,
+                         selection: Option[GenSet[(Int, Int)]]): Unit = {
     val w: Double = scene.width
     val h: Double = scene.height
     val corner = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)

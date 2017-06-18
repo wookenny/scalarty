@@ -15,25 +15,15 @@ final case class SingleColorMaterial(name: String,
                                      n: Double = 1.33f,
                                      shininess: Double = 64)
     extends Material {
-  require(
-    Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
+  require(Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
   override def getMat(position: Vector3) =
-    UnshadedColor(c,
-                  ambient,
-                  diffuse,
-                  spec,
-                  reflective,
-                  refractive,
-                  n,
-                  shininess)
+    UnshadedColor(c, ambient, diffuse, spec, reflective, refractive, n, shininess)
 }
 
-final case class EmissionMaterial(name: String,
-                                  light: LightSource)
-  extends Material {
+final case class EmissionMaterial(name: String, light: LightSource) extends Material {
 
   override def getMat(position: Vector3) =
-    UnshadedColor(light.color,0,0,0,0,0,0,0,light.intensity(position,None))
-    //TODO: intensity is on light, no fallof possible
+    UnshadedColor(light.color, 0, 0, 0, 0, 0, 0, 0, light.intensity(position, None))
+  //TODO: intensity is on light, no fallof possible
 }

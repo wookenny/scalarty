@@ -8,8 +8,6 @@ import org.specs2.specification.core.SpecStructure
 import support.Image
 import org.hamcrest.CoreMatchers
 
-
-
 class ImageSpec extends Specification with Mockito {
 
 //TODO: test clear
@@ -33,7 +31,7 @@ class ImageSpec extends Specification with Mockito {
 
   val testInitImage = {
     val img = new Image(400, 600)
-    (img.width, img.height) must be equalTo(400, 600)
+    (img.width, img.height) must be equalTo (400, 600)
   }
 
   val testNegativeHeight = {
@@ -47,7 +45,9 @@ class ImageSpec extends Specification with Mockito {
   val testSaveImage = {
     val img = new Image(400, 600)
 
-    trait SaveImage { def save(r:RenderedImage, s:String, f:File): Boolean = true}
+    trait SaveImage {
+      def save(r: RenderedImage, s: String, f: File): Boolean = true
+    }
     val saveImage = mock[SaveImage]
 
     img.save("blub.image.jpg")(saveImage.save)
@@ -79,7 +79,7 @@ class ImageSpec extends Specification with Mockito {
   val testGetWithIncorrectParameter = {
     val img = new Image(400, 600)
     val successNegativeIndex = img.get(-12, 10)
-    val successOutOfBounds   = img.get(12, 1000)
+    val successOutOfBounds = img.get(12, 1000)
 
     (successNegativeIndex, successOutOfBounds) must be equalTo (None, None)
   }
@@ -87,10 +87,10 @@ class ImageSpec extends Specification with Mockito {
   val testGetWithCorrectParameter = {
     val img = new Image(400, 600)
 
-    val colors : Set[Option[RGB]]= (for{
+    val colors: Set[Option[RGB]] = (for {
       x <- 0 until 400
       y <- 0 until 600
-    } yield img.get(x,y)).toSet
+    } yield img.get(x, y)).toSet
 
     colors should be equalTo Set(Some(RGB.BLACK))
   }
@@ -98,20 +98,36 @@ class ImageSpec extends Specification with Mockito {
   val testDetectEdges = {
     val img = new Image(400, 600)
 
-    Set( (4,4), (4,5), (4,6),
-         (5,4),        (5,6),
-         (6,4), (6,5), (6,6)) foreach { case (x,y) => img.set(x,y,RGB.WHITE)}
+    Set((4, 4), (4, 5), (4, 6), (5, 4), (5, 6), (6, 4), (6, 5), (6, 6)) foreach {
+      case (x, y) => img.set(x, y, RGB.WHITE)
+    }
 
-
-    val expectedEdges  = Set( (3,3), (3,4), (3,5), (3,6), (3,7),
-                              (4,3), (4,4), (4,5), (4,6), (4,7),
-                              (5,3), (5,4), /*--*/ (5,6), (5,7),
-                              (6,3), (6,4), (6,5), (6,6), (6,7),
-                              (7,3), (7,4), (7,5), (7,6), (7,7))
+    val expectedEdges = Set((3, 3),
+                            (3, 4),
+                            (3, 5),
+                            (3, 6),
+                            (3, 7),
+                            (4, 3),
+                            (4, 4),
+                            (4, 5),
+                            (4, 6),
+                            (4, 7),
+                            (5, 3),
+                            (5, 4), /*--*/ (5, 6),
+                            (5, 7),
+                            (6, 3),
+                            (6, 4),
+                            (6, 5),
+                            (6, 6),
+                            (6, 7),
+                            (7, 3),
+                            (7, 4),
+                            (7, 5),
+                            (7, 6),
+                            (7, 7))
 
     val edges = img.detectEdges()
     edges.toList.sorted should be equalTo expectedEdges.toList.sorted
   }
-
 
 }

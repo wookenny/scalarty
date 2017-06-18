@@ -9,14 +9,13 @@ import support.Config
 import support.Implicits._
 
 final case class SceneDTO(cameraOrigin: Vector3,
-                       cameraPointing: Vector3,
-                       width: Double,
-                       height: Double,
-                       lights: Seq[LightSource],
-                       shapes: Seq[Shape],
-                       materials: Seq[Material],
-                       objFiles: Option[Seq[ObjObject]] = None) {
-}
+                          cameraPointing: Vector3,
+                          width: Double,
+                          height: Double,
+                          lights: Seq[LightSource],
+                          shapes: Seq[Shape],
+                          materials: Seq[Material],
+                          objFiles: Option[Seq[ObjObject]] = None) {}
 
 object SceneDTO {
   implicit val sceneJsonFormat: Format[SceneDTO] = Json.format[SceneDTO]
@@ -45,18 +44,16 @@ final case class Scene(cameraOrigin: Vector3,
     objFiles.flatMap(_.getTriangles).toArray
   }
 
-
 }
 
-object Scene{
-  def fromDTO(sceneDTO: SceneDTO)(implicit config: Config) = Scene( sceneDTO.cameraOrigin,
-                                                                    sceneDTO.cameraPointing,
-                                                                    sceneDTO.width,
-                                                                    sceneDTO.height,
-                                                                    sceneDTO.lights,
-                                                                    sceneDTO.shapes,
-                                                                    sceneDTO.materials,
-                                                                    sceneDTO.objFiles)
+object Scene {
+  def fromDTO(sceneDTO: SceneDTO)(implicit config: Config) =
+    Scene(sceneDTO.cameraOrigin,
+          sceneDTO.cameraPointing,
+          sceneDTO.width,
+          sceneDTO.height,
+          sceneDTO.lights,
+          sceneDTO.shapes,
+          sceneDTO.materials,
+          sceneDTO.objFiles)
 }
-
-

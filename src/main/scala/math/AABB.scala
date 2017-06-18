@@ -105,12 +105,14 @@ object AABB {
       None
     else
       Some(
-        AABB(shapes.tail.foldLeft(shapes.head.minX)(_ min _.minX) - Math.EPS,
-             shapes.tail.foldLeft(shapes.head.maxX)(_ max _.maxX) + Math.EPS,
-             shapes.tail.foldLeft(shapes.head.minY)(_ min _.minY) - Math.EPS,
-             shapes.tail.foldLeft(shapes.head.maxY)(_ max _.maxY) + Math.EPS,
-             shapes.tail.foldLeft(shapes.head.minZ)(_ min _.minZ) - Math.EPS,
-             shapes.tail.foldLeft(shapes.head.maxZ)(_ max _.maxZ) + Math.EPS)
+        AABB(
+          shapes.tail.foldLeft(shapes.head.minX)(_ min _.minX) - Math.EPS,
+          shapes.tail.foldLeft(shapes.head.maxX)(_ max _.maxX) + Math.EPS,
+          shapes.tail.foldLeft(shapes.head.minY)(_ min _.minY) - Math.EPS,
+          shapes.tail.foldLeft(shapes.head.maxY)(_ max _.maxY) + Math.EPS,
+          shapes.tail.foldLeft(shapes.head.minZ)(_ min _.minZ) - Math.EPS,
+          shapes.tail.foldLeft(shapes.head.maxZ)(_ max _.maxZ) + Math.EPS
+        )
       )
   }
 

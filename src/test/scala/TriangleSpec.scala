@@ -38,8 +38,7 @@ class TriangleSpec extends Specification with ScalaCheck {
     val missBack =
       triangle.intersect(Ray(Vector3(-0.2, -0.2, 2), -Vector3.Z), 1 - .1)
 
-    (hitFront, hitBack, missFront, missBack) should beEqualTo(
-      (true, true, false, false))
+    (hitFront, hitBack, missFront, missBack) should beEqualTo((true, true, false, false))
   }
 
   val hittingTest = forAll { (r: Ray) =>

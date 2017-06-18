@@ -41,8 +41,7 @@ object Shape {
     }
   }
 
-  @SuppressWarnings(
-    Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
+  @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty
   def getMaterial(name: String, pos: Vector3) =
     materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos)

@@ -51,14 +51,9 @@ final case class Triangle(a: Vector3,
             normals match {
               case Some(Seq(a, b, c)) =>
                 val interpolatedNormal = a * (1 - u - v) + b * u + c * v
-                Some(
-                  Hit(t,
-                      r.march(t),
-                      interpolatedNormal,
-                      Shape.getMaterial(material, pos)))
+                Some(Hit(t, r.march(t), interpolatedNormal, Shape.getMaterial(material, pos)))
               case _ =>
-                Some(
-                  Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
+                Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
             }
           } else {
             None

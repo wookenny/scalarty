@@ -5,8 +5,7 @@ import scene.ObjObject
 
 import scala.io.BufferedSource
 
-class ObjObjectSpec extends Specification with Mockito{
-
+class ObjObjectSpec extends Specification with Mockito {
 
   override def is = s2"""
     An ObjObject should
@@ -21,12 +20,11 @@ class ObjObjectSpec extends Specification with Mockito{
 //TODO test rotation of normals
 
   val mockedSource = mock[BufferedSource]
-  implicit val reader: String  => BufferedSource = String => mockedSource
+  implicit val reader: String => BufferedSource = String => mockedSource
   val filename = "objFilename"
 
-
   val testParseTriangles = {
-    val objFile = ObjObject(filename, center=Vector3.ONE, maxSide=2, rotation=0, None)
+    val objFile = ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, None)
     val objString = """|# Test ObjFile
                        |g triangle
                        |
@@ -36,13 +34,13 @@ class ObjObjectSpec extends Specification with Mockito{
                        |f 1 2 3 """.stripMargin
     mockedSource.getLines returns objString.lines
 
-    val triangles : Seq[Triangle] = objFile.getTriangles
-    val triangle = Triangle(Vector3.ZERO, Vector3(2,2,2), Vector3(2,0,0))
+    val triangles: Seq[Triangle] = objFile.getTriangles
+    val triangle = Triangle(Vector3.ZERO, Vector3(2, 2, 2), Vector3(2, 0, 0))
     triangles should contain(exactly(triangle))
   }
 
   val testParseQuads = {
-    val objFile = ObjObject(filename, center=Vector3.ONE, maxSide=2, rotation=0, None)
+    val objFile = ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, None)
     val objString = """|# Test file containing a quad
                        |v 0 0 0
                        |xxx not defined, needs to be skipped
@@ -52,15 +50,15 @@ class ObjObjectSpec extends Specification with Mockito{
                        |f 1 2 3 4""".stripMargin
     mockedSource.getLines returns objString.lines
 
-    val triangles : Seq[Triangle] = objFile.getTriangles
-    val triangle1 = Triangle(Vector3.ZERO, Vector3(2,2,2), Vector3(2,0,0))
-    val triangle2 = Triangle(Vector3.ZERO, Vector3(2,0,0), Vector3(2,2,0))
+    val triangles: Seq[Triangle] = objFile.getTriangles
+    val triangle1 = Triangle(Vector3.ZERO, Vector3(2, 2, 2), Vector3(2, 0, 0))
+    val triangle2 = Triangle(Vector3.ZERO, Vector3(2, 0, 0), Vector3(2, 2, 0))
 
     triangles should contain(exactly(triangle1, triangle2))
   }
 
   val testParseNormals = {
-    val objFile = ObjObject(filename, center=Vector3.ONE, maxSide=2, rotation=0, None)
+    val objFile = ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, None)
     val objString = """|# Test file containing a triangles and some normals
                        |v 0 0 0
                        |v 2.00 2.000 2.0
@@ -73,16 +71,18 @@ class ObjObjectSpec extends Specification with Mockito{
                        |f 1//3 2/121212/2 3/23/1 """.stripMargin
     mockedSource.getLines returns objString.lines
 
-    val triangles : Seq[Triangle] = objFile.getTriangles
+    val triangles: Seq[Triangle] = objFile.getTriangles
 
     val normals = Seq(Vector3.Z, Vector3.Y, Vector3.X)
-    val triangle1 = Triangle(Vector3.ZERO, Vector3(2,2,2), Vector3(2,0,0), normals = Some(normals))
+    val triangle1 =
+      Triangle(Vector3.ZERO, Vector3(2, 2, 2), Vector3(2, 0, 0), normals = Some(normals))
     triangles should contain(exactly(triangle1))
   }
 
   val testSetMaterial = {
     val mat = "SparklingMaterial"
-    val objFile = ObjObject(filename, center=Vector3.ONE, maxSide=2, rotation=0, material = Some(mat))
+    val objFile =
+      ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, material = Some(mat))
     val objString = """|# Test ObjFile
                        |v 0 0 0
                        |v 2.00 2.000 2.0
@@ -90,13 +90,14 @@ class ObjObjectSpec extends Specification with Mockito{
                        |f 1 2 3 """.stripMargin
     mockedSource.getLines returns objString.lines
 
-    val triangles : Seq[Triangle] = objFile.getTriangles
-    val triangle = Triangle(Vector3.ZERO, Vector3(2,2,2), Vector3(2,0,0), mat)
+    val triangles: Seq[Triangle] = objFile.getTriangles
+    val triangle =
+      Triangle(Vector3.ZERO, Vector3(2, 2, 2), Vector3(2, 0, 0), mat)
     triangles should contain(exactly(triangle))
   }
 
   val testScalingAndTranslation = {
-    val objFile = ObjObject(filename, center=Vector3(2,2,2), maxSide=1, rotation=0, None)
+    val objFile = ObjObject(filename, center = Vector3(2, 2, 2), maxSide = 1, rotation = 0, None)
     val objString = """|# Test ObjFile
                        |v 0 0 0
                        |v 2 2 2
@@ -104,12 +105,13 @@ class ObjObjectSpec extends Specification with Mockito{
                        |f 1 2 3 """.stripMargin
     mockedSource.getLines returns objString.lines
 
-    val triangles : Seq[Triangle] = objFile.getTriangles
-    val triangle = Triangle(Vector3(1.5,1.5,1.5), Vector3(2.5,2.5,2.5), Vector3(2.5,1.5,1.5))
-    triangles should contain(exactly(triangle))  }
+    val triangles: Seq[Triangle] = objFile.getTriangles
+    val triangle = Triangle(Vector3(1.5, 1.5, 1.5), Vector3(2.5, 2.5, 2.5), Vector3(2.5, 1.5, 1.5))
+    triangles should contain(exactly(triangle))
+  }
 
   val testRotation = {
-    val objFile = ObjObject(filename, center=Vector3(2,2,2), maxSide=1, rotation=180, None)
+    val objFile = ObjObject(filename, center = Vector3(2, 2, 2), maxSide = 1, rotation = 180, None)
     val objString = """|# Test ObjFile
                        |v 0 1 0
                        |v 2 0 2
@@ -117,7 +119,9 @@ class ObjObjectSpec extends Specification with Mockito{
                        |f 1 2 3 """.stripMargin
     mockedSource.getLines returns objString.lines
 
-    val triangles : Seq[Triangle] = objFile.getTriangles
-    val triangle = Triangle(Vector3(2.5,2.25,2.5),Vector3(1.5,1.75,1.5),Vector3(1.5,1.75,2.5))
-    triangles should contain(exactly(triangle)) }
+    val triangles: Seq[Triangle] = objFile.getTriangles
+    val triangle =
+      Triangle(Vector3(2.5, 2.25, 2.5), Vector3(1.5, 1.75, 1.5), Vector3(1.5, 1.75, 2.5))
+    triangles should contain(exactly(triangle))
+  }
 }

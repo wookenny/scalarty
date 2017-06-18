@@ -6,12 +6,8 @@ import play.api.libs.json._
 
 object Material {
 
-  val DEFAULT_MATERIAL = SingleColorMaterial("DEFAULT_MATERIAL",
-                                             RGB(.4, .4, .4),
-                                             0.05f,
-                                             0.75f,
-                                             .15f,
-                                             .05f)
+  val DEFAULT_MATERIAL =
+    SingleColorMaterial("DEFAULT_MATERIAL", RGB(.4, .4, .4), 0.05f, 0.75f, .15f, .05f)
 
   def unapply(material: Material): Option[(String, JsValue)] = {
     val (prod: Product, sub) = material match {

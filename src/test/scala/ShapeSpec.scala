@@ -10,8 +10,7 @@ class ShapeSpec extends Specification {
     """
 
   val parseSphere = parseShape(Sphere(Vector3(1, 2, 3.14159), 2.3f))
-  val parseTriangle = parseShape(
-    Triangle(Vector3(1, 2, 0), Vector3(1, 2, 3), Vector3(2, 1, 4.2)))
+  val parseTriangle = parseShape(Triangle(Vector3(1, 2, 0), Vector3(1, 2, 3), Vector3(2, 1, 4.2)))
   val parseAABB = parseShape(AABB(-1.1f, 1, -0.2f, -0.01f, 10, 12.3f))
 
   //TODO make an own matcher with type T out of it

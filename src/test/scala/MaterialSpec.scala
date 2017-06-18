@@ -41,13 +41,7 @@ class MaterialSpec extends Specification with ScalaCheck {
     SingleColorMaterial("noname", RGB.RED, 0.5, 0.1, 0.3, 0.1))
   val parseDefaultMaterial = parseMaterial(Material.DEFAULT_MATERIAL)
   val parseCheckerMaterial = parseMaterial(
-    CheckerMaterial("CheckerMaterial1",
-                    RGB.WHITE,
-                    RGB.BLACK,
-                    0.1,
-                    0.5,
-                    0.3,
-                    0.2))
+    CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1, 0.5, 0.3, 0.2))
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
     val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4, 0.2, 0.1, 0.1, 0.2)
@@ -63,24 +57,17 @@ class MaterialSpec extends Specification with ScalaCheck {
     mat.getMat(x) should be equalTo expectedColor
   }
 
-  val testCheckerMaterial: Prop = forAll(Gen.choose(-1000, 1000),
-                                         Gen.choose(-1000, 1000),
-                                         Gen.choose(-1000, 1000)) {
-    (x, y, z) =>
-      {
-        val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
-        val mat = CheckerMaterial("CheckerMaterial1",
-                                  RGB.WHITE,
-                                  RGB.BLACK,
-                                  1,
-                                  0.5,
-                                  0.3,
-                                  0.2)
-        val expectedColor =
-          if ((x % 2 + y % 2 + z % 2 + 10) % 2 == 1) RGB.WHITE else RGB.BLACK
+  val testCheckerMaterial: Prop =
+    forAll(Gen.choose(-1000, 1000), Gen.choose(-1000, 1000), Gen.choose(-1000, 1000)) {
+      (x, y, z) =>
+        {
+          val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
+          val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1, 0.5, 0.3, 0.2)
+          val expectedColor =
+            if ((x % 2 + y % 2 + z % 2 + 10) % 2 == 1) RGB.WHITE else RGB.BLACK
 
-        mat.getMat(pos).color shouldEqual expectedColor
-      }
-  }
+          mat.getMat(pos).color shouldEqual expectedColor
+        }
+    }
 }
 //see: http://stackoverflow.com/questions/17021847/noise-free-json-format-for-sealed-traits-with-play-2-2-library

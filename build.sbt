@@ -15,14 +15,12 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.6.0-RC2", //TODO: Update to stable when possible
   "org.typelevel" %% "cats" % "0.9.0",
   "org.mockito" % "mockito-core" % "2.8.47",
-  "com.google.inject" % "guice" % "3.0")
+  "com.google.inject" % "guice" % "3.0"
+)
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 
-scalacOptions ++= Seq("-unchecked",
-                      "-deprecation",
-                      "-feature",
-                      "-language:postfixOps")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps")
 scalacOptions in (Compile, doc) ++= Seq("-unchecked",
                                         "-deprecation",
                                         "-diagrams",
@@ -42,4 +40,3 @@ coverageHighlighting := {
 }
 
 //wartremoverErrors in (Compile, compile) ++= Warts.unsafe.filterNot(_==Wart.DefaultArguments)
-

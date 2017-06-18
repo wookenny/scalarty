@@ -77,17 +77,19 @@ class RendererSpec extends Specification {
 
   val testShadeDiffuse = {
     val renderer = new Renderer(emptyScene)
-    val hit = Hit(distance = 3,
-                  position = Vector3.ZERO,
-                  normal = Vector3.X,
-                  color = UnshadedColor(color = RGB.RED,
-                                        ambient = 0.2f,
-                                        diffuse = 0.2f,
-                                        spec = 0.2f,
-                                        reflective = 0.2f,
-                                        refractive = 0.2f,
-                                        n = 2,
-                                        shininess = 64))
+    val hit = Hit(
+      distance = 3,
+      position = Vector3.ZERO,
+      normal = Vector3.X,
+      color = UnshadedColor(color = RGB.RED,
+                            ambient = 0.2f,
+                            diffuse = 0.2f,
+                            spec = 0.2f,
+                            reflective = 0.2f,
+                            refractive = 0.2f,
+                            n = 2,
+                            shininess = 64)
+    )
     val ray = Ray(Vector3.ZERO, Vector3.Z)
     1 should be equalTo 1
   }

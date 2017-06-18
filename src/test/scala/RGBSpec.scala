@@ -38,14 +38,10 @@ class RGBSpec extends Specification with ScalaCheck {
     }
 
   val addCorrectly: Prop = forAll { (a: RGB, b: RGB) =>
-    a + b should be equalTo RGB(a.red + b.red,
-                                a.green + b.green,
-                                a.blue + b.blue)
+    a + b should be equalTo RGB(a.red + b.red, a.green + b.green, a.blue + b.blue)
   }
   val subtractCorrectly: Prop = forAll { (a: RGB, b: RGB) =>
-    a - b should be equalTo RGB(a.red - b.red,
-                                a.green - b.green,
-                                a.blue - b.blue)
+    a - b should be equalTo RGB(a.red - b.red, a.green - b.green, a.blue - b.blue)
   }
   val multiplyCorrectly: Prop = forAll { (a: RGB, s: Double) =>
     a * s should be equalTo RGB(a.red * s, a.green * s, a.blue * s)
@@ -63,14 +59,15 @@ class RGBSpec extends Specification with ScalaCheck {
 
   val awtColor: Prop = forAll { (a: RGB) =>
     val awtColor = a.awtColor
-    val expectedColors = toSeq(a).map { c =>
-      Math.max(Math.min(c, 1), 0)
-    }.map { c =>
-      255 * c
-    }
-    val awtSeq = Seq(awtColor.getRed.toDouble,
-                     awtColor.getGreen.toDouble,
-                     awtColor.getBlue.toDouble)
+    val expectedColors = toSeq(a)
+      .map { c =>
+        Math.max(Math.min(c, 1), 0)
+      }
+      .map { c =>
+        255 * c
+      }
+    val awtSeq =
+      Seq(awtColor.getRed.toDouble, awtColor.getGreen.toDouble, awtColor.getBlue.toDouble)
     val maxDifference =
       awtSeq.zip(expectedColors).map { case (x, y) => x - y }.max
     maxDifference should be lessThanOrEqualTo 1
@@ -86,9 +83,7 @@ class RGBSpec extends Specification with ScalaCheck {
   val testPower: Prop = forAll { (a: RGB) =>
     (a ^ 0 should be equalTo RGB(1d, 1d, 1d)) and
       (a ^ 1 should be equalTo a) and
-      (a ^ 2 should be equalTo RGB(a.red * a.red,
-                                   a.green * a.green,
-                                   a.blue * a.blue))
+      (a ^ 2 should be equalTo RGB(a.red * a.red, a.green * a.green, a.blue * a.blue))
   }
 
   val testGammaCorrection: Prop = forAll { (a: RGB) =>

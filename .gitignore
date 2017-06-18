@@ -10,3 +10,18 @@ project/boot/
 .history
 .cache
 
+/.idea/
+.idea/copyright/
+.idea/libraries/
+.idea/modules/
+.idea/uiDesigner.xml
+.idea/workspace.xml
+project/project/
+src/main/java/
+src/main/resources/
+src/main/scala-2.11/
+src/main/scala-2.12/
+src/test/java/
+src/test/resources/
+src/test/scala-2.11/
+src/test/scala-2.12/

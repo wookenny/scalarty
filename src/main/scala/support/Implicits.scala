@@ -8,6 +8,7 @@ import scala.io.BufferedSource
 import scala.io.Source.fromFile
 
 object Implicits {
-  implicit val fileReader: String  => BufferedSource = fromFile
-  implicit val imageWriter: (RenderedImage, String, File) => Boolean = ImageIO.write
+  implicit val fileReader: String => BufferedSource = fromFile
+  implicit val imageWriter: (RenderedImage, String, File) => Boolean =
+    ImageIO.write
 }

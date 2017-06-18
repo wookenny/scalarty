@@ -3,8 +3,7 @@ package bounding
 import math.{Ray}
 import renderer.Hit
 
-final case class ShapeMetaContainer(shapes: ShapeContainer*)
-    extends ShapeContainer {
+final case class ShapeMetaContainer(shapes: ShapeContainer*) extends ShapeContainer {
 
   override def size: Int = shapes.foldLeft(0)(_ + _.size)
 

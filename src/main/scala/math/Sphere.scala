@@ -2,9 +2,7 @@ package math
 
 import renderer.Hit
 
-final case class Sphere(center: Vector3,
-                        radius: Double,
-                        material: String = "DEFAULT_MATERIAL")
+final case class Sphere(center: Vector3, radius: Double, material: String = "DEFAULT_MATERIAL")
     extends Shape {
   import Math._
   override def intersect(r: Ray): Option[Hit] = {

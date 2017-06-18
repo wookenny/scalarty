@@ -22,9 +22,7 @@ final case class Vector3(x: Double, y: Double, z: Double) {
     Vector3(y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x)
 
   def pow(exp: Double) =
-    Vector3(scala.math.pow(x, exp),
-            scala.math.pow(y, exp),
-            scala.math.pow(z, exp))
+    Vector3(scala.math.pow(x, exp), scala.math.pow(y, exp), scala.math.pow(z, exp))
   def expf =
     Vector3(scala.math.exp(x), scala.math.exp(y), scala.math.exp(z))
 
