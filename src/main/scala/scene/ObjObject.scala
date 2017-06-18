@@ -41,7 +41,7 @@ case class ObjObject(filename: String,
   def getTriangles()(implicit reader: (String) => BufferedSource): Seq[Triangle] = {
 
     logger.info(s"Reading $filename")
-    val objFile = reader(filename).getLines
+    val objFile = reader( filename).getLines
 
     objFile foreach {
       case line if line.trim.isEmpty => Unit //skip empty lines

@@ -138,7 +138,7 @@
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/venusm.obj",
+      "objFiles" : [{"filename": "scenes/obj/venusm.obj.gz",
                      "center"   : {"x": -0.3, "y": -0.7,"z": -0.6},
                      "maxSide"  : 1.1,
                      "rotation" : -75

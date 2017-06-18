@@ -8,6 +8,8 @@ import play.api.libs.json.{Format, Json}
 import support.Config
 import support.Implicits._
 
+//TODO: use gzip
+
 final case class SceneDTO(cameraOrigin: Vector3,
                           cameraPointing: Vector3,
                           width: Double,
