@@ -190,7 +190,7 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)(implicit config: C
   private def buildBVH(shapes: Seq[Shape], depth: Int): Node = {
     val aabb = getBoundingBox(shapes)
     splitPrimitives(shapes, aabb) match {
-      case None => if(BVH.showLeaves) {
+      case None => if(config.showBvHLeaves) {
         val box = aabb.get //TODO: do nicer, getOrElse
         Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name) , depth)
       }else {
@@ -268,7 +268,6 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)(implicit config: C
 }
 
 object BVH {
-  private val showLeaves = false
   private val showInnerNodes = false
   private val leafMaterial = SingleColorMaterial("BVH_Leaf_Material",RGB.RED, ambient =  0.1, diffuse = 0, spec = 0, refractive = .9, n = 1)
   private val innerNodeMaterial = SingleColorMaterial("BVH_Inner_Node_Material",RGB.YELLOW, ambient =  0.01, diffuse = 0, spec = 0, refractive = .99, n = 1)

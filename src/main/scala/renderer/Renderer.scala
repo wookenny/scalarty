@@ -18,9 +18,6 @@ import scala.collection.parallel.mutable.ParArray
 object Renderer {
   private val backgroundColor = RGB.BLACK
   private val chunkSize = 10
-
-  //TODO: make configurable
-  private val lightSampling = 1
 }
 
 class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
@@ -47,7 +44,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     else
       for {
         lightSource  <- scene.lights
-        lightSampling  = lightSource.sample(Renderer.lightSampling)
+        lightSampling  = lightSource.sample(config.shadowsampling)
         n = lightSampling.size
         lightSample <- lightSampling if !shadowRay(hit.position, lightSample)
       } yield (lightSource, 1d/n, lightSample)

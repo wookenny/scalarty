@@ -25,22 +25,32 @@ object Main {
 
     val supersampling = opt[Int]('s', "supersampling")
       .action((x, c) => c.copy(supersampling = x))
-      .text("supersampling is an integer property")
+      .text(s"number s of s*s samples per pixel," +
+        s" (default value=${Config.DefaultSupersampling})")
 
-    val adaptivesupersampling = opt[Int]('a', "adaptivesupersampling")
+    val adaptivesupersampling = opt[Int]("adaptivesupersampling").abbr("as")
       .action((x, c) => c.copy(adaptivesupersampling = x))
-      .text("adaptive supersampling is an integer property")
+      .text(s"number s of s*s samples per pixel used on detected edges," +
+        s" (default value=${Config.DefaultAdaptiveSupersampling})")
+
+    val shadowsampling = opt[Int]("shadowsampling").abbr("ss")
+      .action((x, c) => c.copy(shadowsampling = x))
+      .text(s"number s of s*s samples for sampling area lights," +
+        s" (default value=${Config.DefaultShadowSampling})")
+
+    val showBvHLeaves = opt[Unit]("bvh.showleafes").abbr("bvh.l")
+        .action((_, c) => c.copy(showBvHLeaves = true))
+        .text("show BvH leafes used in obj file constructions")
 
     val verbose = opt[Unit]("verbose")
       .action((_, c) => c.copy(verbose = true))
-      .text("verbose is a flag")
+      .text("enable verbose behaviour")
 
     val debug = opt[Unit]("debug")
-      .hidden()
       .action((_, c) => c.copy(debug = true))
-      .text("this option is hidden in the usage text")
+      .text("enable debug logs")
 
-    val helpText = help("help").text("prints this usage text")
+    val helpText = help("help").abbr("h").text("prints this usage text")
 
     val description = note("Simple raytracer written in scala.\n")
   }
@@ -56,7 +66,7 @@ object Main {
   def main(implicit config: Config): Unit = {
     val sceneFile: String = fromFile(config.in).getLines.mkString
     try {
-      val scene: Scene = Scene(Json.parse(sceneFile).as[SceneDTO])
+      val scene: Scene = Scene.fromDTO(Json.parse(sceneFile).as[SceneDTO])
       val renderer = new Renderer(scene)
       renderer.startRendering(config)
     } catch {

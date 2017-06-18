@@ -13,7 +13,7 @@ trait LightSource{
   def position: Vector3
 }
 
-final case class PointLight(position: Vector3, color: RGB, power: Double) extends LightSource{
+final case class PointLight(position: Vector3, color: RGB, power: Double) extends LightSource {
   override def intensity(pos: Vector3, positionOnLight: Option[Vector3]) = power /((position-pos)*(position-pos))
   //no sampling required for point lights
   override def sample(n: Int) = Seq(position)

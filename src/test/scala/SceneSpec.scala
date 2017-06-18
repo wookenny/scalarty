@@ -6,6 +6,7 @@ import org.specs2.Specification
 import org.specs2.mock.Mockito
 import org.specs2.specification.core.SpecStructure
 import scene.{ObjObject, Scene}
+import support.Config
 import support.Implicits._
 
 
@@ -16,6 +17,8 @@ class SceneSpec extends Specification with Mockito{
       without shapes should be initialized correctly $testSceneWithoutObjInit
       with shapes and obj files should be initialized correctly $testSceneWithObjInit
     """
+
+  implicit val config = Config()
 
   val testSceneWithoutObjInit = {
     val mat1 = SingleColorMaterial("mat1", RGB.CYAN, 0.7f, 0.1f, 0.1f, 0.1f)

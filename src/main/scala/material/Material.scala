@@ -50,7 +50,8 @@ final case class UnshadedColor(color: RGB,
                                reflective: Double,
                                refractive: Double,
                                n: Double,
-                               shininess: Double)
+                               shininess: Double,
+                               emission: Double = 0)
 
 trait Material {
   def getMat(position: Vector3): UnshadedColor

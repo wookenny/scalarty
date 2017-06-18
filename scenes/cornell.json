@@ -138,10 +138,10 @@
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/teapot.obj",
-                     "center"   : {"x": -0.3, "y": -0.5,"z": -0.6},
+      "objFiles" : [{"filename": "scenes/obj/venusm.obj",
+                     "center"   : {"x": -0.3, "y": -0.7,"z": -0.6},
                      "maxSide"  : 1.1,
-                     "rotation" : 75
+                     "rotation" : -75
                     }]
 
 }

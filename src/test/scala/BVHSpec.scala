@@ -2,8 +2,12 @@ import bounding.BVH
 import math.{Ray, Shape, Sphere, Vector3}
 import org.specs2.{ScalaCheck, Specification}
 import renderer.Hit
+import support.Config
 
 class BVHSpec extends Specification with ScalaCheck {
+
+  implicit val config = Config()
+
   def is = s2"""
    An BVH should
       be constructed with correct height and size ${correctHeightAndSize}
