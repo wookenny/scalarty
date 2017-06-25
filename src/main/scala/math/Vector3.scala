@@ -13,7 +13,7 @@ final case class Vector3(x: Double, y: Double, z: Double) {
 
   def unary_-() = this * (-1)
   def unary_+() = this
-  def =~=(p: Vector3) = (this.equals(p)) //TODO: implement properly
+  def ~=(p: Vector3, delta: Double = 0.001) = (this-p).length < delta
 
   def length: Double = scala.math.sqrt(this * this)
   def dist(p: Vector3) = (this - p).length
@@ -28,7 +28,7 @@ final case class Vector3(x: Double, y: Double, z: Double) {
 
 }
 
-object Vector3 { //TODO: use Xor
+object Vector3 {
 
   val ZERO = Vector3(0, 0, 0)
   val ONE = Vector3(1, 1, 1)
@@ -37,8 +37,4 @@ object Vector3 { //TODO: use Xor
   val Z = Vector3(0, 0, 1)
 
   implicit val vectorJsonFormat: Format[Vector3] = Json.format[Vector3]
-
-  //def apply(x: Double, y: Double, z: Double): Vector3 =
-  //  apply(x.toDouble, y.toDouble, z.toDouble)
-
 }

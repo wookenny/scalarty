@@ -12,7 +12,7 @@ class VectorSpec extends Specification with ScalaCheck {
 
     have correct scalar division ${scalarDivision}
     have a correct scalar multiplication $scalarMultiplication
-    have a correct nagation $negation
+    have a correct negation $negation
     have a correct identiy $identity
     add two vectors $addition
     multiply two vectors $multiplication
@@ -22,7 +22,7 @@ class VectorSpec extends Specification with ScalaCheck {
   """
 
   val lengthTest = forAll { (p: Vector3) =>
-    p.length == Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z).toDouble
+    p.length == Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z)
   }
   val distTest = forAll { (a: Vector3, b: Vector3) =>
     approx(
@@ -34,7 +34,7 @@ class VectorSpec extends Specification with ScalaCheck {
   }
 
   val scalarDivision = forAll { (a: Vector3, s: Double) =>
-    a / s =~= Vector3(a.x / s, a.y / s, a.z / s)
+    a / s ~= Vector3(a.x / s, a.y / s, a.z / s)
   }
   val scalarMultiplication = forAll { (a: Vector3, s: Double) =>
     a * s == Vector3(a.x * s, a.y * s, a.z * s)
@@ -59,14 +59,14 @@ class VectorSpec extends Specification with ScalaCheck {
   val powTest = forAll { (a: Vector3, f: Double) =>
     approx(
       a.pow(f),
-      Vector3(Math.pow(a.x, f).toDouble, Math.pow(a.y, f).toDouble, Math.pow(a.z, f).toDouble))
+      Vector3(Math.pow(a.x, f), Math.pow(a.y, f), Math.pow(a.z, f)))
   }
 
   val expTest = forAll { (a: Vector3) =>
-    a.expf == Vector3(Math.exp(a.x).toDouble, Math.exp(a.y).toDouble, Math.exp(a.z).toDouble)
+    a.expf == Vector3(Math.exp(a.x), Math.exp(a.y), Math.exp(a.z))
   }
 
-  implicit lazy val PointGen: Arbitrary[Vector3] =
+  implicit lazy val VectorGen: Arbitrary[Vector3] =
     Arbitrary {
       for {
         x: Double <- Gen.choose(-1000d, 1000d)

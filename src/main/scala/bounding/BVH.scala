@@ -53,7 +53,8 @@ final case class Leaf(boundingBox: Option[AABB], shapes: Seq[Shape], depth: Int)
   override def countNodes: Int = 1
 }
 
-case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)(implicit config: Config)
+case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH : Boolean = false
+              )(implicit config: Config)
     extends ShapeContainer
     with LazyLogging {
   logger.info("Building BVH ...")
@@ -99,64 +100,19 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)(implicit config: C
         case _ => shapes.sortBy(_.midpoint.z)
       }
 
-    val splitIndex = if (BVH.splitSAH) {
-      val forw = BVH.findBoundingBoxes(split.toIndexedSeq)
-      val backw = BVH.findBoundingBoxes(split.toIndexedSeq.reverse).reverse
-      getOptimalSplit(forw, backw, aabb.area)
+    val splitIndex = if (splitSAH) {
+      getOptimalSplit(split, aabb.area)
     } else
       split.size / 2
 
     (split.take(splitIndex), split.drop(splitIndex))
   }
 
-  private def splitPrimitivesSAH(shapes: Seq[Shape],
-                                 aabb: Option[AABB]): Option[(Seq[Shape], Seq[Shape])] = {
 
-    if (shapes.size >= leaf_node_limit && aabb.isDefined) {
-      val box = aabb.get
-      val shapesSorted =
-        Seq(shapes.sortBy(_.midpoint.x), shapes.sortBy(_.midpoint.y), shapes.sortBy(_.midpoint.z))
-      val lengths = Seq(box.x_max - box.x_min, box.y_max - box.y_min, box.z_max - box.z_min)
-      val dimension = lengths.indexOf(lengths.max)
-      val (splitDimension, splitIndex, _) = (for {
-        //dimension <- 0 to 2
-        split <- shapes.indices
-        costs = splitCost(shapesSorted(dimension), split, box)
-      } yield (dimension, split, costs)).minBy(_._3)
+  def getOptimalSplit(shapes: Seq[Shape], wholeSurfaceArea: Double): Int = {
 
-      if (splitIndex == 0 || splitIndex == shapes.size - 1)
-        None
-      else {
-        Option(shapesSorted(splitDimension).take(splitIndex),
-               shapesSorted(splitDimension).drop(splitIndex))
-      }
-    } else {
-      None
-    }
-  }
-
-  private def splitCost(shapes: Seq[Shape], split: Int, aabb: AABB): Double = {
-    val wholeSurfaceArea = aabb.area
-    val nodesLeft = split + 1
-    val nodesRight = shapes.size - split
-    val areaLeft = getBoundingBox(shapes.slice(0, split)) match {
-      case Some(box) => box.area
-      case None => 0f
-    }
-    val areaRight = getBoundingBox(shapes.slice(split, shapes.size)) match {
-      case Some(box) => box.area
-      case None => 0f
-    }
-    if (nodesLeft == 0 || nodesRight == 0)
-      shapes.size * BVH.CostShapeIntersection
-    else
-      BVH.CostAABBIntersection
-    +(areaLeft / wholeSurfaceArea) * nodesLeft * BVH.CostShapeIntersection +
-      (areaRight / wholeSurfaceArea) * nodesRight * BVH.CostShapeIntersection
-  }
-
-  def getOptimalSplit(forw: Seq[Double], backw: Seq[Double], wholeSurfaceArea: Double): Int = {
-    require(forw.size == backw.size)
+    val forw = BVH.findBoundingBoxes(shapes.toIndexedSeq)
+    val backw = BVH.findBoundingBoxes(shapes.toIndexedSeq.reverse).reverse
 
     var index = 0
     var cost: Double = shapes.size * BVH.CostShapeIntersection
@@ -174,16 +130,11 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20)(implicit config: C
 
   private def buildBVH(shapes: Seq[Shape], depth: Int): Node = {
     val aabb = getBoundingBox(shapes)
-    splitPrimitives(shapes, aabb) match {
-      case None =>
-        if (config.showBvHLeaves) {
-          val box = aabb.get //TODO: do nicer, getOrElse
-          Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name), depth)
-        } else {
-          Leaf(aabb, shapes, depth)
-        }
-      case Some((a: Seq[Shape], b: Seq[Shape])) =>
-        InnerNode(aabb, Seq(buildBVH(a, depth + 1), buildBVH(b, depth + 1)), depth)
+    val split = splitPrimitives(shapes, aabb)
+    (split,aabb) match {
+      case (None,Some(box)) if (config.showBvHLeaves) => Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name), depth)
+      case (None,_)                                   => Leaf(aabb, shapes, depth)
+      case (Some((a: Seq[Shape], b: Seq[Shape])),_)   => InnerNode(aabb, Seq(buildBVH(a, depth + 1), buildBVH(b, depth + 1)), depth)
     }
 
   }
@@ -269,23 +220,9 @@ object BVH {
                                                       spec = 0,
                                                       refractive = .99,
                                                       n = 1)
-  val splitSAH = false
 
   private val CostShapeIntersection: Int = 1
   private val CostAABBIntersection: Int = 3
-
-  private def findMax(l: Seq[Int]): Seq[Int] = l match {
-    case Nil => Seq.empty[Int]
-    case (head :: tail) => findMaxRec(tail, head, Nil)
-  }
-
-  @tailrec
-  private def findMaxRec(l: Seq[Int], value: Int, acc: Seq[Int]): Seq[Int] =
-    l match {
-      case Nil => acc
-      case (head :: tail) =>
-        val v: Int = value max head; findMaxRec(tail, v, acc :+ v)
-    }
 
   private def findBoundingBoxes(l: Seq[Shape]): Seq[Double] = l match {
     case Nil => Seq.empty

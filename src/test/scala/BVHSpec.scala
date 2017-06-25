@@ -11,8 +11,11 @@ class BVHSpec extends Specification with ScalaCheck {
   def is = s2"""
    An BVH should
       be constructed with correct height and size ${correctHeightAndSize}
-      hit spheres correctly $intersectionSpheres
-
+      hit  spheres correctly $intersectionSpheres
+      miss spheres correctly $missSpheres
+      hit  spheres inside maximal distance $intersectionTestPositive
+      miss spheres outside maximal distance $intersectionTestNegative
+      add InnerBoxes for the leaves if requested $showLeafBoxes
   """
 
   val spheres = for {
@@ -22,6 +25,9 @@ class BVHSpec extends Specification with ScalaCheck {
   } yield Sphere(Vector3(x, y, z), radius = 0.2f)
 
   val sphereBVH = BVH(spheres, 2)
+  val sphereBVH_SAH = BVH(spheres, 2, splitSAH = true)
+
+
 
   def intersect(shapes: Seq[Shape], ray: Ray): Option[Hit] = {
     shapes.flatMap { s =>
@@ -33,12 +39,42 @@ class BVHSpec extends Specification with ScalaCheck {
   }
 
   def correctHeightAndSize = {
-    sphereBVH.size should be equalTo 9
-    sphereBVH.depth should be equalTo 4
+    ((sphereBVH.depth, sphereBVH.size)  should be equalTo (4,27)) and
+      ((sphereBVH_SAH.depth, sphereBVH_SAH.size)  should be equalTo (3,27))
   }
 
   def intersectionSpheres = {
     val ray = Ray(origin = Vector3(2, 2, -10), direction = Vector3.Z)
-    sphereBVH.intersect(ray) should be equalTo intersect(spheres, ray)
+    (sphereBVH.intersect(ray) shouldNotEqual None) and
+      (sphereBVH_SAH.intersect(ray) shouldNotEqual None)
   }
+
+  def missSpheres = {
+    val ray = Ray(origin = Vector3(2, 2, -10), direction = Vector3.X)
+    (sphereBVH.intersect(ray) should be equalTo None) and
+      (sphereBVH_SAH.intersect(ray) should be equalTo None)
+  }
+
+
+  def intersectionTestPositive = {
+    val ray = Ray(origin = Vector3(2, 2, -10), direction = Vector3.Z)
+    (sphereBVH.intersectionTest(ray,20) shouldNotEqual None) and
+      (sphereBVH_SAH.intersectionTest(ray,20) shouldNotEqual None)
+  }
+
+  def intersectionTestNegative = {
+    val ray = Ray(origin = Vector3(2, 2, -10), direction = Vector3.Z)
+    (sphereBVH.intersectionTest(ray,10) shouldNotEqual None) and
+      (sphereBVH_SAH.intersectionTest(ray,10) shouldNotEqual None)
+  }
+
+  def showLeafBoxes = {
+
+    val sphereBVHwithLeaves = BVH(spheres, 1)(config.copy(showBvHLeaves = true))
+    val sphereBVHWithoutLeaves  = BVH(spheres, 1)
+
+    sphereBVHwithLeaves.size  should be equalTo sphereBVHWithoutLeaves.size //TODO: leaf boxes do not count
+  }
+
+
 }
