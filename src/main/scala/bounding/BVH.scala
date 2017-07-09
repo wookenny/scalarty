@@ -30,6 +30,8 @@ abstract class Node {
   }
 }
 
+private final case class Candidate(node: Node, distance: Double)
+
 final case class InnerNode(boundingBox: Option[AABB], children: Seq[Node], depth: Int)
     extends Node {
   override def closestHit(ray: Ray) = None
@@ -72,8 +74,6 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH : Boolean
 
   lazy val numNodes: Int = root.countNodes
   lazy val depth: Int = root.getDepth
-
-  private final case class Candidate(node: Node, distance: Double)
 
   private def getBoundingBox(shapes: Seq[Shape]): Option[AABB] =
     AABB.wrapping(shapes)

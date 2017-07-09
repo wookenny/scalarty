@@ -32,6 +32,8 @@ class Image(val width: Int, val height: Int) {
     new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
   clear
 
+
+  //TODO: check that the filetype is valid or use png
   def save(filename: String)(implicit write: (RenderedImage, String, File) => Boolean): Boolean = {
     val (fixedfilename: String, fileType: String) = getFilenameEnding(filename)
     write(img, fileType, new File(fixedfilename + "." + fileType))

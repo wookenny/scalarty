@@ -10,8 +10,6 @@ import org.hamcrest.CoreMatchers
 
 class ImageSpec extends Specification with Mockito {
 
-//TODO: test clear
-
   override def is: SpecStructure =
     s2"""
     An image should
@@ -25,9 +23,15 @@ class ImageSpec extends Specification with Mockito {
       when getting a color
         succeed for valid indices $testGetWithCorrectParameter
         fail for invalid parameter $testGetWithIncorrectParameter
-      be saved $testSaveImage
+      be saved with valid ending $testSaveImage
+      be saved without ending $testSaveImageWithoutType
       detect the set of edges $testDetectEdges
       """
+
+  trait SaveImage {
+      def save(r: RenderedImage, s: String, f: File): Boolean = true
+   }
+
 
   val testInitImage = {
     val img = new Image(400, 600)
@@ -44,20 +48,22 @@ class ImageSpec extends Specification with Mockito {
 
   val testSaveImage = {
     val img = new Image(400, 600)
-
-    trait SaveImage {
-      def save(r: RenderedImage, s: String, f: File): Boolean = true
-    }
     val saveImage = mock[SaveImage]
 
     img.save("blub.image.jpg")(saveImage.save)
-    //img.save("blub")(saveImage.save)
-    //img.save("other.png")(saveImage.save)
+    there was one(saveImage).save(any[BufferedImage],
+                                  ===("jpg"),
+                                  ===(new File("blub.image.jpg")))
+  }
 
-    //there was one(saveImage).save(any[BufferedImage], beLike[String]{case s: String => 1 should be equalTo 1}, any[File])
-    //TODO: add a real test here
-    there was one(saveImage).save(any[BufferedImage], any[String], any[File])
+  val testSaveImageWithoutType = {
+    val img = new Image(140, 160)
+    val saveImage = mock[SaveImage]
 
+    img.save("image")(saveImage.save)
+    there was one(saveImage).save(any[BufferedImage],
+                                  ===("png"),
+                                  ===(new File("image.png")))
   }
 
   val testSetColorsForCorrectIndices = {

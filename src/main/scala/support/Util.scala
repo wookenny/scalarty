@@ -5,7 +5,7 @@ import scala.concurrent.duration._
 object Util {
 
   // default implicit time measurement
-  implicit val currentTimeInNanos: () => Long = System.nanoTime
+  implicit def currentTimeInNanos: () => Long = () => System.nanoTime()
 
   def time[A](msg: String)(block: => A)(implicit log: String => Unit,
                                         currentTimeInNanos: () => Long): A = {
