@@ -13,10 +13,10 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.github.scopt" %% "scopt" % "3.7.0",
   "com.typesafe.play" %% "play-json" % "2.6.5",
-  "org.typelevel" %% "cats" % "0.9.0",
   "org.mockito" % "mockito-core" % "2.10.0",
   "com.google.inject" % "guice" % "4.1.0",
-  "com.chuusai" %% "shapeless" % "2.3.2"
+  "com.chuusai" %% "shapeless" % "2.3.2",
+  "org.typelevel" %% "cats-core" % "1.0.0-MF"
 )
 
 parallelExecution in Test := false
@@ -31,6 +31,7 @@ scalacOptions in (Compile, doc) ++= Seq("-unchecked",
                                         "-implicits",
                                         "-skip-packages",
                                         "samples")
+scalacOptions ++= scalafixScalacOptions.value
 
 coverageMinimum := 70
 coverageEnabled := true

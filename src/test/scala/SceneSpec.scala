@@ -17,7 +17,7 @@ class SceneSpec extends Specification with Mockito {
       with shapes and obj files should be initialized correctly $testSceneWithObjInit
     """
 
-  implicit val config = Config()
+  implicit val config: _root_.support.Config = Config()
 
   val testSceneWithoutObjInit = {
     val mat1 = SingleColorMaterial("mat1", RGB.CYAN, 0.7f, 0.1f, 0.1f, 0.1f)

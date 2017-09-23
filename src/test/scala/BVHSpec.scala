@@ -6,7 +6,7 @@ import support.Config
 
 class BVHSpec extends Specification with ScalaCheck {
 
-  implicit val config = Config()
+  implicit val config: _root_.support.Config = Config()
 
   def is = s2"""
    An BVH should

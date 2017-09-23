@@ -27,7 +27,7 @@ class RendererSpec extends Specification {
         shade a hit for diffuse $testShadeDiffuse
     """
 
-  implicit val config = Config()
+  implicit val config: _root_.support.Config = Config()
 
   val emptyScene = Scene(cameraOrigin = Vector3.ZERO,
                          cameraPointing = Vector3.Z,

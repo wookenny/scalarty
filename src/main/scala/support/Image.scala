@@ -12,7 +12,7 @@ trait ImageWriterFactory {
 
 trait ImageWriter {
   def setRGB(x: Int, y: Int, c: Int): Unit
-  def save(filename: String)
+  def save(filename: String): Unit
 }
 
 object Image {

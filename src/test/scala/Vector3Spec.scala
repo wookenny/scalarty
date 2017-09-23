@@ -13,7 +13,7 @@ class VectorSpec extends Specification with ScalaCheck {
     have correct scalar division ${scalarDivision}
     have a correct scalar multiplication $scalarMultiplication
     have a correct negation $negation
-    have a correct identiy $identity
+    have a correct identity $identity
     add two vectors $addition
     multiply two vectors $multiplication
     calculate the cross product of two vectors $crossproduct
@@ -24,6 +24,7 @@ class VectorSpec extends Specification with ScalaCheck {
   val lengthTest = forAll { (p: Vector3) =>
     p.length == Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z)
   }
+
   val distTest = forAll { (a: Vector3, b: Vector3) =>
     approx(
       a.dist(b),
