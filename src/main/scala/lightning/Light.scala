@@ -40,8 +40,8 @@ final case class PlaneLight(position: Vector3,
 
   override def sample(n: Int) =
     for {
-      x <- (-n + 1) to (n - 1) by 2
-      z <- (-n + 1) to (n - 1) by 2
+      x <- (-n + 1).until(n) by 2
+      z <- (-n + 1).until(n) by 2
     } yield
       Vector3((x.toDouble / n) * width + position.x + randomOffset(width / n),
               position.y,

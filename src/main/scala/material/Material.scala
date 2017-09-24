@@ -15,6 +15,8 @@ object Material {
         (m, Json.toJson(m)(singleColorMaterialFmt))
       case m: CheckerMaterial =>
         (m, Json.toJson(m)(checkerMaterialFmt))
+      case m: EmissionMaterial =>
+        (m, Json.toJson(m)(emissionMaterialFmt))
     }
     Some(prod.productPrefix -> sub)
   }
@@ -25,18 +27,19 @@ object Material {
         Json.fromJson[SingleColorMaterial](data)(singleColorMaterialFmt)
       case "CheckerMaterial" =>
         Json.fromJson[CheckerMaterial](data)(checkerMaterialFmt)
+      case "EmissionMaterial" =>
+        Json.fromJson[EmissionMaterial](data)(emissionMaterialFmt)
+      case materialType =>  throw new IllegalArgumentException(s"Unknown Material type: $materialType")
     }) match {
       case JsSuccess(shape, _) => shape
-      case JsError(errors) =>
-        throw new IllegalArgumentException(errors.toString)
+      case JsError(_) => throw new IllegalArgumentException(s"Could parse the Json as material: $data")
     }
   }
 
-  implicit val materialFmt: Format[Material] = Json.format[Material]
-  implicit val singleColorMaterialFmt: Format[SingleColorMaterial] =
-    Json.format[SingleColorMaterial]
-  implicit val checkerMaterialFmt: Format[CheckerMaterial] =
-    Json.format[CheckerMaterial]
+  implicit val materialFmt = Json.format[Material]
+  implicit val singleColorMaterialFmt = Json.format[SingleColorMaterial]
+  implicit val checkerMaterialFmt = Json.format[CheckerMaterial]
+  implicit val emissionMaterialFmt = Json.format[EmissionMaterial]
 }
 
 final case class UnshadedColor(color: RGB,

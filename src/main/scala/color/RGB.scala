@@ -21,15 +21,15 @@ final case class RGB(red: Double, green: Double, blue: Double) {
   def +(c: RGB) = RGB(red + c.red, green + c.green, blue + c.blue)
   def -(c: RGB) = RGB(red - c.red, green - c.green, blue - c.blue)
 
-  def unary_-() = this * (-1)
-  def unary_+() = this
+  def unary_-(): RGB = this * -1
+  def unary_+(): RGB = this
 
   def exposureCorrected = RGB(
     1 - Math.exp(-red),
     1 - Math.exp(-green),
     1 - Math.exp(-blue)
   )
-  def gammaCorrected = this ^ (1 / RGB.GAMMA)
+  def gammaCorrected: RGB = this ^ (1 / RGB.GAMMA)
 
 }
 

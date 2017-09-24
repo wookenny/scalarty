@@ -43,7 +43,7 @@ class UtilSpec extends Specification with Mockito {
     val block = { val x = 12; x }
     var logMessages: Seq[String] = Seq.empty
     val result = Util.time(msg) { block }((s: String) => logMessages = s +: logMessages,
-      () => timeProvider.time())
+                                          () => timeProvider.time())
 
     val messageLogged = logMessages.headOption.getOrElse("")
 

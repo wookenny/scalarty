@@ -58,9 +58,7 @@ class VectorSpec extends Specification with ScalaCheck {
   }
 
   val powTest = forAll { (a: Vector3, f: Double) =>
-    approx(
-      a.pow(f),
-      Vector3(Math.pow(a.x, f), Math.pow(a.y, f), Math.pow(a.z, f)))
+    approx(a.pow(f), Vector3(Math.pow(a.x, f), Math.pow(a.y, f), Math.pow(a.z, f)))
   }
 
   val expTest = forAll { (a: Vector3) =>

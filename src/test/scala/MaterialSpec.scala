@@ -1,10 +1,10 @@
 import color.RGB
-import material.{CheckerMaterial, Material, SingleColorMaterial, UnshadedColor}
-import math.{Shape, Vector3}
-import org.scalacheck.{Arbitrary, Gen, Prop}
+import material._
+import math.Vector3
 import org.scalacheck.Prop._
+import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.specs2.{ScalaCheck, Specification}
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 class MaterialSpec extends Specification with ScalaCheck {
   def is =
@@ -13,12 +13,18 @@ class MaterialSpec extends Specification with ScalaCheck {
           be parsed from Json $parseSingleColorMaterial
           have a single color $testSingleColorMaterial
 
+       An EmissionMaterial should
+          be parsed from Json $parseEmissionMaterial
+          have only a color and an intensity $testEmissionMaterial
+
        A CheckerMaterial should
           be parsed parsed from Json $parseCheckerMaterial
           have a repeating pattern $testCheckerMaterial
        The default material
           should be parsed correctly $parseDefaultMaterial
 
+        Unknown material throws  an Exception when parsed $parseUnknownMaterial
+        Malformed material tthrowsn a Exception when parsed $parseMalformedMaterial
     """
 
   implicit lazy val VectorGen: Arbitrary[Vector3] =
@@ -39,9 +45,23 @@ class MaterialSpec extends Specification with ScalaCheck {
 
   val parseSingleColorMaterial = parseMaterial(
     SingleColorMaterial("noname", RGB.RED, 0.5, 0.1, 0.3, 0.1))
+  val parseEmissionMaterial = parseMaterial(EmissionMaterial("Light1", RGB.GREEN, 1.3))
   val parseDefaultMaterial = parseMaterial(Material.DEFAULT_MATERIAL)
   val parseCheckerMaterial = parseMaterial(
     CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 0.1, 0.5, 0.3, 0.2))
+
+  val parseUnknownMaterial = {
+    val mat = EmissionMaterial("Light1", RGB.GREEN, 1.3)
+    val matJson: JsValue = Json.toJson(EmissionMaterial("Light1", RGB.GREEN, 1.3))(Material.emissionMaterialFmt)
+    Material("wrongMaterialTye", matJson) should throwA(new IllegalArgumentException("Unknown Material type: wrongMaterialTye"))
+  }
+
+  val parseMalformedMaterial = {
+    val mat = EmissionMaterial("Light1", RGB.GREEN, 1.3)
+    val malformedMat: JsValue = JsString("incorrect Json")
+    Material("EmissionMaterial", malformedMat) should throwA(new IllegalArgumentException("Could parse the Json as material: \"incorrect Json\""))
+  }
+
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
     val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4, 0.2, 0.1, 0.1, 0.2)
@@ -54,6 +74,13 @@ class MaterialSpec extends Specification with ScalaCheck {
                                       mat.n,
                                       mat.shininess)
 
+    mat.getMat(x) should be equalTo expectedColor
+  }
+
+  val testEmissionMaterial: Prop = forAll { (x: Vector3) =>
+    val mat = EmissionMaterial("Light1", RGB.YELLOW, 2.6)
+
+    val expectedColor = UnshadedColor(RGB.YELLOW, 0, 0, 0, 0, 0, 0, 0, 2.6)
     mat.getMat(x) should be equalTo expectedColor
   }
 

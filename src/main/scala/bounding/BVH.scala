@@ -1,8 +1,8 @@
 package bounding
 
 import color.RGB
-import com.typesafe.scalalogging.{LazyLogging, Logger}
-import material.{Material, SingleColorMaterial, UnshadedColor}
+import com.typesafe.scalalogging.LazyLogging
+import material.SingleColorMaterial
 import math.{AABB, Ray, Shape, Vector3}
 import renderer.Hit
 import support.Config
@@ -55,8 +55,8 @@ final case class Leaf(boundingBox: Option[AABB], shapes: Seq[Shape], depth: Int)
   override def countNodes: Int = 1
 }
 
-case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH : Boolean = false
-              )(implicit config: Config)
+case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean = false)(
+    implicit config: Config)
     extends ShapeContainer
     with LazyLogging {
   logger.info("Building BVH ...")
@@ -108,7 +108,6 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH : Boolean
     (split.take(splitIndex), split.drop(splitIndex))
   }
 
-
   def getOptimalSplit(shapes: Seq[Shape], wholeSurfaceArea: Double): Int = {
 
     val forw = BVH.findBoundingBoxes(shapes.toIndexedSeq)
@@ -131,10 +130,12 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH : Boolean
   private def buildBVH(shapes: Seq[Shape], depth: Int): Node = {
     val aabb = getBoundingBox(shapes)
     val split = splitPrimitives(shapes, aabb)
-    (split,aabb) match {
-      case (None,Some(box)) if (config.showBvHLeaves) => Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name), depth)
-      case (None,_)                                   => Leaf(aabb, shapes, depth)
-      case (Some((a: Seq[Shape], b: Seq[Shape])),_)   => InnerNode(aabb, Seq(buildBVH(a, depth + 1), buildBVH(b, depth + 1)), depth)
+    (split, aabb) match {
+      case (None, Some(box)) if config.showBvHLeaves =>
+        Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name), depth)
+      case (None, _) => Leaf(aabb, shapes, depth)
+      case (Some((a: Seq[Shape], b: Seq[Shape])), _) =>
+        InnerNode(aabb, Seq(buildBVH(a, depth + 1), buildBVH(b, depth + 1)), depth)
     }
 
   }

@@ -11,13 +11,13 @@ final case class Vector3(x: Double, y: Double, z: Double) {
   def -(p: Vector3) = Vector3(x - p.x, y - p.y, z - p.z)
   def *(p: Vector3): Double = x * p.x + y * p.y + z * p.z
 
-  def unary_-() = this * (-1)
-  def unary_+() = this
-  def ~=(p: Vector3, delta: Double = 0.001) = (this-p).length < delta
+  def unary_-(): Vector3 = this * (-1)
+  def unary_+(): Vector3 = this
+  def ~=(p: Vector3, delta: Double = 0.001): Boolean = (this - p).length < delta
 
   def length: Double = scala.math.sqrt(this * this)
-  def dist(p: Vector3) = (this - p).length
-  def normalized = this / (this.length)
+  def dist(p: Vector3): Double = (this - p).length
+  def normalized: Vector3 = this / length
   def cross(p: Vector3) =
     Vector3(y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x)
 

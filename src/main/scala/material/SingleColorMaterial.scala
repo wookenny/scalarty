@@ -1,9 +1,8 @@
 package material
 
 import color.RGB
-import lightning.LightSource
-import math.Vector3
 import math.Math._
+import math.Vector3
 
 final case class SingleColorMaterial(name: String,
                                      c: RGB,
@@ -21,9 +20,10 @@ final case class SingleColorMaterial(name: String,
     UnshadedColor(c, ambient, diffuse, spec, reflective, refractive, n, shininess)
 }
 
-final case class EmissionMaterial(name: String, light: LightSource) extends Material {
+final case class EmissionMaterial(name: String, color: RGB, intensity: Double) extends Material {
 
   override def getMat(position: Vector3) =
-    UnshadedColor(light.color, 0, 0, 0, 0, 0, 0, 0, light.intensity(position, None))
-  //TODO: intensity is on light, no fallof possible
+    UnshadedColor(color, 0, 0, 0, 0, 0, 0, 0, intensity)
+  //TODO: handle emission correctly in tracer,
+  //TODO: for shadows and lightning, we require some sampling here
 }

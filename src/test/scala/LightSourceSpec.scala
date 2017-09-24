@@ -24,27 +24,22 @@ class LightSourceSpec extends Specification with ScalaCheck {
       produce an error when aprsing an unknown type $parsingUnkownLight
     """
 
-  val planeLight = PlaneLight(position = Vector3.ZERO,
-                              width = 0.2,
-                              length= 0.4,
-                              RGB.BLUE,
-                              power = 124)
+  val planeLight =
+    PlaneLight(position = Vector3.ZERO, width = 0.2, length = 0.4, RGB.BLUE, power = 124)
 
-  val pointLight = PointLight(position = Vector3.ZERO,
-                              RGB.RED,
-                              power = 12)
+  val pointLight = PointLight(position = Vector3.ZERO, RGB.RED, power = 12)
 
   val intensityTestPointlight = {
-    val power1: Double = planeLight.intensity(Vector3.Z*2)
-    val power2: Double = planeLight.intensity(Vector3.X, Some(Vector3.X*2))
+    val power1: Double = planeLight.intensity(Vector3.Z * 2)
+    val power2: Double = planeLight.intensity(Vector3.X, Some(Vector3.X * 2))
 
-    (power1 should be equalTo 124/4) and
+    (power1 should be equalTo 124 / 4) and
       (power2 should be equalTo 124)
 
   }
 
   val intensityTestPlanelight = {
-    val power: Double = pointLight.intensity(Vector3.Z*2)
+    val power: Double = pointLight.intensity(Vector3.Z * 2)
     val powerUnitDistance: Double = pointLight.intensity(Vector3.X)
 
     (power should be equalTo 3) and
@@ -57,13 +52,15 @@ class LightSourceSpec extends Specification with ScalaCheck {
     val sample3 = planeLight.sample(n = 3).distinct
 
     val correctSizes = sample3.size == 9 && sample2.size == 4 && sample1.size == 1
-    val positionOnLight = (sample1++sample2++sample3).map(p =>
+    val positionOnLight = (sample1 ++ sample2 ++ sample3)
+      .map(
+        p =>
           p.x >= planeLight.position.x - planeLight.width
-      &&  p.x <= planeLight.position.x + planeLight.width
-      &&  p.z >= planeLight.position.z - planeLight.length
-      &&  p.z <= planeLight.position.z + planeLight.length
-      &&  Math.abs(p.y - planeLight.position.y)<0.001
-    ).distinct
+            && p.x <= planeLight.position.x + planeLight.width
+            && p.z >= planeLight.position.z - planeLight.length
+            && p.z <= planeLight.position.z + planeLight.length
+            && Math.abs(p.y - planeLight.position.y) < 0.001)
+      .distinct
     (correctSizes should be equalTo true) and
       (positionOnLight should contain(exactly(true)))
   }
@@ -81,8 +78,8 @@ class LightSourceSpec extends Specification with ScalaCheck {
     parseLight(light) must throwAn[MatchError]
   }
 
-
-  case class TestLight(color :RGB = RGB.CYAN, position : Vector3 = Vector3.ZERO) extends LightSource{
+  case class TestLight(color: RGB = RGB.CYAN, position: Vector3 = Vector3.ZERO)
+      extends LightSource {
     override def intensity(p: Vector3, positionOnLight: Option[Vector3]): Double = 4
     override def sample(n: Int): Seq[Vector3] = Seq.empty
   }

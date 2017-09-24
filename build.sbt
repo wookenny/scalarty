@@ -21,7 +21,6 @@ libraryDependencies ++= Seq(
 
 parallelExecution in Test := false
 
-
 scalacOptions in Test ++= Seq("-Yrangepos")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps")
@@ -36,6 +35,4 @@ scalacOptions ++= scalafixScalacOptions.value
 coverageMinimum := 70
 coverageEnabled := true
 coverageFailOnMinimum := false
-
-
 //wartremoverErrors in (Compile, compile) ++= Warts.unsafe.filterNot(_==Wart.DefaultArguments)

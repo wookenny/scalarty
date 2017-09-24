@@ -3,7 +3,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.{ScalaCheck, Specification}
 
-
 class TriangleSpec extends Specification with ScalaCheck {
   def is = s2"""
    A triangle should
@@ -62,26 +61,25 @@ class TriangleSpec extends Specification with ScalaCheck {
 
   val missingTest = {
     val miss1 = triangle.intersect(Ray(Vector3(-2, -2, 0), Vector3.Z), 2)
-    val miss2 = triangle.intersect(Ray(Vector3( 2,  2, 0), Vector3.Z), 2)
+    val miss2 = triangle.intersect(Ray(Vector3(2, 2, 0), Vector3.Z), 2)
     val miss4 = triangle.intersect(Ray(Vector3(-2, -2, 0), Vector3.Z)).isDefined
-    val miss5 = triangle.intersect(Ray(Vector3( 2,  2, 0), Vector3.Z)).isDefined
+    val miss5 = triangle.intersect(Ray(Vector3(2, 2, 0), Vector3.Z)).isDefined
 
-    (miss1, miss2) should beEqualTo (false,false)
+    (miss1, miss2) should beEqualTo(false, false)
   }
 
   def boundingBoxTest = forAll { (a: Vector3, b: Vector3, c: Vector3) =>
     val aabb = Triangle(a, b, c).boundingBox
-    val xs = Seq(a,b,c).map(_.x)
-    val ys = Seq(a,b,c).map(_.y)
-    val zs = Seq(a,b,c).map(_.z)
+    val xs = Seq(a, b, c).map(_.x)
+    val ys = Seq(a, b, c).map(_.y)
+    val zs = Seq(a, b, c).map(_.z)
 
-    aabb == AABB(xs.min, xs.max, ys.min, ys.max, zs.min, zs.max )
+    aabb == AABB(xs.min, xs.max, ys.min, ys.max, zs.min, zs.max)
   }
 
-  def midpointTest =  forAll { (a: Vector3, b: Vector3, c: Vector3) =>
-    Triangle(a,b,c).midpoint ~= a/3+b/3+c/3
+  def midpointTest = forAll { (a: Vector3, b: Vector3, c: Vector3) =>
+    Triangle(a, b, c).midpoint ~= a / 3 + b / 3 + c / 3
   }
-
 
   implicit lazy val Vector3Gen: Arbitrary[Vector3] =
     Arbitrary {

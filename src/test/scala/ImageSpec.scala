@@ -29,9 +29,8 @@ class ImageSpec extends Specification with Mockito {
       """
 
   trait SaveImage {
-      def save(r: RenderedImage, s: String, f: File): Boolean = true
-   }
-
+    def save(r: RenderedImage, s: String, f: File): Boolean = true
+  }
 
   val testInitImage = {
     val img = new Image(400, 600)
@@ -51,9 +50,7 @@ class ImageSpec extends Specification with Mockito {
     val saveImage = mock[SaveImage]
 
     img.save("blub.image.jpg")(saveImage.save)
-    there was one(saveImage).save(any[BufferedImage],
-                                  ===("jpg"),
-                                  ===(new File("blub.image.jpg")))
+    there was one(saveImage).save(any[BufferedImage], ===("jpg"), ===(new File("blub.image.jpg")))
   }
 
   val testSaveImageWithoutType = {
@@ -61,9 +58,7 @@ class ImageSpec extends Specification with Mockito {
     val saveImage = mock[SaveImage]
 
     img.save("image")(saveImage.save)
-    there was one(saveImage).save(any[BufferedImage],
-                                  ===("png"),
-                                  ===(new File("image.png")))
+    there was one(saveImage).save(any[BufferedImage], ===("png"), ===(new File("image.png")))
   }
 
   val testSetColorsForCorrectIndices = {
