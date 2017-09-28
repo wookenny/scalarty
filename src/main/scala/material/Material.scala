@@ -29,10 +29,12 @@ object Material {
         Json.fromJson[CheckerMaterial](data)(checkerMaterialFmt)
       case "EmissionMaterial" =>
         Json.fromJson[EmissionMaterial](data)(emissionMaterialFmt)
-      case materialType =>  throw new IllegalArgumentException(s"Unknown Material type: $materialType")
+      case materialType =>
+        throw new IllegalArgumentException(s"Unknown Material type: $materialType")
     }) match {
       case JsSuccess(shape, _) => shape
-      case JsError(_) => throw new IllegalArgumentException(s"Could parse the Json as material: $data")
+      case JsError(_) =>
+        throw new IllegalArgumentException(s"Could parse the Json as material: $data")
     }
   }
 

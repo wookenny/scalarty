@@ -4,19 +4,17 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import color.RGB
 import com.typesafe.scalalogging._
-import lightning.LightSource
-import math.{Ray, Vector3}
+import math.Ray
 import scene.Scene
-import support.{Config, Image}
 import support.Implicits.imageWriter
 import support.Util._
+import support.{Config, Image}
 
-import scala.Seq
 import scala.collection.GenSet
 import scala.collection.parallel.mutable.ParArray
 
 object Renderer {
-  private val backgroundColor = RGB.BLACK
+  val backgroundColor = RGB.BLACK
   private val chunkSize = 10
 }
 
@@ -25,102 +23,13 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
   implicit val log: (String) => Unit = s => logger.info(s)
   private val tracedPixels: AtomicInteger = new AtomicInteger(0)
 
-  private def shadowRay(position: Vector3, light: Vector3): Boolean = {
-    val vectorToLight = light - position
-    anyHit(Ray(position, vectorToLight.normalized), vectorToLight.length)
-  }
+  private val shader = Shader(this)
 
-  private def shadeHit(hit: Hit, r: Ray): RGB = {
-
-    val colorInfo = hit.color
-    val baseColor: RGB = colorInfo.color
-    val backFace = (hit.normal * r.direction) > 0
-
-    //ambient
-    val ambientColor = baseColor * colorInfo.ambient
-
-    val visibleLights: Seq[(LightSource, Double, Vector3)] =
-      if (backFace)
-        Seq.empty
-      else
-        for {
-          lightSource <- scene.lights
-          lightSampling = lightSource.sample(config.shadowsampling)
-          n = lightSampling.size
-          lightSample <- lightSampling if !shadowRay(hit.position, lightSample)
-        } yield (lightSource, 1d / n, lightSample)
-
-    //diffuse
-    val diffuseColor = shadeDiffuse(hit, r, visibleLights)
-    val specColor = shadeSpecular(hit, r, visibleLights)
-    val reflectedColor = shadeReflection(hit, r)
-    val refractedColor = shadeRefraction(hit, r)
-    ambientColor + diffuseColor + specColor + refractedColor + reflectedColor
-  }
-
-  private def shadeRefraction(hit: Hit, r: Ray): RGB = {
-    if (hit.color.refractive > 0.01 && r.depth <= 24) {
-      //TODO configurable ray depth
-      r.refractedAt(hit.position, hit.normal, hit.color.n) match {
-        case Some(refractedRay) =>
-          traceRay(refractedRay) * hit.color.refractive
-        case None =>
-          traceRay(r.reflectedAt(hit.position, -hit.normal)) * hit.color.refractive //Total Internal ref
-      }
-    } else {
-      Renderer.backgroundColor
-    }
-  }
-
-  private def shadeReflection(hit: Hit, r: Ray): RGB = {
-    if (hit.color.reflective > 0.01 && r.depth <= 6) //TODO make configurable
-      traceRay(r.reflectedAt(hit.position, hit.normal)) * hit.color.reflective
-    else RGB.BLACK
-  }
-
-  private def shadeSpecular(hit: Hit,
-                            r: Ray,
-                            visibleLights: Seq[(LightSource, Double, Vector3)]): RGB = {
-    visibleLights.map {
-      case (l: LightSource, weight: Double, pos: Vector3) => {
-        val V = r.direction * -1 //towards eye
-        val L = (pos - hit.position).normalized // vector pointing towards light
-        val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-        l.color * Math.pow(Math.max(-(R * L), 0), hit.color.shininess) *
-          hit.color.spec * l.intensity(hit.position, Some(pos)) * weight //spec does not use color of object
-      }
-    } match {
-      case Seq() => RGB.BLACK
-      case list => list.reduce(_ + _)
-    }
-  }
-
-  private def shadeDiffuse(hit: Hit,
-                           r: Ray,
-                           visibleLights: Seq[(LightSource, Double, Vector3)]): RGB = {
-
-    visibleLights.map {
-      case (l: LightSource, weight: Double, pos: Vector3) => {
-        val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-        hit.color.color * Math.max((hit.normal * L), 0) *
-          hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight //TODO light color?
-      }
-    } match {
-      case Seq() => RGB.BLACK
-      case list => list.reduce(_ + _)
-    }
-  }
-
-  private def traceRay(r: Ray): RGB =
-    getFirstHit(r) match {
-      case Some(hit) => shadeHit(hit, r)
+  def traceRay(ray: Ray): RGB =
+    scene.allShapes.intersect(ray) match {
+      case Some(hit) => shader.shadeHit(hit, ray)
       case _ => Renderer.backgroundColor
     }
-
-  private def getFirstHit(r: Ray): Option[Hit] = scene.allShapes.intersect(r)
-
-  private def anyHit(r: Ray, maxDist: Double): Boolean =
-    scene.allShapes.intersectionTest(r, maxDist)
 
   def startRendering(config: Config) = {
     val start = System.nanoTime()
@@ -158,7 +67,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
     img
   }
 
-  private def buildRenderChunks(
+  def buildRenderChunks(
       img: Image,
       selection: Option[GenSet[(Int, Int)]]): ParArray[Array[(Int, Int)]] = {
 
@@ -166,18 +75,18 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
       (for {
         x <- 0 until img.width
         y <- 0 until img.height
-        if None == selection || selection.get.contains((x, y))
+        if selection.isEmpty || selection.get.contains((x, y))
       } yield (x, y)).toArray
 
     val chunks: Array[Array[(Int, Int)]] =
       (for {
-        s <- 0 to allPixels.size / Renderer.chunkSize
+        s <- 0 to allPixels.length / Renderer.chunkSize
       } yield allPixels.slice(s * Renderer.chunkSize, (s + 1) * Renderer.chunkSize)).toArray
 
     chunks.par
   }
 
-  private def renderPath(img: Image,
+  def renderPath(img: Image,
                          supersampling: Int,
                          selection: Option[GenSet[(Int, Int)]]): Unit = {
     val w: Double = scene.width
@@ -196,7 +105,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
 
     workChunks foreach { pixels =>
       pixels foreach {
-        case (x: Int, y: Int) => {
+        case (x: Int, y: Int) =>
           val S = supersampling * supersampling
           val colorSum: RGB =
             (for {
@@ -207,7 +116,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
                 + scene.side * ((w * (x + i.toDouble / supersampling - shift)) / X)
                 - scene.up * (h * (y + j.toDouble / supersampling - shift) / Y))
               rayDir = (rayTarget - scene.cameraOrigin).normalized
-              description = s"pixel ($x:$y) sample ${(i) * supersampling + (j + 1)}/$S"
+              description = s"pixel ($x:$y) sample ${i * supersampling + (j + 1)}/$S"
             } yield
               traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
               .reduce(_ + _)
@@ -217,7 +126,6 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
           val one_percent = X * Y / 100
           if (status % (5 * one_percent) == 0)
             logger.info(s"traced $status pixels -> ${status / one_percent}%")
-        }
       }
     }
   }

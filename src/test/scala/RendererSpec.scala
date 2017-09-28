@@ -2,11 +2,12 @@ import color.RGB
 import material.UnshadedColor
 import math.{Ray, Vector3}
 import org.specs2.Specification
+import org.specs2.mock.Mockito
 import renderer.{Hit, Renderer}
 import scene.Scene
 import support.{Config, Image}
 
-class RendererSpec extends Specification {
+class RendererSpec extends Specification with Mockito {
 
   //TODO: render more scenes with
   // no lights => dark
@@ -27,7 +28,7 @@ class RendererSpec extends Specification {
         shade a hit for diffuse $testShadeDiffuse
     """
 
-  implicit val config: _root_.support.Config = Config()
+  implicit val config: Config = Config()
 
   val emptyScene = Scene(cameraOrigin = Vector3.ZERO,
                          cameraPointing = Vector3.Z,
@@ -43,8 +44,14 @@ class RendererSpec extends Specification {
     val image: Image = renderer.render(config)
 
     //should not crash
-    image.width should be equalTo (emptyScene.width * emptyScene.ppi).toInt
-    image.height should be equalTo (emptyScene.height * emptyScene.ppi).toInt
+    (image.width should be equalTo (emptyScene.width * emptyScene.ppi).toInt) and
+      (image.height should be equalTo (emptyScene.height * emptyScene.ppi).toInt)
+  }
+
+  val testEdgeRendering = {
+    val Renderer = mock[Renderer]
+
+    1 should be equalTo 1
   }
 
   val testAnyHit = {

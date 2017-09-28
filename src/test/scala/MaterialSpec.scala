@@ -52,16 +52,18 @@ class MaterialSpec extends Specification with ScalaCheck {
 
   val parseUnknownMaterial = {
     val mat = EmissionMaterial("Light1", RGB.GREEN, 1.3)
-    val matJson: JsValue = Json.toJson(EmissionMaterial("Light1", RGB.GREEN, 1.3))(Material.emissionMaterialFmt)
-    Material("wrongMaterialTye", matJson) should throwA(new IllegalArgumentException("Unknown Material type: wrongMaterialTye"))
+    val matJson: JsValue =
+      Json.toJson(EmissionMaterial("Light1", RGB.GREEN, 1.3))(Material.emissionMaterialFmt)
+    Material("wrongMaterialTye", matJson) should throwA(
+      new IllegalArgumentException("Unknown Material type: wrongMaterialTye"))
   }
 
   val parseMalformedMaterial = {
     val mat = EmissionMaterial("Light1", RGB.GREEN, 1.3)
     val malformedMat: JsValue = JsString("incorrect Json")
-    Material("EmissionMaterial", malformedMat) should throwA(new IllegalArgumentException("Could parse the Json as material: \"incorrect Json\""))
+    Material("EmissionMaterial", malformedMat) should throwA(
+      new IllegalArgumentException("Could parse the Json as material: \"incorrect Json\""))
   }
-
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
     val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4, 0.2, 0.1, 0.1, 0.2)

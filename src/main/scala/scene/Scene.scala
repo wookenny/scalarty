@@ -23,7 +23,7 @@ object SceneDTO {
   implicit val sceneJsonFormat: Format[SceneDTO] = Json.format[SceneDTO]
 }
 
-final case class Scene(cameraOrigin: Vector3,
+case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,
                        width: Double,
                        height: Double,
