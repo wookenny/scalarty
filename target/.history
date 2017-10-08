@@ -1,6 +1,18 @@
-sbt run
-compile
-run
-run -o image.png
+scalafmtTest
+clean
 test
-test-only *Triangle*
+clean
+test:compile
+test
+scalafix RemoveUnusedImports
+https://gist.githubusercontent.com/olafurpg/fc6f43a695ac996bd02000f45ed02e63/raw/f5fe47495c9b6e3ce0960b766ffa75be6d6768b2/DummyRule.scala
+scalafix
+scalafix Sbt1
+scalafix ExplicitUnit
+scalafix NoValInForComprehension
+scalafix ExplicitReturnTypes
+scalafix NoAutoTupling
+scalafix NoInfer
+q
+quit
+run

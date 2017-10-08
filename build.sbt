@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "2.10.0",
   "com.google.inject" % "guice" % "4.1.0",
   "com.chuusai" %% "shapeless" % "2.3.2",
-  "org.typelevel" %% "cats-core" % "1.0.0-MF"
+  "org.typelevel" %% "cats-core" % "1.0.0-MF",
+  "org.typelevel" %% "cats-effect" % "0.4"
 )
 
 parallelExecution in Test := false
