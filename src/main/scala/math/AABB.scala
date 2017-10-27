@@ -94,7 +94,7 @@ sealed case class AABB(x_min: Double,
   def area: Double =
     2 * ((x_max - x_min) * (y_max - y_min) + (x_max - x_min) * (z_max - z_min) * (y_max - y_min) * (z_max - z_min))
 
-  def union(otherAABB: AABB) = AABB.union(this, otherAABB)
+  def union(otherAABB: AABB): AABB = AABB.union(this, otherAABB)
 
 }
 

@@ -137,7 +137,7 @@
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/bunny.obj",
+      "objFiles" : [{"filename": "scenes/obj/bunny.obj.gz",
                      "center"   : {"x": -0.3, "y": -0.7,"z": -0.1},
                      "maxSide"  : 0.8,
                      "rotation" : 75,

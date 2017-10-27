@@ -1,11 +1,12 @@
 import bounding.ShapeSeq
 import color.RGB
 import color.RGB._
+import lightning.PointLight
 import material.UnshadedColor
 import math.{Ray, Sphere, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
-import renderer.{Hit, Renderer, Shader}
+import renderer.{Hit, LightSample, Renderer, Shader}
 import scene.Scene
 import support.Config
 
@@ -19,8 +20,25 @@ class ShaderSpec extends Specification with Mockito {
         when shadeReflection
             should stop if above RayDepth or below threshold weight $testShadeReflectionStopping
             should trace and apply factor $testShadeReflection
+        when shadeDiffuse
+            should return black if there is no visible light $testShadeDiffuseNoLights
+            should correct color for multiple lights $testShadeDiffuse
 
     """
+  case class ColorToCompare(color:RGB, delta: Double = 0.01){
+
+   def withDelta(d:Double) = this.copy(delta = d)
+
+   def shouldBeSimilarTo (color2: RGB) = {
+      def colorToSeq(color: RGB) = Seq(color.red, color.green, color.blue)
+
+      val zippedColorComponents = colorToSeq(color).zip(colorToSeq(color2))
+      foreach(zippedColorComponents){ case(a:Double,b: Double) => a  must be ~(b +/- delta) }
+    }
+  }
+
+  implicit def colorToCompare(color: RGB) = ColorToCompare(color)
+
 
   implicit val config: Config = Config()
 
@@ -65,4 +83,29 @@ class ShaderSpec extends Specification with Mockito {
     mockedRenderer.traceRay(ray.reflectedAt(hit.position, hit.normal)) returns color
     shader.shadeReflection(hit, ray) should be equalTo (color * 0.1)
   }
+
+  val testShadeDiffuseNoLights = {
+    val lights = Seq.empty[LightSample]
+    shader.shadeDiffuse(hit, ray, lights) should be equalTo (RGB.BLACK)
+  }
+
+  val testShadeDiffuse = {
+    val sample1 = LightSample(PointLight(Vector3.ONE,  RGB.RED, power = 2),
+                              weight = 1, position = Vector3.ONE)
+    val sample2 = LightSample(PointLight(Vector3.ONE,  RGB.RED, power = 2),
+                              weight = 1, position = Vector3.ONE)
+
+    val lights  = Seq(sample1, sample2)
+    val color = shader.shadeDiffuse(hit, ray, lights)
+    color shouldBeSimilarTo RGB(0, 1.13, 1.13) //TODO: Why these values?
+
+    /*
+     val (l, weight, pos) = (lightSample.light, lightSample.weight, lightSample.position )
+     val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
+     hit.color.color * Math.max(hit.normal * L, 0) *
+     hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight
+     */
+
+  }
+
 }

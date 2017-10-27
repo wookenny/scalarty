@@ -4,20 +4,20 @@ import play.api.libs.json.{Format, Json}
 
 final case class Vector3(x: Double, y: Double, z: Double) {
 
-  def /(s: Double) = Vector3(x / s, y / s, z / s)
-  def *(s: Double) = Vector3(s * x, s * y, s * z)
+  def /(s: Double) = map(_/s)
+  def *(s: Double) = map(s*)
 
   def +(p: Vector3) = Vector3(x + p.x, y + p.y, z + p.z)
   def -(p: Vector3) = Vector3(x - p.x, y - p.y, z - p.z)
   def *(p: Vector3): Double = x * p.x + y * p.y + z * p.z
 
-  def unary_-(): Vector3 = this * (-1)
+  def unary_-(): Vector3 = map(-1*)
   def unary_+(): Vector3 = this
   def ~=(p: Vector3, delta: Double = 0.001): Boolean = (this - p).length < delta
 
-  def length: Double = scala.math.sqrt(this * this)
+  lazy val length: Double = scala.math.sqrt(this * this)
   def dist(p: Vector3): Double = (this - p).length
-  def normalized: Vector3 = this / length
+  lazy val normalized: Vector3 = this / length
   def cross(p: Vector3) =
     Vector3(y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x)
 
@@ -25,6 +25,8 @@ final case class Vector3(x: Double, y: Double, z: Double) {
     Vector3(scala.math.pow(x, exp), scala.math.pow(y, exp), scala.math.pow(z, exp))
   def expf =
     Vector3(scala.math.exp(x), scala.math.exp(y), scala.math.exp(z))
+
+  def map(f: Double => Double) = Vector3(f(x),f(y),f(z))
 
 }
 

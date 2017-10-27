@@ -49,7 +49,7 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
     }
   }
 
-  override def boundingBox(): AABB =
+  override lazy val boundingBox: AABB =
     AABB(center.x - radius,
          center.x + radius,
          center.y - radius,
@@ -57,17 +57,17 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
          center.z - radius,
          center.z + radius)
 
-  override def midpoint: Vector3 = center
+  override val midpoint: Vector3 = center
 
-  override def minX = center.x - radius
+  override lazy val minX = center.x - radius
 
-  override def minY = center.y - radius
+  override lazy val minY = center.y - radius
 
-  override def minZ = center.z - radius
+  override lazy val minZ = center.z - radius
 
-  override def maxX = center.x + radius
+  override lazy val maxX = center.x + radius
 
-  override def maxY = center.y + radius
+  override lazy val maxY = center.y + radius
 
-  override def maxZ = center.z + radius
+  override lazy val maxZ = center.z + radius
 }

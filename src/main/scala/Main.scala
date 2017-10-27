@@ -1,10 +1,13 @@
 import com.fasterxml.jackson.core.JsonParseException
-
-import scala.io.Source._
 import play.api.libs.json.Json
 import renderer.Renderer
 import scene.{Scene, SceneDTO}
-import support.Config
+import support.{Config, SamplingValue}
+import support.Implicits.imageWriter
+
+import scala.io.Source._
+
+
 
 object Main {
 
@@ -21,24 +24,13 @@ object Main {
       .required()
       .valueName("<file>")
       .action((x, c) => c.copy(out = x))
-      .text("out is a required file for the rendered image")
+      .text("output file for the rendered image. Available file formats: " +
+        s"${imageWriter.formats.map(_.toLowerCase).distinct.mkString(", ")}")
 
-    val supersampling = opt[Int]('s', "supersampling")
+    val supersampling = opt[SamplingValue]('s', "supersampling")
       .action((x, c) => c.copy(supersampling = x))
-      .text(s"number s of s*s samples per pixel," +
+      .text(s"<a:b>  for a² full and b² adaptive supersamples," +
         s" (default value=${Config.DefaultSupersampling})")
-
-    val adaptivesupersampling = opt[Int]("adaptivesupersampling")
-      .abbr("as")
-      .action((x, c) => c.copy(adaptivesupersampling = x))
-      .text(s"number s of s*s samples per pixel used on detected edges," +
-        s" (default value=${Config.DefaultAdaptiveSupersampling})")
-
-    val shadowsampling = opt[Int]("shadowsampling")
-      .abbr("ss")
-      .action((x, c) => c.copy(shadowsampling = x))
-      .text(s"number s of s*s samples for sampling area lights," +
-        s" (default value=${Config.DefaultShadowSampling})")
 
     val showBvHLeaves = opt[Unit]("bvh.showleafes")
       .abbr("bvh.l")
@@ -52,6 +44,13 @@ object Main {
     val debug = opt[Unit]("debug")
       .action((_, c) => c.copy(debug = true))
       .text("enable debug logs")
+
+    val shadowSampling = opt[SamplingValue]("shadowsampling")
+      .abbr("shs")
+      .action((x, c) => c.copy(shadowsampling = x))
+      .text(s"<a:b>  for a² full and b² adaptive shadow samples for area light." +
+        s" (default value=${Config.DefaultImprovedSupersampling})")
+
 
     val helpText = help("help").abbr("h").text("prints this usage text")
 

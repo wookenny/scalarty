@@ -3,7 +3,12 @@ name := "Scalarty"
 version := "1.0"
 scalaVersion := "2.12.3"
 
+
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers ++= Seq(
+  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots")
+)
 
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "3.9.5" % "test",
@@ -17,7 +22,9 @@ libraryDependencies ++= Seq(
   "com.google.inject" % "guice" % "4.1.0",
   "com.chuusai" %% "shapeless" % "2.3.2",
   "org.typelevel" %% "cats-core" % "1.0.0-MF",
-  "org.typelevel" %% "cats-effect" % "0.4"
+  "org.typelevel" %% "cats-effect" % "0.4",
+  "org.scalanlp" %% "breeze" % "0.13.2",
+  "org.scalanlp" %% "breeze-natives" % "0.13.2"
 )
 
 parallelExecution in Test := false
