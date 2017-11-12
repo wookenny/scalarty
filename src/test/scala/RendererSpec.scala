@@ -1,6 +1,7 @@
 import color.RGB
 import material.UnshadedColor
-import math.{Ray, Vector3}
+import math.breeze.VectorBreeze3._
+import math.Ray
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 import renderer.{Hit, Renderer}
@@ -30,8 +31,8 @@ class RendererSpec extends Specification with Mockito {
 
   implicit val config: Config = Config()
 
-  val emptyScene = Scene(cameraOrigin = Vector3.ZERO,
-                         cameraPointing = Vector3.Z,
+  val emptyScene = Scene(cameraOrigin = ZERO,
+                         cameraPointing = Z,
                          width = 2,
                          height = 2,
                          lights = Seq(),
@@ -86,8 +87,8 @@ class RendererSpec extends Specification with Mockito {
     val renderer = new Renderer(emptyScene)
     val hit = Hit(
       distance = 3,
-      position = Vector3.ZERO,
-      normal = Vector3.X,
+      position = ZERO,
+      normal = X,
       color = UnshadedColor(color = RGB.RED,
                             ambient = 0.2f,
                             diffuse = 0.2f,
@@ -97,7 +98,7 @@ class RendererSpec extends Specification with Mockito {
                             n = 2,
                             shininess = 64)
     )
-    val ray = Ray(Vector3.ZERO, Vector3.Z)
+    val ray = Ray(ZERO, Z)
     1 should be equalTo 1
   }
 

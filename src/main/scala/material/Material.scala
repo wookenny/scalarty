@@ -1,7 +1,7 @@
 package material
 
 import color.RGB
-import math.Vector3
+import math.breeze.VectorBreeze3
 import play.api.libs.json._
 
 object Material {
@@ -55,7 +55,7 @@ final case class UnshadedColor(color: RGB,
                                emission: Double = 0)
 
 trait Material {
-  def getMat(position: Vector3): UnshadedColor
+  def getMat(position: VectorBreeze3): UnshadedColor
   def name: String
 
 }

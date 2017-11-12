@@ -1,6 +1,7 @@
 package math
 
 import material.Material.DEFAULT_MATERIAL
+import math.breeze.VectorBreeze3
 import renderer.Hit
 
 sealed case class AABB(x_min: Double,
@@ -18,22 +19,21 @@ sealed case class AABB(x_min: Double,
 
   override def intersect(r: Ray): Option[Hit] = {
 
-    val dirfrac =
-      Vector3(1 / r.direction.x, 1 / r.direction.y, 1 / r.direction.z)
+    val dirfrac: VectorBreeze3 = 1d/r.direction
 
-    val t1 = (x_min - r.origin.x) * dirfrac.x
-    val t2 = (x_max - r.origin.x) * dirfrac.x
+    val t1 = (x_min - r.origin(0)) * dirfrac(0)
+    val t2 = (x_max - r.origin(0)) * dirfrac(0)
 
-    val t3 = (y_min - r.origin.y) * dirfrac.y
-    val t4 = (y_max - r.origin.y) * dirfrac.y
+    val t3 = (y_min - r.origin(1)) * dirfrac(1)
+    val t4 = (y_max - r.origin(1)) * dirfrac(1)
 
-    val t5 = (z_min - r.origin.z) * dirfrac.z
-    val t6 = (z_max - r.origin.z) * dirfrac.z
+    val t5 = (z_min - r.origin(2)) * dirfrac(2)
+    val t6 = (z_max - r.origin(2)) * dirfrac(2)
 
     val distances = Seq((t1, t2), (t3, t4), (t5, t6))
     val (tmin, normal) = distances
-      .zip(Seq(Vector3.X, Vector3.Y, Vector3.Z))
-      .map { case ((x, y), n) => if (x < y) (x, n * (-1)) else (y, n) }
+      .zip(Seq(VectorBreeze3.X, VectorBreeze3.Y, VectorBreeze3.Z))
+      .map { case ((x, y), n: VectorBreeze3) => if (x < y) (x, -n) else (y, n) }
       .maxBy(_._1)
     val tmax: Double = distances.map { case (x, y) => x max y }.min
 
@@ -49,17 +49,16 @@ sealed case class AABB(x_min: Double,
 
   //TODO: should only generate needed data, not too much in advance
   override def intersect(r: Ray, maxDist: Double): Boolean = {
-    val dirfrac =
-      Vector3(1 / r.direction.x, 1 / r.direction.y, 1 / r.direction.z)
+    val dirfrac : VectorBreeze3 = 1d / r.direction
 
-    val t1 = (x_min - r.origin.x) * dirfrac.x
-    val t2 = (x_max - r.origin.x) * dirfrac.x
+    val t1 = (x_min - r.origin(0)) * dirfrac(0)
+    val t2 = (x_max - r.origin(0)) * dirfrac(0)
 
-    val t3 = (y_min - r.origin.y) * dirfrac.y
-    val t4 = (y_max - r.origin.y) * dirfrac.y
+    val t3 = (y_min - r.origin(1)) * dirfrac(1)
+    val t4 = (y_max - r.origin(1)) * dirfrac(1)
 
-    val t5 = (z_min - r.origin.z) * dirfrac.z
-    val t6 = (z_max - r.origin.z) * dirfrac.z
+    val t5 = (z_min - r.origin(2)) * dirfrac(2)
+    val t6 = (z_max - r.origin(2)) * dirfrac(2)
 
     val distances = Seq((t1, t2), (t3, t4), (t5, t6))
     val tmin = distances.map { case (x, y) => x min y }.max
@@ -71,8 +70,8 @@ sealed case class AABB(x_min: Double,
 
   override def boundingBox: AABB = this
 
-  override def midpoint: Vector3 =
-    Vector3((x_max + x_min) / 2, (y_max + y_min) / 2, (z_max + z_min) / 2)
+  override def midpoint: VectorBreeze3 =
+    VectorBreeze3.from((x_max + x_min) / 2, (y_max + y_min) / 2, (z_max + z_min) / 2)
 
   override def minX: Double = x_min
 
@@ -86,10 +85,10 @@ sealed case class AABB(x_min: Double,
 
   override def maxZ: Double = z_max
 
-  def contains(vec: Vector3): Boolean =
-    x_min <= vec.x && vec.x <= x_max &&
-      y_min <= vec.y && vec.y <= y_max &&
-      z_min <= vec.z && vec.z <= z_max
+  def contains(vec: VectorBreeze3): Boolean =
+    x_min <= vec(0) && vec(0) <= x_max &&
+      y_min <= vec(1) && vec(1) <= y_max &&
+      z_min <= vec(2) && vec(2) <= z_max
 
   def area: Double =
     2 * ((x_max - x_min) * (y_max - y_min) + (x_max - x_min) * (z_max - z_min) * (y_max - y_min) * (z_max - z_min))

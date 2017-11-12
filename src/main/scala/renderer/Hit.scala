@@ -1,9 +1,9 @@
 package renderer
 
 import material.UnshadedColor
-import math.Vector3
+import math.breeze.VectorBreeze3
 
-final case class Hit(val distance: Double,
-                     val position: Vector3,
-                     val normal: Vector3,
-                     val color: UnshadedColor)
+final case class Hit(distance: Double,
+                     position: VectorBreeze3,
+                     normal: VectorBreeze3,
+                     color: UnshadedColor)

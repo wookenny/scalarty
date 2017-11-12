@@ -1,6 +1,8 @@
 import color.RGB
 import lightning.PointLight
 import material.{CheckerMaterial, Material, SingleColorMaterial}
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
 import math.{Shape, Triangle, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
@@ -25,18 +27,18 @@ class SceneSpec extends Specification with Mockito {
       CheckerMaterial("mat2", RGB.GREEN, RGB(0.4f, 0.5f, 0.1f), 0.2, 1, 0, 0)
 
     val (shape1, shape2) = (mock[Shape], mock[Shape])
-    val lights = Seq(PointLight(Vector3(1, 2, 3), RGB.WHITE, 12))
+    val lights = Seq(PointLight(VectorBreeze3.from(1, 2, 3), RGB.WHITE, 12))
 
-    val scene = Scene(Vector3.ZERO, Vector3.Z, 2, 2, lights, Seq(shape1, shape2), Seq(mat1, mat2))
+    val scene = Scene(ZERO, Z, 2, 2, lights, Seq(shape1, shape2), Seq(mat1, mat2))
 
     (Shape.materialMap should havePairs("mat1" -> mat1, "mat2" -> mat2)) and
       (scene.materials should be equalTo Seq(mat1, mat2)) and
-      (scene.up should be equalTo Vector3.Y) and
-      (scene.side should be equalTo Vector3.X) and
+      (scene.up should be equalTo Y) and
+      (scene.side should be equalTo X) and
       (scene.objFiles should be equalTo None) and
       (scene.allShapes.size should be equalTo 2) and
-      (scene.cameraOrigin should be equalTo Vector3.ZERO)
-    (scene.cameraPointing should be equalTo Vector3.Z) and
+      (scene.cameraOrigin should be equalTo ZERO)
+    (scene.cameraPointing should be equalTo Z) and
       (scene.lights should be equalTo lights) and
       ((scene.height, scene.width) should be equalTo (2, 2))
   }
@@ -45,18 +47,18 @@ class SceneSpec extends Specification with Mockito {
     val mat1 = Material.DEFAULT_MATERIAL.copy(name = "def_mat")
 
     val (shape1, shape2) = (mock[Shape], mock[Shape])
-    val lights = Seq(PointLight(Vector3(3, 2, 5), RGB.CYAN, 2))
+    val lights = Seq(PointLight(VectorBreeze3.from(3, 2, 5), RGB.CYAN, 2))
 
     val (objObj1, objObj2) = (mock[ObjObject], mock[ObjObject])
     val (triangle1, triangle2, triangle3) =
-      (Triangle(Vector3.X, Vector3.Y, Vector3.Z),
-       Triangle(Vector3.Y, Vector3.X, Vector3.Z),
-       Triangle(Vector3.Z, Vector3.Y, Vector3.X))
+      (Triangle(X, Y, Z),
+       Triangle(Y, X, Z),
+       Triangle(Z, Y, X))
     objObj1.getTriangles returns Seq(triangle1)
     objObj2.getTriangles returns Seq(triangle2, triangle3)
 
-    val scene = Scene(Vector3.ONE,
-                      Vector3.X,
+    val scene = Scene(ONE,
+                      X,
                       4,
                       7,
                       lights,

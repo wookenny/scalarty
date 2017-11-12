@@ -1,6 +1,9 @@
 package math
 
 import material.Material
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
+
 import play.api.libs.json._
 import renderer.Hit
 
@@ -9,7 +12,7 @@ trait Shape {
   def intersect(r: Ray, maxDist: Double): Boolean
 
   def boundingBox: AABB
-  def midpoint: Vector3
+  def midpoint: VectorBreeze3
 
   def minX: Double
   def minY: Double
@@ -17,6 +20,7 @@ trait Shape {
   def maxX: Double
   def maxY: Double
   def maxZ: Double
+
 }
 
 object Shape {
@@ -43,7 +47,7 @@ object Shape {
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty
-  def getMaterial(name: String, pos: Vector3) =
+  def getMaterial(name: String, pos: VectorBreeze3) =
     materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos)
 
   implicit val shapeFmt: Format[Shape] = Json.format[Shape]

@@ -3,6 +3,7 @@ package bounding
 import color.RGB
 import com.typesafe.scalalogging.LazyLogging
 import material.SingleColorMaterial
+import math.breeze.VectorBreeze3
 import math.{AABB, Ray, Shape, Vector3}
 import renderer.Hit
 import support.Config
@@ -95,9 +96,9 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean 
   private def getSplit(shapes: Seq[Shape], aabb: AABB): (Seq[Shape], Seq[Shape]) = {
     val split: Seq[Shape] =
       (aabb.x_max - aabb.x_min, aabb.y_max - aabb.y_min, aabb.z_max - aabb.z_min) match {
-        case (x, y, z) if x >= y && x >= z => shapes.sortBy(_.midpoint.x)
-        case (x, y, z) if y >= x && y >= z => shapes.sortBy(_.midpoint.y)
-        case _ => shapes.sortBy(_.midpoint.z)
+        case (x, y, z) if x >= y && x >= z => shapes.sortBy(_.midpoint(0))
+        case (x, y, z) if y >= x && y >= z => shapes.sortBy(_.midpoint(1))
+        case _ => shapes.sortBy(_.midpoint(2))
       }
 
     val splitIndex = if (splitSAH) {
@@ -176,8 +177,8 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean 
                 closestHit = Some(
                   Hit(distance = aabbHitDist,
                       position = ray.march(aabbHitDist),
-                      normal = Vector3.X, /*not needed for shading*/
-                      color = BVH.innerNodeMaterial.getMat(Vector3.ZERO)))
+                      normal = VectorBreeze3.X, /*not needed for shading*/
+                      color = BVH.innerNodeMaterial.getMat(VectorBreeze3.ZERO)))
             }
             //add to stack
             nodeStack ++= nodeBoundingBoxHits

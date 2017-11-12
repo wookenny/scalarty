@@ -1,19 +1,21 @@
-import math.{Ray, Sphere, Vector3}
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
+import math.{Ray, Sphere}
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.specs2.{ScalaCheck, Specification}
 
 class SphereSpec extends Specification with ScalaCheck {
   def is = s2"""
-   A sphere should
-     be intersected frontally $intersectFrontal
+   A sphere shoul
+     be intersected frontally §intersectFrontal
      be missed if sphere is behind the ray $missBackwards
      be intersected from the inside $insersectFromInside
      be intersected from the inside with given distance $insersectFromInsideWithCorrectDist
      not be intersected from the inside due to too short distance $missedFromInsideDueToDist
   """
 
-  def sphere1 = Sphere(center = Vector3.ZERO, radius = 4)
+  def sphere1 = Sphere(center = ZERO, radius = 4)
 
   val insersectFromInside: Prop = forAll { (r: Ray) =>
     sphere1.intersect(r) isDefined
@@ -39,7 +41,7 @@ class SphereSpec extends Specification with ScalaCheck {
         x: Double <- Gen.choose(-.9, .9)
         y: Double <- Gen.choose(-.9, .9)
         z: Double <- Gen.choose(-.9, .9)
-      } yield Ray(Vector3(0, 0, 0), Vector3(x, y, z).normalized)
+      } yield Ray(ZERO, normalized(VectorBreeze3.from(x, y, z)))
     }
 
 }

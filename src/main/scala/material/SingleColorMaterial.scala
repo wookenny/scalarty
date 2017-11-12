@@ -2,7 +2,7 @@ package material
 
 import color.RGB
 import math.Math._
-import math.Vector3
+import math.breeze.VectorBreeze3
 
 final case class SingleColorMaterial(name: String,
                                      c: RGB,
@@ -16,13 +16,13 @@ final case class SingleColorMaterial(name: String,
     extends Material {
   require(Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
-  override def getMat(position: Vector3) =
+  override def getMat(position: VectorBreeze3) =
     UnshadedColor(c, ambient, diffuse, spec, reflective, refractive, n, shininess)
 }
 
 final case class EmissionMaterial(name: String, color: RGB, intensity: Double) extends Material {
 
-  override def getMat(position: Vector3) =
+  override def getMat(position: VectorBreeze3) =
     UnshadedColor(color, 0, 0, 0, 0, 0, 0, 0, intensity)
   //TODO: handle emission correctly in tracer,
   //TODO: for shadows and lightning, we require some sampling here

@@ -1,13 +1,17 @@
 package math
 
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
 import renderer.Hit
 
-final case class Sphere(center: Vector3, radius: Double, material: String = "DEFAULT_MATERIAL")
+final case class Sphere(center: VectorBreeze3, radius: Double, material: String = "DEFAULT_MATERIAL")
     extends Shape {
   import Math._
   override def intersect(r: Ray): Option[Hit] = {
-    val t_ca: Double = (center - r.origin) * r.direction
-    val t_hc2: Double = radius * radius - (center - r.origin) * (center - r.origin) + t_ca * t_ca
+
+
+    val t_ca: Double = (center - r.origin) dot r.direction
+    val t_hc2: Double = radius * radius - ((center - r.origin) dot (center - r.origin)) + t_ca * t_ca
     if (t_hc2 < 0) //No hit
       None
     else {
@@ -23,7 +27,7 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
       dist match {
         case Some(dist) => {
           lazy val pos = r.march(dist)
-          lazy val normal = (pos - center).normalized
+          lazy val normal = normalized(pos - center)
           Some(Hit(dist, pos, normal, Shape.getMaterial(material, pos)))
         }
         case None => None
@@ -32,8 +36,8 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
   }
 
   override def intersect(r: Ray, maxDist: Double): Boolean = {
-    val t_ca: Double = (center - r.origin) * r.direction
-    val t_hc2: Double = radius * radius - (center - r.origin) * (center - r.origin) + t_ca * t_ca
+    val t_ca: Double = (center - r.origin) dot r.direction
+    val t_hc2: Double = radius * radius - ((center - r.origin) dot (center - r.origin)) + t_ca * t_ca
     if (t_hc2 < 0) //No hit
       false
     else {
@@ -50,24 +54,24 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
   }
 
   override def boundingBox(): AABB =
-    AABB(center.x - radius,
-         center.x + radius,
-         center.y - radius,
-         center.y + radius,
-         center.z - radius,
-         center.z + radius)
+    AABB(center(0) - radius,
+         center(0) + radius,
+         center(1) - radius,
+         center(1) + radius,
+         center(2) - radius,
+         center(2) + radius)
 
-  override def midpoint: Vector3 = center
+  override def midpoint: VectorBreeze3 = center
 
-  override def minX = center.x - radius
+  override def minX = center(0) - radius
 
-  override def minY = center.y - radius
+  override def minY = center(1) - radius
 
-  override def minZ = center.z - radius
+  override def minZ = center(2) - radius
 
-  override def maxX = center.x + radius
+  override def maxX = center(0) + radius
 
-  override def maxY = center.y + radius
+  override def maxY = center(1) + radius
 
-  override def maxZ = center.z + radius
+  override def maxZ = center(2) + radius
 }

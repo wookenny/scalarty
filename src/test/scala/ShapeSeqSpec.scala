@@ -1,6 +1,7 @@
 import bounding.ShapeSeq
 import material.Material.DEFAULT_MATERIAL
-import math.{Ray, Shape, Vector3}
+import math.breeze.VectorBreeze3._
+import math.{Ray, Shape}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 import renderer.Hit
@@ -18,7 +19,7 @@ class ShapeSeqSpec extends Specification with Mockito {
             a non-empty Seq $intersectionTestForNonEmptySeq
     """
 
-  val ray = Ray(Vector3.ZERO, Vector3.X)
+  val ray = Ray(ZERO, X)
   val emptyShapeSeq = ShapeSeq(Seq.empty[Shape])
 
   val testSizeForEmptySeq = emptyShapeSeq.size should be equalTo 0
@@ -34,7 +35,7 @@ class ShapeSeqSpec extends Specification with Mockito {
 
   val intersectForNonEmptySeq = {
     val closestHit =
-      Hit(1, Vector3.ZERO, Vector3.X, DEFAULT_MATERIAL.getMat(Vector3.ZERO))
+      Hit(1, ZERO, X, DEFAULT_MATERIAL.getMat(ZERO))
 
     val shape1 = mock[Shape]
     val shape2 = mock[Shape]

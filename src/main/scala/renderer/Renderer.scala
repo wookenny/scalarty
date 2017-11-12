@@ -9,6 +9,9 @@ import scene.Scene
 import support.Implicits.imageWriter
 import support.Util._
 import support.{Config, Image}
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
+
 
 import scala.collection.GenSet
 import scala.collection.parallel.mutable.ParArray
@@ -91,7 +94,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
                          selection: Option[GenSet[(Int, Int)]]): Unit = {
     val w: Double = scene.width
     val h: Double = scene.height
-    val corner = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)
+    val corner : VectorBreeze3 = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)
 
     val X = img.width
     val Y = img.height
@@ -112,11 +115,11 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
               i <- 0 until supersampling
               j <- 0 until supersampling
               shift = (supersampling - 1) / (2.0 * supersampling)
-              rayTarget = (corner
+              rayTarget : VectorBreeze3 = (corner
                 + scene.side * ((w * (x + i.toDouble / supersampling - shift)) / X)
                 - scene.up * (h * (y + j.toDouble / supersampling - shift) / Y))
-              rayDir = (rayTarget - scene.cameraOrigin).normalized
-              description = s"pixel ($x:$y) sample ${i * supersampling + (j + 1)}/$S"
+              rayDir : VectorBreeze3 = normalized(rayTarget  - scene.cameraOrigin)
+              description : String = s"pixel ($x:$y) sample ${i * supersampling + (j + 1)}/$S"
             } yield
               traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)
               .reduce(_ + _)

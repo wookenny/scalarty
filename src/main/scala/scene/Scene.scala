@@ -3,15 +3,16 @@ package scene
 import bounding.{BVH, ShapeContainer, ShapeMetaContainer, ShapeSeq}
 import lightning.LightSource
 import material.Material
-import math.{Shape, Triangle, Vector3}
+import math.breeze.VectorBreeze3
+import math.{Shape, Triangle}
 import play.api.libs.json.{Format, Json}
 import support.Config
 import support.Implicits._
+import math.breeze.VectorBreeze3._
 
-//TODO: use gzip
 
-final case class SceneDTO(cameraOrigin: Vector3,
-                          cameraPointing: Vector3,
+final case class SceneDTO(cameraOrigin: VectorBreeze3,
+                          cameraPointing: VectorBreeze3,
                           width: Double,
                           height: Double,
                           lights: Seq[LightSource],
@@ -23,8 +24,8 @@ object SceneDTO {
   implicit val sceneJsonFormat: Format[SceneDTO] = Json.format[SceneDTO]
 }
 
-case class Scene(cameraOrigin: Vector3,
-                       cameraPointing: Vector3,
+case class Scene(cameraOrigin: VectorBreeze3,
+                       cameraPointing: VectorBreeze3,
                        width: Double,
                        height: Double,
                        lights: Seq[LightSource],
@@ -33,8 +34,8 @@ case class Scene(cameraOrigin: Vector3,
                        objFiles: Option[Seq[ObjObject]] = None)(implicit config: Config) {
   // Fixed data
   val ppi = 400
-  val up = Vector3(0, 1, 0)
-  val side = Vector3(1, 0, 0)
+  val up : VectorBreeze3 = VectorBreeze3.Y
+  val side : VectorBreeze3 = VectorBreeze3.X
   lazy val allShapes: ShapeContainer =
     if (objFiles.isDefined)
       ShapeMetaContainer(ShapeSeq(shapes), BVH(parseObjFiles(objFiles.get)))

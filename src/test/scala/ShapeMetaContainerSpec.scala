@@ -1,6 +1,8 @@
 import bounding.{ShapeContainer, ShapeMetaContainer}
 import material.Material.DEFAULT_MATERIAL
-import math.{Ray, Vector3}
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
+import math.Ray
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 import renderer.Hit
@@ -22,7 +24,7 @@ class ShapeMetaContainerSpec extends Specification with Mockito {
         several containers with hits $intersectMultipleHits
     """
 
-  val ray = Ray(Vector3.ZERO, Vector3.X)
+  val ray = Ray(ZERO, X)
 
   val getSizeForEmptyMetaContainer = {
     val metaContainer = ShapeMetaContainer()
@@ -102,7 +104,7 @@ class ShapeMetaContainerSpec extends Specification with Mockito {
     val container3 = mock[ShapeContainer]
 
     val closestHit =
-      Hit(1, Vector3.ZERO, Vector3.X, DEFAULT_MATERIAL.getMat(Vector3.ZERO))
+      Hit(1, ZERO, X, DEFAULT_MATERIAL.getMat(ZERO))
     container1.intersect(ray) returns Some(closestHit.copy(distance = 2))
     container2.intersect(ray) returns Some(closestHit)
     container3.intersect(ray) returns Some(closestHit.copy(distance = 3))

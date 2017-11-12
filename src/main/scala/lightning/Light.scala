@@ -1,26 +1,26 @@
 package lightning
 
 import color.RGB
-import math.Vector3
+import math.breeze.VectorBreeze3
 import play.api.libs.json._
-
+import math.breeze.VectorBreeze3._
 import scala.util.Random
 
 trait LightSource {
-  def intensity(p: Vector3, positionOnLight: Option[Vector3] = None): Double
-  def sample(n: Int): Seq[Vector3]
+  def intensity(p: VectorBreeze3, positionOnLight: Option[VectorBreeze3] = None): Double
+  def sample(n: Int): Seq[VectorBreeze3]
   def color: RGB
-  def position: Vector3
+  def position: VectorBreeze3
 }
 
-final case class PointLight(position: Vector3, color: RGB, power: Double) extends LightSource {
-  override def intensity(pos: Vector3, positionOnLight: Option[Vector3]) =
-    power / ((position - pos) * (position - pos))
+final case class PointLight(position: VectorBreeze3, color: RGB, power: Double) extends LightSource {
+  override def intensity(pos: VectorBreeze3, positionOnLight: Option[VectorBreeze3]) =
+    power / ((position - pos) dot (position - pos))
   //no sampling required for point lights
   override def sample(n: Int) = Seq(position)
 }
 
-final case class PlaneLight(position: Vector3,
+final case class PlaneLight(position: VectorBreeze3,
                             width: Double,
                             length: Double,
                             color: RGB,
@@ -31,11 +31,11 @@ final case class PlaneLight(position: Vector3,
     s * (LightSource.rand.nextDouble() - 0.5)
   }
 
-  override def intensity(pos: Vector3, positionOnLight: Option[Vector3]) =
+  override def intensity(pos: VectorBreeze3, positionOnLight: Option[VectorBreeze3]) =
     positionOnLight match {
-      case None => power / ((position - pos) * (position - pos))
+      case None => power / ((position - pos) dot (position - pos))
       case Some(positionOnLightSource) =>
-        power / ((positionOnLightSource - pos) * (positionOnLightSource - pos))
+        power / ((positionOnLightSource - pos) dot (positionOnLightSource - pos))
     }
 
   override def sample(n: Int) =
@@ -43,9 +43,9 @@ final case class PlaneLight(position: Vector3,
       x <- (-n + 1).until(n) by 2
       z <- (-n + 1).until(n) by 2
     } yield
-      Vector3((x.toDouble / n) * width + position.x + randomOffset(width / n),
-              position.y,
-              (z.toDouble / n) * length + position.z + randomOffset(length / n))
+      VectorBreeze3.from((x.toDouble / n) * width + position(0) + randomOffset(width / n),
+              position(1),
+              (z.toDouble / n) * length + position(2) + randomOffset(length / n))
 
 }
 

@@ -2,6 +2,8 @@ import bounding.ShapeSeq
 import color.RGB
 import color.RGB._
 import material.UnshadedColor
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
 import math.{Ray, Sphere, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
@@ -38,19 +40,19 @@ class ShaderSpec extends Specification with Mockito {
                                      n = 1.33,
                                      shininess = 16)
 
-  val hit = Hit(0.2, Vector3.Y, Vector3.ONE,unshadedColor)
-  val ray = Ray(Vector3.ZERO,Vector3.Z)
+  val hit = Hit(0.2, Y, ONE,unshadedColor)
+  val ray = Ray(ZERO,Z)
 
   val testShadowRayPositive = {
-    val shapes = Seq( Sphere( Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * 0.3, 0.1))
+    val shapes = Seq( Sphere( ONE * 10d, 1.2), Sphere(ONE * 0.3, 0.1))
     mockedScene.allShapes returns ShapeSeq(shapes)
-    shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beTrue
+    shader.shadowRay(position = ZERO, light = ONE) should beTrue
   }
 
   val testShadowRayNegative = {
-    val shapes = Seq( Sphere( Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * -0.5, 0.1))
+    val shapes = Seq( Sphere( ONE * 10d, 1.2), Sphere(ONE * -0.5, 0.1))
     mockedScene.allShapes returns ShapeSeq(shapes)
-    shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beFalse
+    shader.shadowRay(position = ZERO, light = ONE) should beFalse
   }
 
   val testShadeReflectionStopping = {

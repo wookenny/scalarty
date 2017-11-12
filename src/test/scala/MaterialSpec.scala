@@ -1,6 +1,7 @@
 import color.RGB
 import material._
 import math.Vector3
+import math.breeze.VectorBreeze3
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.specs2.{ScalaCheck, Specification}
@@ -23,17 +24,17 @@ class MaterialSpec extends Specification with ScalaCheck {
        The default material
           should be parsed correctly $parseDefaultMaterial
 
-        Unknown material throws  an Exception when parsed $parseUnknownMaterial
-        Malformed material tthrowsn a Exception when parsed $parseMalformedMaterial
+        Unknown   material throws an Exception when parsed $parseUnknownMaterial
+        Malformed material throws an Exception when parsed $parseMalformedMaterial
     """
 
-  implicit lazy val VectorGen: Arbitrary[Vector3] =
+  implicit lazy val VectorGen: Arbitrary[VectorBreeze3] =
     Arbitrary {
       for {
         x: Double <- Gen.choose(-1000d, 1000d)
         y: Double <- Gen.choose(-1000d, 1000d)
         z: Double <- Gen.choose(-1000d, 1000d)
-      } yield Vector3(x, y, z)
+      } yield VectorBreeze3.from(x, y, z)
     }
 
   //TODO make an own matcher with type T out of it
@@ -65,7 +66,7 @@ class MaterialSpec extends Specification with ScalaCheck {
       new IllegalArgumentException("Could parse the Json as material: \"incorrect Json\""))
   }
 
-  val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
+  val testSingleColorMaterial: Prop = forAll { (x: VectorBreeze3) =>
     val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4, 0.2, 0.1, 0.1, 0.2)
     val expectedColor = UnshadedColor(RGB.BLUE,
                                       mat.ambient,
@@ -79,7 +80,7 @@ class MaterialSpec extends Specification with ScalaCheck {
     mat.getMat(x) should be equalTo expectedColor
   }
 
-  val testEmissionMaterial: Prop = forAll { (x: Vector3) =>
+  val testEmissionMaterial: Prop = forAll { (x: VectorBreeze3) =>
     val mat = EmissionMaterial("Light1", RGB.YELLOW, 2.6)
 
     val expectedColor = UnshadedColor(RGB.YELLOW, 0, 0, 0, 0, 0, 0, 0, 2.6)
@@ -90,7 +91,7 @@ class MaterialSpec extends Specification with ScalaCheck {
     forAll(Gen.choose(-1000, 1000), Gen.choose(-1000, 1000), Gen.choose(-1000, 1000)) {
       (x, y, z) =>
         {
-          val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
+          val pos = VectorBreeze3.from(x + 0.5, y + 0.5, z + 0.5)
           val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1, 0.5, 0.3, 0.2)
           val expectedColor =
             if ((x % 2 + y % 2 + z % 2 + 10) % 2 == 1) RGB.WHITE else RGB.BLACK

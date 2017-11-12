@@ -1,23 +1,24 @@
 package math
 import Math._
+import math.breeze.VectorBreeze3
+import math.breeze.VectorBreeze3._
 
-final case class Ray(origin: Vector3,
-                     direction: Vector3,
+final case class Ray(origin: VectorBreeze3,
+                     direction: VectorBreeze3,
                      depth: Int = 0,
                      n: Double = 1f,
                      source: String = "") {
-  def march(length: Double) = origin + direction * length
+  def march(length: Double): VectorBreeze3 = origin + direction * length
 
-  def reflectedAt(position: Vector3, normal: Vector3): Ray = {
-    val dir = (direction - normal * (direction * normal) * 2).normalized
-    this
-      .copy(origin = position + dir * EPS, direction = dir, depth = depth + 1)
+  def reflectedAt(position: VectorBreeze3, normal: VectorBreeze3): Ray = {
+    val dir = normalized(direction - normal * ((direction dot normal) * 2))
+    this.copy(origin = position + dir * EPS, direction = dir, depth = depth + 1)
   }
 
-  def refractedAt(position: Vector3, normal: Vector3, newN: Double) = {
+  def refractedAt(position: VectorBreeze3, normal: VectorBreeze3, newN: Double): Option[Ray] = {
     val V = this.direction
     val refractionFactor: Double = this.n / newN
-    val negCosI = normal * V
+    val negCosI : Double = normal dot V
     val (norm, cosI) =
       if (negCosI < 0) (normal, -negCosI) else (-normal, negCosI)
 
@@ -26,10 +27,10 @@ final case class Ray(origin: Vector3,
       None
     else {
       val cosT: Double = scala.math.sqrt(1f - sinT2).toDouble
-      val refractedDir =
-        (V * refractionFactor + norm * (refractionFactor * cosI - cosT)).normalized
+      val refractedDir : VectorBreeze3 =
+        normalized(V * refractionFactor + norm * (refractionFactor * cosI - cosT))
       Some(
-        this.copy(origin = position + refractedDir * EPS,
+        this.copy(origin = position + (refractedDir * EPS),
                   direction = refractedDir,
                   depth = depth + 1,
                   n = newN))
