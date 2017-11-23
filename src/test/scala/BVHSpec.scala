@@ -24,7 +24,7 @@ class BVHSpec extends Specification with ScalaCheck {
     x <- 1 to 3
     y <- 1 to 3
     z <- 1 to 3
-  } yield Sphere(VectorBreeze3.from(x, y, z), radius = 0.2f)
+  } yield Sphere(VectorBreeze3(x, y, z), radius = 0.2f)
 
   val sphereBVH = BVH(spheres, 2)
   val sphereBVH_SAH = BVH(spheres, 2, splitSAH = true)
@@ -44,25 +44,25 @@ class BVHSpec extends Specification with ScalaCheck {
   }
 
   def intersectionSpheres = {
-    val ray = Ray(origin = VectorBreeze3.from(2, 2, -10), direction = Z)
+    val ray = Ray(origin = VectorBreeze3(2, 2, -10), direction = Z)
     (sphereBVH.intersect(ray) shouldNotEqual None) and
       (sphereBVH_SAH.intersect(ray) shouldNotEqual None)
   }
 
   def missSpheres = {
-    val ray = Ray(origin = VectorBreeze3.from(2, 2, -10), direction = X)
+    val ray = Ray(origin = VectorBreeze3(2, 2, -10), direction = X)
     (sphereBVH.intersect(ray) should be equalTo None) and
       (sphereBVH_SAH.intersect(ray) should be equalTo None)
   }
 
   def intersectionTestPositive = {
-    val ray = Ray(origin = VectorBreeze3.from(2, 2, -10), direction = Z)
+    val ray = Ray(origin = VectorBreeze3(2, 2, -10), direction = Z)
     (sphereBVH.intersectionTest(ray, 20) shouldNotEqual None) and
       (sphereBVH_SAH.intersectionTest(ray, 20) shouldNotEqual None)
   }
 
   def intersectionTestNegative = {
-    val ray = Ray(origin = VectorBreeze3.from(2, 2, -10), direction = Z)
+    val ray = Ray(origin = VectorBreeze3(2, 2, -10), direction = Z)
     (sphereBVH.intersectionTest(ray, 10) shouldNotEqual None) and
       (sphereBVH_SAH.intersectionTest(ray, 10) shouldNotEqual None)
   }

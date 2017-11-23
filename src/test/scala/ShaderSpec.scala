@@ -2,9 +2,8 @@ import bounding.ShapeSeq
 import color.RGB
 import color.RGB._
 import material.UnshadedColor
-import math.breeze.VectorBreeze3
 import math.breeze.VectorBreeze3._
-import math.{Ray, Sphere, Vector3}
+import math.{Ray, Sphere}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 import renderer.{Hit, Renderer, Shader}

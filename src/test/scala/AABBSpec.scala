@@ -16,23 +16,23 @@ class AABBSpec extends Specification with ScalaCheck {
   val aabb = AABB(.5f, 2, .5f, 2, .5f, 2)
 
   def intersectFrontal = {
-    val hit = aabb.intersect(Ray(VectorBreeze3.from(1, 1, 0), Z))
+    val hit = aabb.intersect(Ray(VectorBreeze3(1, 1, 0), Z))
     (hit shouldNotEqual None) and
-      (hit.get.normal shouldEqual VectorBreeze3.from(0, 0, -1f))
+      (hit.get.normal shouldEqual VectorBreeze3(0, 0, -1f))
   }
 
   def intersectFrontalFromInside = {
     val hit = aabb.intersect(Ray(ONE, Z))
     (hit shouldNotEqual None) and
-      (hit.get.normal shouldEqual VectorBreeze3.from(0, 0, -1f))
+      (hit.get.normal ~= VectorBreeze3(0, 0, -1f))
   }
 
   def intersectFrontalFromSide = {
-    val pos = VectorBreeze3.from(-1, 2, 0)
-    val ray = Ray(pos, normalized(VectorBreeze3.from(1, 1, .5f) - pos))
+    val pos = VectorBreeze3(-1, 2, 0)
+    val ray = Ray(pos, (VectorBreeze3(1, 1, .5f) - pos).normalized)
     val hit = aabb.intersect(ray)
     (hit shouldNotEqual None) and
-      (hit.get.normal shouldEqual VectorBreeze3.from(0, 0, -1f))
+      (hit.get.normal ~= VectorBreeze3(0, 0, -1f))
   }
 
   def missFrontal = {

@@ -18,8 +18,8 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
 
   def shadowRay(position: VectorBreeze3, light: VectorBreeze3): Boolean = {
     val vectorToLight = light - position
-    val ray = Ray(position, normalized(vectorToLight))
-    renderer.scene.allShapes.intersectionTest(ray, VectorBreeze3.length(vectorToLight))
+    val ray = Ray(position, vectorToLight.normalized)
+    renderer.scene.allShapes.intersectionTest(ray, vectorToLight.length)
   }
 
   def shadeHit(hit: Hit, ray: Ray): RGB = {
@@ -77,7 +77,7 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
       lightSample:LightSample =>
         val (l, weight, pos) = (lightSample.light, lightSample.weight, lightSample.position )
         val V = -r.direction //towards eye
-        val L = normalized(pos - hit.position) // vector pointing towards light
+        val L = (pos - hit.position).normalized // vector pointing towards light
         val R = V - (hit.normal * ((V dot hit.normal) *2)) //reflected ray
         l.color * Math.pow(Math.max(-(R dot L), 0), hit.color.shininess) *
           hit.color.spec * l.intensity(hit.position, Some(pos)) * weight //spec does not use color of object
@@ -94,7 +94,7 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
     visibleLights.map {
       lightSample =>
         val (l, weight, pos) = (lightSample.light, lightSample.weight, lightSample.position )
-        val L = normalized(pos - hit.position) // vector pointing towards light //TODO duplicate calculation
+        val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
         hit.color.color * Math.max(hit.normal dot L, 0) *
           hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight //TODO light color?
     } match {

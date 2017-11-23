@@ -1,13 +1,9 @@
 import color.RGB
 import lightning.{LightSource, PlaneLight, PointLight}
-import math.Vector3
 import math.breeze.VectorBreeze3
 import math.breeze.VectorBreeze3._
-import org.specs2.matcher.MatchResult
 import org.specs2.{ScalaCheck, Specification}
 import play.api.libs.json.Json
-
-import scala.collection.immutable
 
 class LightSourceSpec extends Specification with ScalaCheck {
 

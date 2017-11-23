@@ -3,7 +3,7 @@ import lightning.PointLight
 import material.{CheckerMaterial, Material, SingleColorMaterial}
 import math.breeze.VectorBreeze3
 import math.breeze.VectorBreeze3._
-import math.{Shape, Triangle, Vector3}
+import math.{Shape, Triangle}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 import org.specs2.specification.core.SpecStructure
@@ -27,7 +27,7 @@ class SceneSpec extends Specification with Mockito {
       CheckerMaterial("mat2", RGB.GREEN, RGB(0.4f, 0.5f, 0.1f), 0.2, 1, 0, 0)
 
     val (shape1, shape2) = (mock[Shape], mock[Shape])
-    val lights = Seq(PointLight(VectorBreeze3.from(1, 2, 3), RGB.WHITE, 12))
+    val lights = Seq(PointLight(VectorBreeze3(1, 2, 3), RGB.WHITE, 12))
 
     val scene = Scene(ZERO, Z, 2, 2, lights, Seq(shape1, shape2), Seq(mat1, mat2))
 
@@ -47,7 +47,7 @@ class SceneSpec extends Specification with Mockito {
     val mat1 = Material.DEFAULT_MATERIAL.copy(name = "def_mat")
 
     val (shape1, shape2) = (mock[Shape], mock[Shape])
-    val lights = Seq(PointLight(VectorBreeze3.from(3, 2, 5), RGB.CYAN, 2))
+    val lights = Seq(PointLight(VectorBreeze3(3, 2, 5), RGB.CYAN, 2))
 
     val (objObj1, objObj2) = (mock[ObjObject], mock[ObjObject])
     val (triangle1, triangle2, triangle3) =

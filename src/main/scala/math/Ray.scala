@@ -1,7 +1,6 @@
 package math
 import Math._
 import math.breeze.VectorBreeze3
-import math.breeze.VectorBreeze3._
 
 final case class Ray(origin: VectorBreeze3,
                      direction: VectorBreeze3,
@@ -11,7 +10,7 @@ final case class Ray(origin: VectorBreeze3,
   def march(length: Double): VectorBreeze3 = origin + direction * length
 
   def reflectedAt(position: VectorBreeze3, normal: VectorBreeze3): Ray = {
-    val dir = normalized(direction - normal * ((direction dot normal) * 2))
+    val dir = (direction - normal * ((direction dot normal) * 2)).normalized
     this.copy(origin = position + dir * EPS, direction = dir, depth = depth + 1)
   }
 
@@ -28,7 +27,7 @@ final case class Ray(origin: VectorBreeze3,
     else {
       val cosT: Double = scala.math.sqrt(1f - sinT2).toDouble
       val refractedDir : VectorBreeze3 =
-        normalized(V * refractionFactor + norm * (refractionFactor * cosI - cosT))
+        (V * refractionFactor + norm * (refractionFactor * cosI - cosT)).normalized
       Some(
         this.copy(origin = position + (refractedDir * EPS),
                   direction = refractedDir,

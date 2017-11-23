@@ -31,13 +31,13 @@ case class ObjObject(filename: String,
     val sin: Double = Math.sin(2 * π * rotation / 360)
     val cos: Double = Math.cos(2 * π * rotation / 360)
     val p: VectorBreeze3 = (vector - currentCenter) * scalingFactor
-    VectorBreeze3.from(p(0) * cos - p(2) * sin, p(1), p(0) * sin + p(2) * cos) + targetCenter
+    VectorBreeze3(p(0) * cos - p(2) * sin, p(1), p(0) * sin + p(2) * cos) + targetCenter
   }
 
   private def transformNormal(vector: VectorBreeze3, rotation: Double) = {
     val sin: Double = Math.sin(2 * π * rotation / 360)
     val cos: Double = Math.cos(2 * π * rotation / 360)
-    VectorBreeze3.from(vector(0) * cos - vector(2) * sin, vector(1), vector(0) * sin + vector(2) * cos)
+    VectorBreeze3(vector(0) * cos - vector(2) * sin, vector(1), vector(0) * sin + vector(2) * cos)
   }
 
   def getTriangles()(implicit reader: (String) => BufferedSource): Seq[Triangle] = {
@@ -61,7 +61,7 @@ case class ObjObject(filename: String,
                                       coordinates_y.max - coordinates_y.min,
                                       coordinates_z.max - coordinates_z.min).max
 
-    val currentCenter = VectorBreeze3.from(
+    val currentCenter = VectorBreeze3(
       (coordinates_x.max - coordinates_x.min) / 2 + coordinates_x.min,
       (coordinates_y.max - coordinates_y.min) / 2 + coordinates_y.min,
       (coordinates_z.max - coordinates_z.min) / 2 + coordinates_z.min
@@ -71,7 +71,7 @@ case class ObjObject(filename: String,
       vertices(i) = transformVertex(vertices(i), currentCenter, center, scalingFactor, rotation)
 
     for (i <- normals.indices.par)
-      normals(i) = normalized(transformNormal(normals(i), rotation))
+      normals(i) = transformNormal(normals(i), rotation).normalized
 
     val mat: String = material.getOrElse(DEFAULT_MATERIAL.name)
 
@@ -95,13 +95,13 @@ case class ObjObject(filename: String,
   private def parseVertex(line: String) =
     line.split("\\s+").slice(1, 4) match {
       case Array(a, b, c) =>
-        vertices += VectorBreeze3.from(a.toDouble, b.toDouble, c.toDouble)
+        vertices += VectorBreeze3(a.toDouble, b.toDouble, c.toDouble)
     }
 
   private def parseNormal(line: String) =
     line.split("\\s+").slice(1, 4) match {
       case Array(a, b, c) =>
-        normals += VectorBreeze3.from(a.toDouble, b.toDouble, c.toDouble)
+        normals += VectorBreeze3(a.toDouble, b.toDouble, c.toDouble)
     }
 
   private def toIntList(s: String): Array[Int] =

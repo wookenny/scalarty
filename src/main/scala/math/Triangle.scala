@@ -13,12 +13,12 @@ final case class Triangle(a: VectorBreeze3,
   import Math._
   lazy val edge1: VectorBreeze3 = b - a
   lazy val edge2: VectorBreeze3 = c - a
-  lazy val normal: VectorBreeze3 = normalized(-cross(edge1,edge2))
+  lazy val normal: VectorBreeze3 = -(edge1 cross edge2).normalized
 
   override def intersect(r: Ray): Option[Hit] = {
 
     //Begin calculating determinant - also used to calculate parameter u
-    val p: VectorBreeze3 = cross(r.direction, edge2)
+    val p: VectorBreeze3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     val det: Double = edge1 dot p
 
@@ -38,7 +38,7 @@ final case class Triangle(a: VectorBreeze3,
         None
       else {
         //Prepare to test v parameter
-        val q: VectorBreeze3 = cross(t_vec,  edge1)
+        val q: VectorBreeze3 = t_vec cross edge1
         //Calculate V parameter and test bound
         val v = (r.direction dot q) * inv_det
 
@@ -68,7 +68,7 @@ final case class Triangle(a: VectorBreeze3,
   }
 
   override def intersect(r: Ray, maxDist: Double): Boolean = {
-    val p: VectorBreeze3 = cross(r.direction, edge2)
+    val p: VectorBreeze3 = r.direction cross edge2
     //if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     val det: Double = edge1 dot p
     //TODO: Backface culling???
@@ -86,7 +86,7 @@ final case class Triangle(a: VectorBreeze3,
         false
       else {
         //Prepare to test v parameter
-        val q: VectorBreeze3 = cross(t_vec, edge1)
+        val q: VectorBreeze3 = t_vec cross edge1
         //Calculate V parameter and test bound
         val v = (r.direction dot q) * inv_det
         //The intersection lies outside of the triangle

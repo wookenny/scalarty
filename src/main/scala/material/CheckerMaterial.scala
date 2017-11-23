@@ -1,7 +1,6 @@
 package material
 
 import color.RGB
-import math.Vector3
 import math.Math._
 import math.breeze.VectorBreeze3
 
@@ -22,7 +21,7 @@ final case class CheckerMaterial(name: String,
   private def mod(x: Double, m: Double) = (x % m + m) % m
 
   private def inStep(pos: Double): Boolean = mod(pos, 2 * steps) >= steps
-  private def inStep(pos: VectorBreeze3): Boolean = pos.map( inStep ).reduce(_^_)
+  private def inStep(pos: VectorBreeze3): Boolean = pos.toSeq.map( inStep ).reduce(_^_)
   override def getMat(position: VectorBreeze3) =
     UnshadedColor(if (inStep(position)) c1 else c2,
                   ambient,

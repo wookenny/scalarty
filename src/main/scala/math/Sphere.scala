@@ -27,7 +27,7 @@ final case class Sphere(center: VectorBreeze3, radius: Double, material: String 
       dist match {
         case Some(dist) => {
           lazy val pos = r.march(dist)
-          lazy val normal = normalized(pos - center)
+          lazy val normal = (pos - center).normalized
           Some(Hit(dist, pos, normal, Shape.getMaterial(material, pos)))
         }
         case None => None

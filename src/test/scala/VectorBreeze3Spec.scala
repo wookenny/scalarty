@@ -21,36 +21,36 @@ class VectorBreeze3Spec extends Specification with ScalaCheck {
   """
 
   val lengthTest = forAll { (p: VectorBreeze3) =>
-    approx(VectorBreeze3.length(p), Math.sqrt(p(0)*p(0) + p(1)*p(1) + p(2)*p(2)))
+    approx(p.length, Math.sqrt(p(0)*p(0) + p(1)*p(1) + p(2)*p(2)))
   }
 
   val distTest = forAll { (a: VectorBreeze3, b: VectorBreeze3) =>
     approx(
-      VectorBreeze3.length(a-b),
+      (a-b).length,
       Math.sqrt((a(0)- b(0)) * (a(0)- b(0)) + (a(1) - b(1)) * (a(1) - b(1)) + (a(2) - b(2)) * (a(2) - b(2))))
   }
   val normalizedTest = forAll { (p: VectorBreeze3) =>
-    approx(1d, VectorBreeze3.length(normalized(p)))
+    approx(1d, p.normalized.length)
   }
 
   val scalarDivision = forAll { (a: VectorBreeze3, s: Double) =>
-    ~=(a/s, VectorBreeze3.from(a(0)/ s, a(1) / s, a(2) / s))
+    a/s ~= VectorBreeze3(a(0)/s, a(1)/s, a(2)/s)
   }
   val scalarMultiplication = forAll { (a: VectorBreeze3, s: Double) =>
-    a * s == VectorBreeze3.from(a(0)* s, a(1) * s, a(2) * s)
+    a * s ~= VectorBreeze3(a(0)* s, a(1) * s, a(2) * s)
   }
   val negation = forAll { (a: VectorBreeze3) =>
-    -a == VectorBreeze3.from(-a(0), -a(1), -a(2)) && -(-a) == a
+    (-a ~= VectorBreeze3(-a(0), -a(1), -a(2))) && (-(-a) ~= a)
   }
 
   val addition = forAll { (p: VectorBreeze3, q: VectorBreeze3) =>
-    q + p == VectorBreeze3.from(p(0)+ q(0), p(1) + q(1), p(2) + q(2))
+    (q + p) ~= VectorBreeze3(p(0)+ q(0), p(1) + q(1), p(2) + q(2))
   }
   val multiplication = forAll { (a: VectorBreeze3, b: VectorBreeze3) =>
     approx( a dot b , a(0) * b(0) + a(1) * b(1) + a(2) * b(2))
   }
   val crossproduct = forAll { (a: VectorBreeze3, b: VectorBreeze3) =>
-    cross(a,a) == VectorBreeze3.ZERO && cross(a,b) == -cross(b,a)
+    ((a cross a) ~= VectorBreeze3.ZERO) && ((a cross b) ~= -(b cross a))
   }
 /*
   val powTest = forAll { (a: VectorBreeze3, f: Double) =>
@@ -67,7 +67,7 @@ class VectorBreeze3Spec extends Specification with ScalaCheck {
         x: Double <- Gen.choose(-1000d, 1000d)
         y: Double <- Gen.choose(-1000d, 1000d)
         z: Double <- Gen.choose(-1000d, 1000d)
-      } yield VectorBreeze3.from(x, y, z)
+      } yield VectorBreeze3(x, y, z)
     }
 
   implicit lazy val DoubleGen: Arbitrary[Double] = Arbitrary {
@@ -77,7 +77,5 @@ class VectorBreeze3Spec extends Specification with ScalaCheck {
   val EPS = 0.001
   def approx(x: Double, y: Double): Boolean =
     (x.isNaN && y.isNaN) || Math.abs(x - y) <= EPS
-  def approx(a: VectorBreeze3, b: VectorBreeze3): Boolean =
-    approx(a(0), b(0)) && approx(a(1), b(1)) && approx(a(2), b(2))
 
 }

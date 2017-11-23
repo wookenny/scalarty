@@ -19,7 +19,7 @@ sealed case class AABB(x_min: Double,
 
   override def intersect(r: Ray): Option[Hit] = {
 
-    val dirfrac: VectorBreeze3 = 1d/r.direction
+    val dirfrac: VectorBreeze3 = r.direction.inverse
 
     val t1 = (x_min - r.origin(0)) * dirfrac(0)
     val t2 = (x_max - r.origin(0)) * dirfrac(0)
@@ -49,7 +49,7 @@ sealed case class AABB(x_min: Double,
 
   //TODO: should only generate needed data, not too much in advance
   override def intersect(r: Ray, maxDist: Double): Boolean = {
-    val dirfrac : VectorBreeze3 = 1d / r.direction
+    val dirfrac : VectorBreeze3 = r.direction.inverse
 
     val t1 = (x_min - r.origin(0)) * dirfrac(0)
     val t2 = (x_max - r.origin(0)) * dirfrac(0)
@@ -70,20 +70,20 @@ sealed case class AABB(x_min: Double,
 
   override def boundingBox: AABB = this
 
-  override def midpoint: VectorBreeze3 =
-    VectorBreeze3.from((x_max + x_min) / 2, (y_max + y_min) / 2, (z_max + z_min) / 2)
+  override lazy val midpoint: VectorBreeze3 =
+    VectorBreeze3((x_max + x_min) / 2, (y_max + y_min) / 2, (z_max + z_min) / 2)
 
-  override def minX: Double = x_min
+  override lazy val minX: Double = x_min
 
-  override def minY: Double = y_min
+  override lazy val minY: Double = y_min
 
-  override def minZ: Double = z_min
+  override lazy val minZ: Double = z_min
 
-  override def maxX: Double = x_max
+  override lazy val maxX: Double = x_max
 
-  override def maxY: Double = y_max
+  override lazy val maxY: Double = y_max
 
-  override def maxZ: Double = z_max
+  override lazy val maxZ: Double = z_max
 
   def contains(vec: VectorBreeze3): Boolean =
     x_min <= vec(0) && vec(0) <= x_max &&

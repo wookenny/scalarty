@@ -43,10 +43,11 @@ final case class PlaneLight(position: VectorBreeze3,
       x <- (-n + 1).until(n) by 2
       z <- (-n + 1).until(n) by 2
     } yield
-      VectorBreeze3.from((x.toDouble / n) * width + position(0) + randomOffset(width / n),
+      VectorBreeze3((x.toDouble / n) * width + position(0) + randomOffset(width / n),
               position(1),
               (z.toDouble / n) * length + position(2) + randomOffset(length / n))
 
+    //TODO def ==, != ??
 }
 
 object LightSource {

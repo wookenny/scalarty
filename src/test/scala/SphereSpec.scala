@@ -41,7 +41,7 @@ class SphereSpec extends Specification with ScalaCheck {
         x: Double <- Gen.choose(-.9, .9)
         y: Double <- Gen.choose(-.9, .9)
         z: Double <- Gen.choose(-.9, .9)
-      } yield Ray(ZERO, normalized(VectorBreeze3.from(x, y, z)))
+      } yield Ray(ZERO, VectorBreeze3(x, y, z).normalized)
     }
 
 }

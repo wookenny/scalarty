@@ -1,6 +1,5 @@
 import color.RGB
 import material._
-import math.Vector3
 import math.breeze.VectorBreeze3
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen, Prop}
@@ -34,7 +33,7 @@ class MaterialSpec extends Specification with ScalaCheck {
         x: Double <- Gen.choose(-1000d, 1000d)
         y: Double <- Gen.choose(-1000d, 1000d)
         z: Double <- Gen.choose(-1000d, 1000d)
-      } yield VectorBreeze3.from(x, y, z)
+      } yield VectorBreeze3(x, y, z)
     }
 
   //TODO make an own matcher with type T out of it
@@ -91,7 +90,7 @@ class MaterialSpec extends Specification with ScalaCheck {
     forAll(Gen.choose(-1000, 1000), Gen.choose(-1000, 1000), Gen.choose(-1000, 1000)) {
       (x, y, z) =>
         {
-          val pos = VectorBreeze3.from(x + 0.5, y + 0.5, z + 0.5)
+          val pos = VectorBreeze3(x + 0.5, y + 0.5, z + 0.5)
           val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1, 0.5, 0.3, 0.2)
           val expectedColor =
             if ((x % 2 + y % 2 + z % 2 + 10) % 2 == 1) RGB.WHITE else RGB.BLACK

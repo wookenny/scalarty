@@ -118,7 +118,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
               rayTarget : VectorBreeze3 = (corner
                 + scene.side * ((w * (x + i.toDouble / supersampling - shift)) / X)
                 - scene.up * (h * (y + j.toDouble / supersampling - shift) / Y))
-              rayDir : VectorBreeze3 = normalized(rayTarget  - scene.cameraOrigin)
+              rayDir : VectorBreeze3 = (rayTarget  - scene.cameraOrigin).normalized
               description : String = s"pixel ($x:$y) sample ${i * supersampling + (j + 1)}/$S"
             } yield
               traceRay(Ray(scene.cameraOrigin, rayDir, source = description)).exposureCorrected.gammaCorrected)

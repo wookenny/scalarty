@@ -4,7 +4,7 @@ import color.RGB
 import com.typesafe.scalalogging.LazyLogging
 import material.SingleColorMaterial
 import math.breeze.VectorBreeze3
-import math.{AABB, Ray, Shape, Vector3}
+import math.{AABB, Ray, Shape}
 import renderer.Hit
 import support.Config
 import support.Util._

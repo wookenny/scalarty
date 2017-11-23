@@ -37,7 +37,7 @@ class ObjObjectSpec extends Specification with Mockito {
     mockedSource.getLines returns objString.lines
 
     val triangles: Seq[Triangle] = objFile.getTriangles
-    val triangle = Triangle(ZERO, VectorBreeze3.from(2, 2, 2), VectorBreeze3.from(2, 0, 0))
+    val triangle = Triangle(ZERO, VectorBreeze3(2, 2, 2), VectorBreeze3(2, 0, 0))
     triangles should contain(exactly(triangle))
   }
 
@@ -53,8 +53,8 @@ class ObjObjectSpec extends Specification with Mockito {
     mockedSource.getLines returns objString.lines
 
     val triangles: Seq[Triangle] = objFile.getTriangles
-    val triangle1 = Triangle(ZERO, VectorBreeze3.from(2, 2, 2), VectorBreeze3.from(2, 0, 0))
-    val triangle2 = Triangle(ZERO, VectorBreeze3.from(2, 0, 0), VectorBreeze3.from(2, 2, 0))
+    val triangle1 = Triangle(ZERO, VectorBreeze3(2, 2, 2), VectorBreeze3(2, 0, 0))
+    val triangle2 = Triangle(ZERO, VectorBreeze3(2, 0, 0), VectorBreeze3(2, 2, 0))
 
     triangles should contain(exactly(triangle1, triangle2))
   }
@@ -77,7 +77,7 @@ class ObjObjectSpec extends Specification with Mockito {
 
     val normals = Seq(Z, Y, X)
     val triangle1 =
-      Triangle(ZERO, VectorBreeze3.from(2, 2, 2), VectorBreeze3.from(2, 0, 0), normals = Some(normals))
+      Triangle(ZERO, VectorBreeze3(2, 2, 2), VectorBreeze3(2, 0, 0), normals = Some(normals))
     triangles should contain(exactly(triangle1))
   }
 
@@ -94,12 +94,12 @@ class ObjObjectSpec extends Specification with Mockito {
 
     val triangles: Seq[Triangle] = objFile.getTriangles
     val triangle =
-      Triangle(ZERO, VectorBreeze3.from(2, 2, 2), VectorBreeze3.from(2, 0, 0), mat)
+      Triangle(ZERO, VectorBreeze3(2, 2, 2), VectorBreeze3(2, 0, 0), mat)
     triangles should contain(exactly(triangle))
   }
 
   val testScalingAndTranslation = {
-    val objFile = ObjObject(filename, center = VectorBreeze3.from(2, 2, 2), maxSide = 1, rotation = 0, None)
+    val objFile = ObjObject(filename, center = VectorBreeze3(2, 2, 2), maxSide = 1, rotation = 0, None)
     val objString = """|# Test ObjFile
                        |v 0 0 0
                        |v 2 2 2
@@ -108,12 +108,12 @@ class ObjObjectSpec extends Specification with Mockito {
     mockedSource.getLines returns objString.lines
 
     val triangles: Seq[Triangle] = objFile.getTriangles
-    val triangle = Triangle(VectorBreeze3.from(1.5, 1.5, 1.5), VectorBreeze3.from(2.5, 2.5, 2.5), VectorBreeze3.from(2.5, 1.5, 1.5))
+    val triangle = Triangle(VectorBreeze3(1.5, 1.5, 1.5), VectorBreeze3(2.5, 2.5, 2.5), VectorBreeze3(2.5, 1.5, 1.5))
     triangles should contain(exactly(triangle))
   }
 
   val testRotation = {
-    val objFile = ObjObject(filename, center = VectorBreeze3.from(2, 2, 2), maxSide = 1, rotation = 180, None)
+    val objFile = ObjObject(filename, center = VectorBreeze3(2, 2, 2), maxSide = 1, rotation = 180, None)
     val objString = """|# Test ObjFile
                        |v 0 1 0
                        |v 2 0 2
@@ -123,7 +123,7 @@ class ObjObjectSpec extends Specification with Mockito {
 
     val triangles: Seq[Triangle] = objFile.getTriangles
     val triangle =
-      Triangle(VectorBreeze3.from(2.5, 2.25, 2.5), VectorBreeze3.from(1.5, 1.75, 1.5), VectorBreeze3.from(1.5, 1.75, 2.5))
+      Triangle(VectorBreeze3(2.5, 2.25, 2.5), VectorBreeze3(1.5, 1.75, 1.5), VectorBreeze3(1.5, 1.75, 2.5))
     triangles should contain(exactly(triangle))
   }
 }
