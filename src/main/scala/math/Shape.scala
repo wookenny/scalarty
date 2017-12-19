@@ -25,6 +25,7 @@ object Shape {
       case b: AABB => (b, Json.toJson(b)(aabbFmt))
       case b: Sphere => (b, Json.toJson(b)(sphereFmt))
       case b: Triangle => (b, Json.toJson(b)(triangleFmt))
+      case b: Cuboid => (b, Json.toJson(b)(cuboidFmt))
     }
     Some(prod.productPrefix -> sub)
   }
@@ -34,6 +35,7 @@ object Shape {
       case "AABB" => Json.fromJson[AABB](data)(aabbFmt)
       case "Sphere" => Json.fromJson[Sphere](data)(sphereFmt)
       case "Triangle" => Json.fromJson[Triangle](data)(triangleFmt)
+      case "Cuboid"   => Json.fromJson[Cuboid](data)(cuboidFmt)
     }) match {
       case JsSuccess(shape, _) => shape
       case JsError(errors) =>
@@ -50,4 +52,5 @@ object Shape {
   implicit val aabbFmt: Format[AABB] = Json.format[AABB]
   implicit val sphereFmt: Format[Sphere] = Json.format[Sphere]
   implicit val triangleFmt: Format[Triangle] = Json.format[Triangle]
+  implicit val cuboidFmt: Format[Cuboid] = Json.format[Cuboid]
 }

@@ -71,7 +71,7 @@ sealed case class AABB(x_min: Double,
 
   override def boundingBox: AABB = this
 
-  override def midpoint: Vector3 =
+  lazy val midpoint: Vector3 =
     Vector3((x_max + x_min) / 2, (y_max + y_min) / 2, (z_max + z_min) / 2)
 
   override def minX: Double = x_min
@@ -91,7 +91,7 @@ sealed case class AABB(x_min: Double,
       y_min <= vec.y && vec.y <= y_max &&
       z_min <= vec.z && vec.z <= z_max
 
-  def area: Double =
+  lazy val area: Double =
     2 * ((x_max - x_min) * (y_max - y_min) + (x_max - x_min) * (z_max - z_min) * (y_max - y_min) * (z_max - z_min))
 
   def union(otherAABB: AABB): AABB = AABB.union(this, otherAABB)

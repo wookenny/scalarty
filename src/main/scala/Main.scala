@@ -29,7 +29,8 @@ object Main {
 
     val supersampling = opt[SamplingValue]('s', "supersampling")
       .action((x, c) => c.copy(supersampling = x))
-      .text(s"<a:b>  for a² full and b² adaptive supersamples," +
+      .valueName("<a:b>")
+      .text(s" for a² full and b² adaptive supersamples," +
         s" (default value=${Config.DefaultSupersampling})")
 
     val showBvHLeaves = opt[Unit]("bvh.showleafes")
@@ -47,9 +48,20 @@ object Main {
 
     val shadowSampling = opt[SamplingValue]("shadowsampling")
       .abbr("shs")
+      .valueName("<a:b>")
       .action((x, c) => c.copy(shadowsampling = x))
-      .text(s"<a:b>  for a² full and b² adaptive shadow samples for area light." +
-        s" (default value=${Config.DefaultImprovedSupersampling})")
+      .text(s" for a² full and b² adaptive shadow samples for area light." +
+        s" (default value=${Config.DefaultShadowSupersampling})")
+
+    val sah = opt[Unit]("sah")
+      .action((_, c) => c.copy(sah = true))
+      .text("use SAH to construct BVHs")
+
+    val bvhMin = opt[Int]("bvh.splitlimit")
+      .abbr("bvh.sl")
+      .text("set the limit at which the split into smaller subsets stops")
+      .action((x,c) => c.copy(bvhSplitLimit = x))
+
 
 
     val helpText = help("help").abbr("h").text("prints this usage text")

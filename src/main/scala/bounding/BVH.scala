@@ -55,7 +55,7 @@ final case class Leaf(boundingBox: Option[AABB], shapes: Seq[Shape], depth: Int)
   override def countNodes: Int = 1
 }
 
-case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean = false)(
+case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean = true)(
     implicit config: Config)
     extends ShapeContainer
     with LazyLogging {

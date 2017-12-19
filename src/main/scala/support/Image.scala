@@ -5,6 +5,7 @@ import java.awt.image.{BufferedImage, RenderedImage}
 import java.io.File
 
 import color.RGB
+import color.RGB.BLACK
 
 import scala.collection.GenSet
 
@@ -28,19 +29,19 @@ object Image {
   }
 }
 
+case class Pixel(color: RGB = BLACK,
+                 depth: Double = 0d,
+                 shadow: Double = 0d)
+
 class Image(val width: Int, val height: Int) {
-  import Image._, RGB._
+  import Image._
   require(width > 0, "Image width has to be positive.")
   require(height > 0, "Image height has to be positive.")
 
   private val alpha = 2.2
   val edgeThreshold: Double = 1
 
-  final case class Pixel(color: RGB = BLACK,
-                         depth: Double = 0,
-                         shadow: Double = 0){}
-
-  private val image: Array[Array[Pixel]] = Array.ofDim[Pixel](width, height)
+  private val image: Array[Array[Pixel]] = Array.fill(width){Array.fill(height){Pixel()}}
 
   def getImageLayer(f: Pixel => RGB): BufferedImage = {
     val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
@@ -56,6 +57,8 @@ class Image(val width: Int, val height: Int) {
   def colorImage  = getImageLayer(_.color)
   def shadowImage = getImageLayer(RGB.WHITE * _.shadow)
   def depthImage  = {
+    if(image==null)
+      println("\n\n\nNULL!!!!!\n\n\n")
     val depths = image.flatMap(_.map(_.depth).filter(_!=Double.PositiveInfinity))
     val maxDepth = depths.max
     val minDepth = depths.min
@@ -80,7 +83,7 @@ class Image(val width: Int, val height: Int) {
     else DefaultFormat
   }
 
-  def set(x: Int, y: Int, c: RGB, depth: Double, shadow: Double): Boolean = (x, y) match {
+  def set(x: Int, y: Int, c: RGB, depth: Double = 0, shadow: Double = 0): Boolean = (x, y) match {
     case (a, b) if a >= 0 && b >= 0 && a < width && b < height =>
       image(x)(y) = Pixel(c, depth, shadow)
       true

@@ -37,7 +37,7 @@ case class Scene(cameraOrigin: Vector3,
   val side = Vector3(1, 0, 0)
   lazy val allShapes: ShapeContainer =
     if (objFiles.isDefined)
-      ShapeMetaContainer(ShapeSeq(shapes), BVH(parseObjFiles(objFiles.get)))
+      ShapeMetaContainer(ShapeSeq(shapes), BVH(parseObjFiles(objFiles.get),config.bvhSplitLimit,config.sah))
     else
       ShapeSeq(shapes)
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)

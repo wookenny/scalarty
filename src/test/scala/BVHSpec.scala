@@ -24,7 +24,7 @@ class BVHSpec extends Specification with ScalaCheck {
     z <- 1 to 3
   } yield Sphere(Vector3(x, y, z), radius = 0.2f)
 
-  val sphereBVH = BVH(spheres, 2)
+  val sphereBVH = BVH(spheres, 2, splitSAH = false)
   val sphereBVH_SAH = BVH(spheres, 2, splitSAH = true)
 
   def intersect(shapes: Seq[Shape], ray: Ray): Option[Hit] = {

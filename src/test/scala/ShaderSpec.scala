@@ -6,7 +6,7 @@ import material.UnshadedColor
 import math.{Ray, Sphere, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
-import renderer.{Hit, LightSample, Renderer, Shader}
+import renderer._
 import scene.Scene
 import support.Config
 
@@ -80,7 +80,7 @@ class ShaderSpec extends Specification with Mockito {
 
   val testShadeReflection = {
     val color = RGB(0.2,0.6,0.1)
-    mockedRenderer.traceRay(ray.reflectedAt(hit.position, hit.normal)) returns color
+    mockedRenderer.traceRay(ray.reflectedAt(hit.position, hit.normal)) returns TracingResult(color,0,0)
     shader.shadeReflection(hit, ray) should be equalTo (color * 0.1)
   }
 

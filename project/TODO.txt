@@ -1,0 +1,21 @@
+* obj file location relative from scene file
+* Add simplex noise (how to add gradients)
+* Add bump mapping
+* speed..
+* adaptive shadowsampling
+* nicer scenes --> cornell style with all implemented festur visible
+* benchmark feature
+* textures
+* environment map
+
+* something like openMP?
+* implicit functions
+* bokeh/camera with focus
+
+* photon mapping
+* path tracing
+--> https://github.com/drewying/raytracer
+
+
+add options -> render: color/shadow/distanceMap
+üspt render -> DOF based on dist map

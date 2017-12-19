@@ -3,7 +3,7 @@ package support
 import java.awt.image.RenderedImage
 import java.io.{File, FileInputStream}
 import java.util.zip.GZIPInputStream
-import javax.imageio.ImageIO
+import javax.imageio.{IIOImage, ImageIO}
 
 import scala.io.BufferedSource
 import scala.io.Source.{fromFile, fromInputStream}
