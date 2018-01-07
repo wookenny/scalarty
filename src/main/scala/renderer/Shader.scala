@@ -27,7 +27,7 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
     //ambient
     val ambientColor = baseColor * colorInfo.ambient
 
-    val visibleLights: (Seq[LightSample],Double) =
+    val (visibleLightSamples, shadowPercentage): (Seq[LightSample],Double) =
       if (backFace)
         (Seq.empty,0)
       else {
@@ -46,25 +46,21 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
         }
 
     //diffuse
-    val diffuseColor = shadeDiffuse(hit, ray, visibleLights._1)
-    val specColor = shadeSpecular(hit, ray, visibleLights._1)
+    val diffuseColor = shadeDiffuse(hit, ray, visibleLightSamples)
+    val specColor = shadeSpecular(hit, ray, visibleLightSamples)
     val reflectedColor = shadeReflection(hit, ray)
     val refractedColor = shadeRefraction(hit, ray)
-    val shadowPercentage = visibleLights._2
     (ambientColor + diffuseColor + specColor + refractedColor + reflectedColor, shadowPercentage )
   }
 
   def shadeRefraction(hit: Hit, ray: Ray): RGB = {
-    if (hit.color.refractive > ThresholdRayWeight && ray.depth <= RayDepthRefraction) {
+    if (hit.color.refractive > ThresholdRayWeight && ray.depth <= RayDepthRefraction)
       ray.refractedAt(hit.position, hit.normal, hit.color.n) match {
-        case Some(refractedRay) =>
-          renderer.traceRay(refractedRay).color * hit.color.refractive
-        case None =>
-          renderer.traceRay(ray.reflectedAt(hit.position, -hit.normal)).color * hit.color.refractive //Total Internal ref
-      }
-    } else {
-      Renderer.BackgroundColor
-    }
+      case Some(refractedRay) =>
+        renderer.traceRay(refractedRay).color * hit.color.refractive
+      case None =>
+        renderer.traceRay(ray.reflectedAt(hit.position, -hit.normal)).color * hit.color.refractive //Total Internal ref
+    } else Renderer.BackgroundColor
   }
 
   def shadeReflection(hit: Hit, ray: Ray): RGB = {
