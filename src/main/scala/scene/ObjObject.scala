@@ -9,7 +9,7 @@ import math.Math.π
 import scala.io.BufferedSource
 
 case class ObjObject(filename: String,
-                     center: Vector3,
+                     centerBottom: Vector3,
                      maxSide: Double,
                      rotation: Double,
                      material: Option[String] = None)
@@ -65,8 +65,11 @@ case class ObjObject(filename: String,
       (coordinates_z.max - coordinates_z.min) / 2 + coordinates_z.min
     )
 
+    val height = (coordinates_y.max - coordinates_y.min)*scalingFactor
+    val newCenter = centerBottom.copy(y = centerBottom.y + height/2)
+
     for (i <- vertices.indices.par)
-      vertices(i) = transformVertex(vertices(i), currentCenter, center, scalingFactor, rotation)
+      vertices(i) = transformVertex(vertices(i), currentCenter, newCenter, scalingFactor, rotation)
 
     for (i <- normals.indices.par)
       normals(i) = transformNormal(normals(i), rotation).normalized

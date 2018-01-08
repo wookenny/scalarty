@@ -16,3 +16,13 @@ scalafix NoInfer
 q
 quit
 run
+compile
+test:compile
+test
+test-only *Breeze*
+test
+test-only *AABB*
+test
+test-only *LightSource*
+compile
+run -i scenes/cornell_pointlight.json -o test.png

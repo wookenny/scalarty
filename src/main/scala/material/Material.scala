@@ -17,6 +17,8 @@ object Material {
         (m, Json.toJson(m)(checkerMaterialFmt))
       case m: EmissionMaterial =>
         (m, Json.toJson(m)(emissionMaterialFmt))
+      case m : OpenSimplexNoiseMaterial =>
+        (m, Json.toJson(m)(openSimplexNoiseMaterialFmt))
     }
     Some(prod.productPrefix -> sub)
   }
@@ -29,6 +31,8 @@ object Material {
         Json.fromJson[CheckerMaterial](data)(checkerMaterialFmt)
       case "EmissionMaterial" =>
         Json.fromJson[EmissionMaterial](data)(emissionMaterialFmt)
+      case "SimplexMaterial" =>
+        Json.fromJson[OpenSimplexNoiseMaterial](data)(openSimplexNoiseMaterialFmt)
       case materialType =>
         throw new IllegalArgumentException(s"Unknown Material type: $materialType")
     }) match {
@@ -42,6 +46,7 @@ object Material {
   implicit val singleColorMaterialFmt = Json.format[SingleColorMaterial]
   implicit val checkerMaterialFmt = Json.format[CheckerMaterial]
   implicit val emissionMaterialFmt = Json.format[EmissionMaterial]
+  implicit val openSimplexNoiseMaterialFmt = Json.format[OpenSimplexNoiseMaterial]
 }
 
 final case class UnshadedColor(color: RGB,
@@ -57,5 +62,4 @@ final case class UnshadedColor(color: RGB,
 trait Material {
   def getMat(position: Vector3): UnshadedColor
   def name: String
-
 }

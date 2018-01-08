@@ -14,6 +14,7 @@ final case class SceneDTO(cameraOrigin: Vector3,
                           cameraPointing: Vector3,
                           width: Double,
                           height: Double,
+                          ppi: Int,
                           lights: Seq[LightSource],
                           shapes: Seq[Shape],
                           materials: Seq[Material],
@@ -27,12 +28,12 @@ case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,
                        width: Double,
                        height: Double,
+                       ppi : Int,
                        lights: Seq[LightSource],
                        shapes: Seq[Shape],
                        materials: Seq[Material],
                        objFiles: Option[Seq[ObjObject]] = None)(implicit config: Config) {
   // Fixed data
-  val ppi = 400
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
   lazy val allShapes: ShapeContainer =
@@ -54,6 +55,7 @@ object Scene {
           sceneDTO.cameraPointing,
           sceneDTO.width,
           sceneDTO.height,
+          sceneDTO.ppi,
           sceneDTO.lights,
           sceneDTO.shapes,
           sceneDTO.materials,

@@ -3,19 +3,20 @@
   "cameraPointing": {"x":0, "y":0,"z":4},
   "width"  : 2,
   "height" : 2,
+  "ppi" : 800,
   "lights" : [ {"type": "PointLight",
                "data": {"position" : {"x":0, "y": 0.9,"z":0},
                        "color"    : {"red": 1, "green": 1, "blue": 1},
-                       "power": 1}
+                       "power": 1.9}
                 }
               ],
   "materials" : [{"type": "SingleColorMaterial",
                     "data": {
                       "name": "PlainWhite",
                       "c":  {"red": 1, "green": 1, "blue": 1},
-                      "ambient": 0.05,
+                      "ambient": 0.15,
                       "diffuse": 0.8,
-                      "spec": 0.15,
+                      "spec": 0.05,
                       "reflective": 0,
                       "shininess": 64,
                       "refractive" : 0,
@@ -24,10 +25,10 @@
                   },
                   {"type": "CheckerMaterial",
                     "data": {
-                      "name": "ChessboardWhite",
-                      "c1":  {"red": 1, "green": 0, "blue": 1},
-                      "c2":  {"red": 1, "green": 1, "blue": 0},
-                      "steps": 0.0832,
+                      "name": "Chessboard",
+                      "c1":  {"red": 0.9, "green": 0.9, "blue": 1},
+                      "c2":  {"red": 1, "green": 0.7, "blue": 0.95},
+                      "steps": 0.0432,
                       "ambient": 0.05,
                       "diffuse": 0.8,
                       "spec": 0.15,
@@ -49,7 +50,57 @@
                       "refractive" : 0.85,
                       "n" : 1.55
                     }
-                  }],
+                  }, {"type": "SimplexMaterial",
+                      "data": {
+                        "name": "SimplexGreenBlue",
+                        "color1":  {"red": 1, "green": 1, "blue": 0},
+                        "color2":  {"red": 0.5, "green": 0, "blue": 0},
+                        "scale": 10,
+                        "ambient": 0.05,
+                        "diffuse": 0.8,
+                        "spec": 0.15,
+                        "reflective": 0,
+                        "shininess": 64,
+                        "refractive" : 0,
+                        "n" : 1
+                      }
+                    },{"type": "SingleColorMaterial",
+                        "data": {
+                          "name": "Red",
+                          "c":  {"red": 1, "green": 0, "blue": 0},
+                          "ambient": 0.05,
+                          "diffuse": 0.8,
+                          "spec": 0.15,
+                          "reflective": 0,
+                          "shininess": 64,
+                          "refractive" : 0,
+                          "n" : 1
+                        }
+                    },{"type": "SingleColorMaterial",
+                        "data": {
+                          "name": "Chrome",
+                          "c":  {"red": 1, "green": 1, "blue": 1},
+                          "ambient": 0.05,
+                          "diffuse": 0,
+                          "spec": 0.1,
+                          "reflective": 0.85,
+                          "shininess": 64,
+                          "refractive" : 0,
+                          "n" : 1
+                        }
+                      }, {"type": "SingleColorMaterial",
+                        "data": {
+                          "name": "Green",
+                          "c":  {"red": 0, "green": 1, "blue": 0},
+                          "ambient": 0.05,
+                          "diffuse": 0.8,
+                          "spec": 0.15,
+                          "reflective": 0,
+                          "shininess": 64,
+                          "refractive" : 0,
+                          "n" : 1
+                      }
+                    }],
   "shapes" : [
     {
       "type": "Triangle",
@@ -84,48 +135,42 @@
                 "data" : {"a" :{"x": 1, "y": 1,"z": 1},
                           "b" :{"x": 1, "y":-1,"z": 1},
                           "c" :{"x": 1, "y":-1,"z":-1},
-                          "material" : "PlainWhite"
+                          "material" : "Green"
                 }
               },
       { "type": "Triangle",
                 "data" : {"a" :{"x": 1, "y": 1,"z":-1},
                           "b" :{"x": 1, "y": 1,"z": 1},
                           "c" :{"x": 1, "y":-1,"z":-1},
-                          "material" : "PlainWhite"
+                          "material" : "Green"
                 }
               },
       { "type": "Triangle",
                 "data" : {"a" :{"x":-1, "y": 1,"z":-1},
                           "b" :{"x":-1, "y":-1,"z":-1},
                           "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
+                          "material" : "Red"
                 }
               },
       { "type": "Triangle",
                 "data" : {"a" :{"x":-1, "y": 1,"z": 1},
                           "b" :{"x":-1, "y": 1,"z":-1},
                           "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
+                          "material" : "Red"
                 }
               },
       { "type": "Triangle",
                 "data" : {"a" :{"x": 1, "y": 1,"z": 1},
                           "b" :{"x":-1, "y": 1,"z": 1},
                           "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
+                          "material" : "Chessboard"
                 }
               },
               { "type": "Triangle",
                 "data" : {"a" :{"x": 1, "y": 1,"z": 1},
                           "b" :{"x":-1, "y":-1,"z": 1},
                           "c" :{"x": 1, "y":-1,"z": 1},
-                          "material" : "ChessboardWhite"
-                }
-              },
-              { "type": "Sphere",
-                "data" : {"center" :{"x": 0.5, "y":-0.6,"z":-0.3},
-                          "radius" : 0.4,
-                          "material" : "Glass"
+                          "material" : "Chessboard"
                 }
               },
               { "type": "AABB",
@@ -133,15 +178,20 @@
                   "x_min":-0.8,    "x_max":-0.2,
                   "y_min":-1,      "y_max":0.3,
                   "z_min": 0.2,    "z_max":0.8,
-                  "material" : "ChessboardWhite"
+                  "material" : "SimplexGreenBlue"
                 }
               }
               ],
-      "objFiles" : [{"filename": "scenes/obj/bunny.obj.gz",
-                     "center"   : {"x": -0.3, "y": -0.7,"z": -0.1},
-                     "maxSide"  : 0.8,
-                     "rotation" : 75,
-                     "materiual": "PlainWhite"
-                    }]
+      "objFiles" : [{ "filename": "scenes/obj/bunny.obj.gz",
+                      "centerBottom"   : {"x": -0.3, "y": -1.0,"z": -0.1},
+                      "maxSide"  : 0.8,
+                      "rotation" : 175,
+                      "material": "Chrome"
+                    },{"filename": "scenes/obj/dragon.obj.gz",
+                        "centerBottom"   : {"x": 0.5, "y": -1.0,"z": -0.3},
+                        "maxSide"  : 1.5,
+                        "rotation" : 75,
+                        "material": "Glass"
+                      }]
 
 }
