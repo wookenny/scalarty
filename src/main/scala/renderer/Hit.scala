@@ -5,5 +5,7 @@ import math.Vector3
 
 final case class Hit(distance: Double,
                      position: Vector3,
-                     normal: Vector3,
-                     color: UnshadedColor)
+                     originalNormal: Vector3,
+                     color: UnshadedColor) {
+  lazy val normal = (originalNormal + color.normalModifier).normalized
+}

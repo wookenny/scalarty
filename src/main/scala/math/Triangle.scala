@@ -72,7 +72,7 @@ final case class Triangle(a: Vector3,
     else {
       val inv_det = 1f / det
       //calculate distance from V1 to ray origin
-      val t_vec = (r.origin - a)
+      val t_vec = r.origin - a
 
       //Calculate u parameter and test bound
       val u = (t_vec * p) * inv_det

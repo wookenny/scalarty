@@ -1,7 +1,7 @@
 package math
 
-import material.Material
-import play.api.libs.json._
+import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
+import material.{Material, UnshadedColor}
 import renderer.Hit
 
 trait Shape {
@@ -20,37 +20,32 @@ trait Shape {
 }
 
 object Shape {
-  def unapply(shape: Shape): Option[(String, JsValue)] = {
+  def unapply(shape: Shape): Option[(String, Json)] = {
     val (prod: Product, sub) = shape match {
-      case b: AABB => (b, Json.toJson(b)(aabbFmt))
-      case b: Sphere => (b, Json.toJson(b)(sphereFmt))
-      case b: Triangle => (b, Json.toJson(b)(triangleFmt))
-      case b: Cuboid => (b, Json.toJson(b)(cuboidFmt))
+      case b: AABB => (b, b.asJson)
+      case b: Sphere => (b, b.asJson)
+      case b: Triangle => (b, b.asJson)
+      case b: Cuboid => (b, b.asJson)
     }
     Some(prod.productPrefix -> sub)
   }
 
-  def apply(`type`: String, data: JsValue): Shape = {
+  def apply(`type`: String, data: String): Shape = {
     (`type` match {
-      case "AABB" => Json.fromJson[AABB](data)(aabbFmt)
-      case "Sphere" => Json.fromJson[Sphere](data)(sphereFmt)
-      case "Triangle" => Json.fromJson[Triangle](data)(triangleFmt)
-      case "Cuboid"   => Json.fromJson[Cuboid](data)(cuboidFmt)
+      case "AABB" => decode[AABB](data)
+      case "Sphere" => decode[Sphere](data)
+      case "Triangle" => decode[Triangle](data)
+      case "Cuboid"   => decode[Cuboid](data)
+      case _ => Left(Error/*(s"Unknown Shape type: ${`type`}")*/)
     }) match {
-      case JsSuccess(shape, _) => shape
-      case JsError(errors) =>
-        throw new IllegalArgumentException(errors.toString)
+      case Right(shape) => shape
+      case Left(error) =>
+        throw new IllegalArgumentException(s"Could parse the Json as Shape: $data. Error: $error")
     }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty
-  def getMaterial(name: String, pos: Vector3) =
+  def getMaterial(name: String, pos: Vector3): UnshadedColor =
     materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos)
-
-  implicit val shapeFmt: Format[Shape] = Json.format[Shape]
-  implicit val aabbFmt: Format[AABB] = Json.format[AABB]
-  implicit val sphereFmt: Format[Sphere] = Json.format[Sphere]
-  implicit val triangleFmt: Format[Triangle] = Json.format[Triangle]
-  implicit val cuboidFmt: Format[Cuboid] = Json.format[Cuboid]
 }

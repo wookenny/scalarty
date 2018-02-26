@@ -52,7 +52,7 @@ sealed case class Cuboid(center: Vector3,
     //println(s"hit: position ${hit.map(_.position)}, normal ${hit.map(_.normal)}")
     val rotatedHit = hit.map{ h =>
         h.copy(position = rotatePoint(h.position, center),
-               normal = rotatePoint(h.normal))
+               originalNormal = rotatePoint(h.normal))
     }
     //println(s"rotated hit: position ${rotatedHit.map(_.position)}, normal ${rotatedHit.map(_.normal)}")
     rotatedHit

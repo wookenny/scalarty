@@ -27,7 +27,7 @@ class SceneSpec extends Specification with Mockito {
     val (shape1, shape2) = (mock[Shape], mock[Shape])
     val lights = Seq(PointLight(Vector3(1, 2, 3), RGB.WHITE, 12))
 
-    val scene = Scene(Vector3.ZERO, Vector3.Z, 2, 2, lights, Seq(shape1, shape2), Seq(mat1, mat2))
+    val scene = Scene(Vector3.ZERO, Vector3.Z, 2, 2, ppi = 100,lights, Seq(shape1, shape2), Seq(mat1, mat2))
 
     (Shape.materialMap should havePairs("mat1" -> mat1, "mat2" -> mat2)) and
       (scene.materials should be equalTo Seq(mat1, mat2)) and
@@ -59,6 +59,7 @@ class SceneSpec extends Specification with Mockito {
                       Vector3.X,
                       4,
                       7,
+                      ppi = 100,
                       lights,
                       Seq(shape1, shape2),
                       Seq(mat1),

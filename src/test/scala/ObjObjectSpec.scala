@@ -24,7 +24,7 @@ class ObjObjectSpec extends Specification with Mockito {
   val filename = "objFilename"
 
   val testParseTriangles = {
-    val objFile = ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, None)
+    val objFile = ObjObject(filename, centerBottom = Vector3(1,0,1), maxSide = 2, rotation = 0, None)
     val objString = """|# Test ObjFile
                        |g triangle
                        |
@@ -40,7 +40,7 @@ class ObjObjectSpec extends Specification with Mockito {
   }
 
   val testParseQuads = {
-    val objFile = ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, None)
+    val objFile = ObjObject(filename, centerBottom = Vector3(1,0,1), maxSide = 2, rotation = 0, None)
     val objString = """|# Test file containing a quad
                        |v 0 0 0
                        |xxx not defined, needs to be skipped
@@ -58,7 +58,7 @@ class ObjObjectSpec extends Specification with Mockito {
   }
 
   val testParseNormals = {
-    val objFile = ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, None)
+    val objFile = ObjObject(filename, centerBottom = Vector3(1,0,1), maxSide = 2, rotation = 0, None)
     val objString = """|# Test file containing a triangles and some normals
                        |v 0 0 0
                        |v 2.00 2.000 2.0
@@ -82,7 +82,7 @@ class ObjObjectSpec extends Specification with Mockito {
   val testSetMaterial = {
     val mat = "SparklingMaterial"
     val objFile =
-      ObjObject(filename, center = Vector3.ONE, maxSide = 2, rotation = 0, material = Some(mat))
+      ObjObject(filename, centerBottom = Vector3(1,0,1), maxSide = 2, rotation = 0, material = Some(mat))
     val objString = """|# Test ObjFile
                        |v 0 0 0
                        |v 2.00 2.000 2.0
@@ -97,7 +97,7 @@ class ObjObjectSpec extends Specification with Mockito {
   }
 
   val testScalingAndTranslation = {
-    val objFile = ObjObject(filename, center = Vector3(2, 2, 2), maxSide = 1, rotation = 0, None)
+    val objFile = ObjObject(filename, centerBottom = Vector3(2, 1.5, 2), maxSide = 1, rotation = 0, None)
     val objString = """|# Test ObjFile
                        |v 0 0 0
                        |v 2 2 2
@@ -111,7 +111,7 @@ class ObjObjectSpec extends Specification with Mockito {
   }
 
   val testRotation = {
-    val objFile = ObjObject(filename, center = Vector3(2, 2, 2), maxSide = 1, rotation = 180, None)
+    val objFile = ObjObject(filename, centerBottom = Vector3(2, 0, 2), maxSide = 1, rotation = 180, None)
     val objString = """|# Test ObjFile
                        |v 0 1 0
                        |v 2 0 2
@@ -121,7 +121,7 @@ class ObjObjectSpec extends Specification with Mockito {
 
     val triangles: Seq[Triangle] = objFile.getTriangles
     val triangle =
-      Triangle(Vector3(2.5, 2.25, 2.5), Vector3(1.5, 1.75, 1.5), Vector3(1.5, 1.75, 2.5))
+      Triangle(Vector3(2.5, 0.5, 2.5), Vector3(1.5, 0, 1.5), Vector3(1.5, 0, 2.5))
     triangles should contain(exactly(triangle))
   }
 }

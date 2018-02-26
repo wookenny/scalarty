@@ -2,7 +2,7 @@ package lightning
 
 import color.RGB
 import math.Vector3
-import play.api.libs.json._
+import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 
 import scala.util.Random
 
@@ -53,27 +53,23 @@ object LightSource {
 
   val rand: Random = new Random(0)
 
-  def unapply(light: LightSource): Option[(String, JsValue)] = {
+  def unapply(light: LightSource): Option[(String, Json)] = {
     val (prod: Product, sub) = light match {
-      case l: PointLight => (l, Json.toJson(l)(pointLightFmt))
-      case l: PlaneLight => (l, Json.toJson(l)(planeLightFmt))
+      case l: PointLight => (l, l.asJson)
+      case l: PlaneLight => (l, l.asJson)
     }
     Some(prod.productPrefix -> sub)
   }
 
-  def apply(`type`: String, data: JsValue): LightSource = {
+  def apply(`type`: String, data: String): LightSource = {
     (`type` match {
-      case "PointLight" => Json.fromJson[PointLight](data)(pointLightFmt)
-      case "PlaneLight" => Json.fromJson[PlaneLight](data)(planeLightFmt)
+      case "PointLight" => decode[PointLight](data)
+      case "PlaneLight" => decode[PlaneLight](data)
+      case _ => Left(Error/*(s"Unknown Light type: ${`type`}")*/)
     }) match {
-      case JsSuccess(light, _) => light
-      case JsError(errors) =>
-        throw new IllegalArgumentException(errors.toString)
+      case Right(light) => light
+      case Left(error) =>
+        throw new IllegalArgumentException(s"Could parse the Json as Light: $data. Error: $error")
     }
   }
-
-  implicit val lightSourceFmt: Format[LightSource] = Json.format[LightSource]
-  implicit val pointLightFmt: Format[PointLight] = Json.format[PointLight]
-  implicit val planeLightFmt: Format[PlaneLight] = Json.format[PlaneLight]
-
 }

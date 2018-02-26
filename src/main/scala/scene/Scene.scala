@@ -4,7 +4,6 @@ import bounding.{BVH, ShapeContainer, ShapeMetaContainer, ShapeSeq}
 import lightning.LightSource
 import material.Material
 import math.{Shape, Triangle, Vector3}
-import play.api.libs.json.{Format, Json}
 import support.Config
 import support.Implicits._
 
@@ -20,9 +19,6 @@ final case class SceneDTO(cameraOrigin: Vector3,
                           materials: Seq[Material],
                           objFiles: Option[Seq[ObjObject]] = None) {}
 
-object SceneDTO {
-  implicit val sceneJsonFormat: Format[SceneDTO] = Json.format[SceneDTO]
-}
 
 case class Scene(cameraOrigin: Vector3,
                        cameraPointing: Vector3,

@@ -14,7 +14,7 @@ import scala.collection.GenSet
 
 object Renderer {
   val BackgroundColor = RGB.BLACK
-  private val ChunkSize = 10
+  private val ChunkSize = 5
 }
 
 final case class TracingResult(color: RGB, depth: Double, shadow: Double){
@@ -41,7 +41,7 @@ class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
       case _ => TracingResult.Miss
     }
 
-  def startRendering(config: Config) = {
+  def startRendering(config: Config) : Unit = {
 
     time("Parsing scene took") {
       logger.info("Starting to trace")

@@ -2,51 +2,42 @@ package material
 
 import color.RGB
 import math.Vector3
-import play.api.libs.json._
-
+import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 object Material {
 
   val DEFAULT_MATERIAL =
     SingleColorMaterial("DEFAULT_MATERIAL", RGB(.4, .4, .4), 0.05f, 0.75f, .15f, .05f)
 
-  def unapply(material: Material): Option[(String, JsValue)] = {
+  def unapply(material: Material): Option[(String, Json)] = {
     val (prod: Product, sub) = material match {
-      case m: SingleColorMaterial =>
-        (m, Json.toJson(m)(singleColorMaterialFmt))
-      case m: CheckerMaterial =>
-        (m, Json.toJson(m)(checkerMaterialFmt))
-      case m: EmissionMaterial =>
-        (m, Json.toJson(m)(emissionMaterialFmt))
-      case m : OpenSimplexNoiseMaterial =>
-        (m, Json.toJson(m)(openSimplexNoiseMaterialFmt))
+      case m: SingleColorMaterial => (m, m.asJson)
+      case m: CheckerMaterial => (m, m.asJson)
+      case m: EmissionMaterial => (m, m.asJson)
+      case m: OpenSimplexNoiseMaterial => (m, m.asJson)
+      case m: GeneralMaterial =>  (m, m.asJson)
     }
     Some(prod.productPrefix -> sub)
   }
 
-  def apply(`type`: String, data: JsValue): Material = {
+  def apply(`type`: String, data: String): Material = {
     (`type` match {
       case "SingleColorMaterial" =>
-        Json.fromJson[SingleColorMaterial](data)(singleColorMaterialFmt)
+        decode[SingleColorMaterial](data)
       case "CheckerMaterial" =>
-        Json.fromJson[CheckerMaterial](data)(checkerMaterialFmt)
+        decode[CheckerMaterial](data)
       case "EmissionMaterial" =>
-        Json.fromJson[EmissionMaterial](data)(emissionMaterialFmt)
+        decode[EmissionMaterial](data)
       case "SimplexMaterial" =>
-        Json.fromJson[OpenSimplexNoiseMaterial](data)(openSimplexNoiseMaterialFmt)
+        decode[OpenSimplexNoiseMaterial](data)
+      case "GeneralMaterial" => decode[GeneralMaterial](data)
       case materialType =>
-        throw new IllegalArgumentException(s"Unknown Material type: $materialType")
+        Left(Error/*(s"Unknown Material type: $materialType")*/)
     }) match {
-      case JsSuccess(shape, _) => shape
-      case JsError(_) =>
-        throw new IllegalArgumentException(s"Could parse the Json as material: $data")
+      case Right(shape) => shape
+      case Left(error) =>
+        throw new IllegalArgumentException(s"Could parse the Json as material: $error")
     }
   }
-
-  implicit val materialFmt = Json.format[Material]
-  implicit val singleColorMaterialFmt = Json.format[SingleColorMaterial]
-  implicit val checkerMaterialFmt = Json.format[CheckerMaterial]
-  implicit val emissionMaterialFmt = Json.format[EmissionMaterial]
-  implicit val openSimplexNoiseMaterialFmt = Json.format[OpenSimplexNoiseMaterial]
 }
 
 final case class UnshadedColor(color: RGB,
@@ -57,7 +48,8 @@ final case class UnshadedColor(color: RGB,
                                refractive: Double,
                                n: Double,
                                shininess: Double,
-                               emission: Double = 0)
+                               emission: Double = 0,
+                               normalModifier: Vector3 = Vector3.ZERO)
 
 trait Material {
   def getMat(position: Vector3): UnshadedColor

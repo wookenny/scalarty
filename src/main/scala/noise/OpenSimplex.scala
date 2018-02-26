@@ -3,7 +3,7 @@ package noise
 import scala.annotation.tailrec
 //see: https://gist.github.com/digitalshadow/134a3a02b67cecd72181
 
-class OpenSimplex(override val seed: Long) extends Noise{
+class OpenSimplex(override val seed: Long,override val noiseSize: Double = 1) extends Noise {
 
   import OpenSimplex._
 
@@ -31,7 +31,7 @@ class OpenSimplex(override val seed: Long) extends Noise{
     newSeed
   }
 
-  def value(x: Double, y: Double): Double = {
+  private[noise] def valueFunction(x: Double, y: Double): Double = {
     val stretchOffset = (x + y) * STRETCH_2D
     val xs = x + stretchOffset
     val ys = y + stretchOffset
@@ -81,7 +81,7 @@ class OpenSimplex(override val seed: Long) extends Noise{
 
   }
 
-  def value(x: Double, y: Double, z: Double): Double = {
+  private[noise] def valueFunction(x: Double, y: Double, z: Double): Double = {
     val stretchOffset = (x + y + z) * STRETCH_3D
     val xs = x + stretchOffset
     val ys = y + stretchOffset
@@ -96,20 +96,10 @@ class OpenSimplex(override val seed: Long) extends Noise{
     val dy0 = y - (ysb + squishOffset)
     val dz0 = z - (zsb + squishOffset)
 
-    val xins = xs - xsb
-    val yins = ys - ysb
-    val zins = zs - zsb
+    val xins: Double = xs - xsb
+    val yins: Double = ys - ysb
+    val zins: Double = zs - zsb
 
-    val inSum = xins + yins + zins
-
-    val hash =
-      (yins - zins + 1).toInt |
-        (xins - yins + 1).toInt << 1 |
-        (xins - zins + 1).toInt << 2 |
-        inSum.toInt << 3 |
-        (inSum + zins).toInt << 5 |
-        (inSum + yins).toInt << 7 |
-        (inSum + xins).toInt << 9
 
     @tailrec
     def applyContributions(contribution: Option[Contribution3], value: Double = 0f): Double = contribution match {
@@ -136,10 +126,22 @@ class OpenSimplex(override val seed: Long) extends Noise{
       }
     }
 
+    val inSum = xins + yins + zins
+
+    val hash: Int =
+      (yins - zins + 1).toInt |
+        (xins - yins + 1).toInt << 1 |
+        (xins - zins + 1).toInt << 2 |
+        inSum.toInt << 3 |
+        (inSum + zins).toInt << 5 |
+        (inSum + yins).toInt << 7 |
+        (inSum + xins).toInt << 9
+
     applyContributions(lookup3D(hash)) * NORM_3D
   }
 
-  def value(x: Double, y: Double, z: Double, w: Double): Double = {
+  private[noise] def valueFunction(x: Double, y: Double, z: Double, w: Double): Double = {
+
     val stretchOffset = (x + y + z + w) * STRETCH_4D
     val xs = x + stretchOffset
     val ys = y + stretchOffset
@@ -207,6 +209,11 @@ class OpenSimplex(override val seed: Long) extends Noise{
     applyContributions(lookup4D(hash)) * NORM_4D
   }
 
+  override lazy val range2: (Double, Double) = (-Math.sqrt(2)/2, Math.sqrt(2)/2)
+
+  override lazy val range3: (Double, Double) = (-Math.sqrt(3)/2, Math.sqrt(3)/2)
+
+  override lazy val range4: (Double, Double) = (-Math.sqrt(4)/2, Math.sqrt(4)/2)
 }
 
 object OpenSimplex {

@@ -1,5 +1,4 @@
-import com.fasterxml.jackson.core.JsonParseException
-import play.api.libs.json.Json
+import io.circe._, io.circe.generic.auto._, io.circe.parser._
 import renderer.Renderer
 import scene.{Scene, SceneDTO}
 import support.{Config, SamplingValue}
@@ -79,15 +78,12 @@ object Main {
 
   def main(implicit config: Config): Unit = {
     val sceneFile: String = fromFile(config.in).getLines.mkString
-    try {
-      val scene: Scene = Scene.fromDTO(Json.parse(sceneFile).as[SceneDTO])
-      val renderer = new Renderer(scene)
-      renderer.startRendering(config)
-    } catch {
-      case e: JsonParseException =>
-        println(s"Could not parse ${config.in}: \n\t${e.getOriginalMessage}")
-      case e: IllegalArgumentException =>
-        println(s"Could not parse scene ${config.in}: \n\t$e")
+    val sceneEither: Either[Error, Scene] = decode[SceneDTO](sceneFile).map(Scene.fromDTO _)
+
+    sceneEither match{
+      case Right(scene) => val renderer = new Renderer(scene); renderer.startRendering(config)
+      case Left(error)  => println(s"Error rendering ${config.in}. Error: $error")
     }
+
   }
 }

@@ -86,7 +86,7 @@ class ShaderSpec extends Specification with Mockito {
 
   val testShadeDiffuseNoLights = {
     val lights = Seq.empty[LightSample]
-    shader.shadeDiffuse(hit, ray, lights) should be equalTo (RGB.BLACK)
+    shader.shadeDiffuse(hit, ray, lights) should be equalTo RGB.BLACK
   }
 
   val testShadeDiffuse = {
@@ -97,14 +97,7 @@ class ShaderSpec extends Specification with Mockito {
 
     val lights  = Seq(sample1, sample2)
     val color = shader.shadeDiffuse(hit, ray, lights)
-    color shouldBeSimilarTo RGB(0, 1.13, 1.13) //TODO: Why these values?
-
-    /*
-     val (l, weight, pos) = (lightSample.light, lightSample.weight, lightSample.position )
-     val L = (pos - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-     hit.color.color * Math.max(hit.normal * L, 0) *
-     hit.color.diffuse * l.intensity(hit.position, Some(pos)) * weight
-     */
+    color shouldBeSimilarTo RGB(0, 0.653, 0.653) //TODO: Why these values?
 
   }
 

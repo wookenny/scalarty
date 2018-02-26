@@ -34,6 +34,7 @@ class RendererSpec extends Specification with Mockito {
                          cameraPointing = Vector3.Z,
                          width = 2,
                          height = 2,
+                         ppi = 100,
                          lights = Seq(),
                          shapes = Seq(),
                          materials = Seq(),
@@ -87,7 +88,7 @@ class RendererSpec extends Specification with Mockito {
     val hit = Hit(
       distance = 3,
       position = Vector3.ZERO,
-      normal = Vector3.X,
+      originalNormal = Vector3.X,
       color = UnshadedColor(color = RGB.RED,
                             ambient = 0.2f,
                             diffuse = 0.2f,

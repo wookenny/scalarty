@@ -3,7 +3,6 @@ package scene
 import com.typesafe.scalalogging.LazyLogging
 import material.Material.DEFAULT_MATERIAL
 import math.{Triangle, Vector3}
-import play.api.libs.json.{Format, Json}
 import math.Math.π
 
 import scala.io.BufferedSource
@@ -118,8 +117,4 @@ case class ObjObject(filename: String,
     }
   }
 
-}
-
-object ObjObject {
-  implicit val objObjectJsonFormat: Format[ObjObject] = Json.format[ObjObject]
 }

@@ -10,7 +10,7 @@ class BVHSpec extends Specification with ScalaCheck {
 
   def is = s2"""
    An BVH should
-      be constructed with correct height and size ${correctHeightAndSize}
+      be constructed with correct height and size $correctHeightAndSize
       hit  spheres correctly $intersectionSpheres
       miss spheres correctly $missSpheres
       hit  spheres inside maximal distance $intersectionTestPositive
@@ -38,7 +38,7 @@ class BVHSpec extends Specification with ScalaCheck {
 
   def correctHeightAndSize = {
     ((sphereBVH.depth, sphereBVH.size) should be equalTo (4, 27)) and
-      ((sphereBVH_SAH.depth, sphereBVH_SAH.size) should be equalTo (3, 27))
+      ((sphereBVH_SAH.depth, sphereBVH_SAH.size) should be equalTo (2, 27))
   }
 
   def intersectionSpheres = {
