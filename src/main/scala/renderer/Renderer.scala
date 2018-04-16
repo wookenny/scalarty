@@ -27,7 +27,7 @@ object TracingResult{
 }
 
 
-class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
+case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
 
   implicit val log: (String) => Unit = s => logger.info(s)
   private val tracedPixels: AtomicInteger = new AtomicInteger(0)

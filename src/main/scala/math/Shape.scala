@@ -1,8 +1,12 @@
 package math
 
-import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 import material.{Material, UnshadedColor}
 import renderer.Hit
+import cats.syntax.functor._
+import io.circe.{Decoder, Encoder, Json}
+import io.circe.generic.auto._
+
+import io.circe.syntax._
 
 trait Shape {
   def intersect(r: Ray): Option[Hit] //TODO: should only generate needed data, not too much in advance
@@ -20,29 +24,26 @@ trait Shape {
 }
 
 object Shape {
-  def unapply(shape: Shape): Option[(String, Json)] = {
-    val (prod: Product, sub) = shape match {
-      case b: AABB => (b, b.asJson)
-      case b: Sphere => (b, b.asJson)
-      case b: Triangle => (b, b.asJson)
-      case b: Cuboid => (b, b.asJson)
-    }
-    Some(prod.productPrefix -> sub)
+
+
+  implicit val encodeShape: Encoder[Shape] = Encoder.instance {
+    case n @ AABB(_,_,_,_,_,_,_)     => Json.obj("AABB"    -> n.asJson)
+    case n @ Sphere(_,_,_)     => Json.obj("Sphere"    -> n.asJson)
+    case n @ Triangle(_,_,_,_,_)     => Json.obj("Triangle"    -> n.asJson)
+    case n @ Cuboid(_,_,_,_)     => Json.obj("Cuboid"    -> n.asJson)
   }
 
-  def apply(`type`: String, data: String): Shape = {
-    (`type` match {
-      case "AABB" => decode[AABB](data)
-      case "Sphere" => decode[Sphere](data)
-      case "Triangle" => decode[Triangle](data)
-      case "Cuboid"   => decode[Cuboid](data)
-      case _ => Left(Error/*(s"Unknown Shape type: ${`type`}")*/)
-    }) match {
-      case Right(shape) => shape
-      case Left(error) =>
-        throw new IllegalArgumentException(s"Could parse the Json as Shape: $data. Error: $error")
-    }
-  }
+  private val decodeAABB = Decoder[AABB].prepare(_.downField("AABB"))
+  private val decodeSphere = Decoder[Sphere].prepare(_.downField("Sphere"))
+  private val decodeTriangle = Decoder[Triangle].prepare(_.downField("Triangle"))
+  private val decodeCuboid = Decoder[Cuboid].prepare(_.downField("Cuboid"))
+
+  implicit val decodeLightsource: Decoder[Shape] = decodeAABB
+    .or(decodeSphere.widen[Shape])
+    .or(decodeTriangle.widen[Shape])
+    .or(decodeCuboid.widen[Shape])
+
+
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty

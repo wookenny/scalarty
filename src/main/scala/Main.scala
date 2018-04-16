@@ -1,9 +1,10 @@
 import io.circe._, io.circe.generic.auto._, io.circe.parser._
+
+
 import renderer.Renderer
 import scene.{Scene, SceneDTO}
 import support.{Config, SamplingValue}
 import support.Implicits.imageWriter
-
 import scala.io.Source._
 
 
@@ -78,10 +79,11 @@ object Main {
 
   def main(implicit config: Config): Unit = {
     val sceneFile: String = fromFile(config.in).getLines.mkString
-    val sceneEither: Either[Error, Scene] = decode[SceneDTO](sceneFile).map(Scene.fromDTO _)
+
+    val sceneEither: Either[Error, SceneDTO] = decode[SceneDTO](sceneFile)
 
     sceneEither match{
-      case Right(scene) => val renderer = new Renderer(scene); renderer.startRendering(config)
+      case Right(scene) => Renderer(Scene.fromDTO(scene)).startRendering(config)
       case Left(error)  => println(s"Error rendering ${config.in}. Error: $error")
     }
 

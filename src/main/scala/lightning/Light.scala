@@ -2,8 +2,11 @@ package lightning
 
 import color.RGB
 import math.Vector3
-import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
+import cats.syntax.functor._
+import io.circe.{Decoder, Encoder, Json}
+import io.circe.generic.auto._
 
+import io.circe.syntax._
 import scala.util.Random
 
 trait LightSource {
@@ -53,23 +56,16 @@ object LightSource {
 
   val rand: Random = new Random(0)
 
-  def unapply(light: LightSource): Option[(String, Json)] = {
-    val (prod: Product, sub) = light match {
-      case l: PointLight => (l, l.asJson)
-      case l: PlaneLight => (l, l.asJson)
-    }
-    Some(prod.productPrefix -> sub)
+  implicit val encodeLightsource: Encoder[LightSource] = Encoder.instance {
+    case n @ PointLight(_,_,_)     => Json.obj("PointLight"    -> n.asJson)
+    case n @ PlaneLight(_,_,_,_,_)   => Json.obj("PlaneLight"  -> n.asJson)
   }
 
-  def apply(`type`: String, data: String): LightSource = {
-    (`type` match {
-      case "PointLight" => decode[PointLight](data)
-      case "PlaneLight" => decode[PlaneLight](data)
-      case _ => Left(Error/*(s"Unknown Light type: ${`type`}")*/)
-    }) match {
-      case Right(light) => light
-      case Left(error) =>
-        throw new IllegalArgumentException(s"Could parse the Json as Light: $data. Error: $error")
-    }
-  }
+  private val decodePointLight = Decoder[PointLight].prepare(_.downField("PointLight"))
+  private val decodePlaneLight = Decoder[PlaneLight].prepare(_.downField("PlaneLight"))
+
+
+  implicit val decodeLightsource: Decoder[LightSource] = decodePointLight
+    .or(decodePlaneLight.widen[LightSource])
+
 }

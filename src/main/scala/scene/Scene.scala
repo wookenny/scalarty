@@ -7,9 +7,7 @@ import math.{Shape, Triangle, Vector3}
 import support.Config
 import support.Implicits._
 
-//TODO: use gzip
-
-final case class SceneDTO(cameraOrigin: Vector3,
+case class SceneDTO(cameraOrigin: Vector3,
                           cameraPointing: Vector3,
                           width: Double,
                           height: Double,
@@ -17,7 +15,7 @@ final case class SceneDTO(cameraOrigin: Vector3,
                           lights: Seq[LightSource],
                           shapes: Seq[Shape],
                           materials: Seq[Material],
-                          objFiles: Option[Seq[ObjObject]] = None) {}
+                          objFiles: Seq[ObjObject] = Seq.empty) {}
 
 
 case class Scene(cameraOrigin: Vector3,
@@ -28,13 +26,13 @@ case class Scene(cameraOrigin: Vector3,
                        lights: Seq[LightSource],
                        shapes: Seq[Shape],
                        materials: Seq[Material],
-                       objFiles: Option[Seq[ObjObject]] = None)(implicit config: Config) {
+                       objFiles: Seq[ObjObject] = Seq.empty)(implicit config: Config) {
   // Fixed data
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
   lazy val allShapes: ShapeContainer =
-    if (objFiles.isDefined)
-      ShapeMetaContainer(ShapeSeq(shapes), BVH(parseObjFiles(objFiles.get),config.bvhSplitLimit,config.sah))
+    if (objFiles.nonEmpty)
+      ShapeMetaContainer(ShapeSeq(shapes), BVH(parseObjFiles(objFiles),config.bvhSplitLimit,config.sah))
     else
       ShapeSeq(shapes)
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
@@ -56,4 +54,5 @@ object Scene {
           sceneDTO.shapes,
           sceneDTO.materials,
           sceneDTO.objFiles)
+
 }

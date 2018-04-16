@@ -4,14 +4,12 @@
   "width"  : 2,
   "height" : 2,
   "ppi" : 800,
-  "lights" : [ {"type": "PointLight",
-               "data": {"position" : {"x":0, "y": 0.9,"z":0},
+  "lights" : [ {"PointLight": {"position" : {"x":0, "y": 0.9,"z":0},
                        "color"    : {"red": 1, "green": 1, "blue": 1},
                        "power": 1.9}
                 }
               ],
-  "materials" : [{"type": "CheckerMaterial",
-                    "data": {
+  "materials" : [{"CheckerMaterial": {
                       "name": "Chessboard",
                       "c1":  {"red": 0.9, "green": 0.9, "blue": 1},
                       "c2":  {"red": 1, "green": 0.7, "blue": 0.95},
@@ -25,28 +23,24 @@
                       "n" : 1
                     }
                   },
-                  {"type": "GeneralMaterial",
-                    "data": {
+                  {"GeneralMaterial": {
                       "name": "material1",
                       "colorNode": {
-                          "type": "MixColor",
-                           "data": {
-                             "node1": {"type": "ConstantColor", "data": {
+                          "MixColor": {
+                             "node1": {"ConstantColor": {
                                         "color": {"red": 0.9, "green": 0.9, "blue": 1}}},
-                             "node2":{"type": "MixColor", "data": {
-                                "node1" : {"type": "ConstantColor", "data": {
+                             "node2":{"MixColor" : {
+                                "node1" : {"ConstantColor": {
                                   "color": {"red": 1, "green": 0.3, "blue": 0.7}}},
-                                "node2" : {"type": "ConstantColor", "data": {
+                                "node2" : {"ConstantColor": {
                                   "color": {"red": 0, "green": 1, "blue": 0.5}}},
-                                "mixValue" : {"type" : "MultilayerNoiseValue",
-                                    "data": {
+                                "mixValue" : {"MultilayerNoiseValue": {
                                       "seed": 123123,
                                       "size": 0.10
                                     }
                                 }
                               }},
-                             "mixValue": {"type": "CheckerValue",
-                                          "data": {
+                             "mixValue": {"CheckerValue" : {
                                             "stepSize" : 0.32
                                           }
                              }
@@ -57,18 +51,17 @@
 
   ],
   "shapes" : [
-      { "type": "Triangle",
-                "data" : {"a" :{"x": 3, "y": 3,"z": 1},
+      { "Triangle" : {"a" :{"x": 3, "y": 3,"z": 1},
                           "b" :{"x":-3, "y": 3,"z": 1},
                           "c" :{"x":-3, "y":-3,"z": 1},
-                          "material" : "material1"
-                }
-              },
-              { "type": "Triangle",
-                "data" : {"a" :{"x": 3, "y": 3,"z": 1},
+                          "material" : "material1"}
+      },
+
+    { "Triangle" : {"a" :{"x": 3, "y": 3,"z": 1},
                           "b" :{"x":-3, "y":-3,"z": 1},
                           "c" :{"x": 3, "y":-3,"z": 1},
                           "material" : "material1"
                 }
-              }]
+    }],
+  "objFiles" : []
 }

@@ -38,7 +38,7 @@ class RendererSpec extends Specification with Mockito {
                          lights = Seq(),
                          shapes = Seq(),
                          materials = Seq(),
-                         None)
+                         Seq.empty)
 
   val renderEmpty = {
     val renderer = new Renderer(emptyScene)

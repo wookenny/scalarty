@@ -1,6 +1,8 @@
 import math._
-import org.specs2.{ScalaCheck, Specification}
-import play.api.libs.json.Json
+import org.specs2.Specification
+import io.circe.Json
+import io.circe.parser.decode
+import io.circe.syntax._
 
 class ShapeSpec extends Specification {
   def is =
@@ -13,11 +15,10 @@ class ShapeSpec extends Specification {
   val parseTriangle = parseShape(Triangle(Vector3(1, 2, 0), Vector3(1, 2, 3), Vector3(2, 1, 4.2)))
   val parseAABB = parseShape(AABB(-1.1f, 1, -0.2f, -0.01f, 10, 12.3f))
 
-  //TODO make an own matcher with type T out of it
   private def parseShape(in: Shape) = {
-    val js = Json.toJson(in)
-    val out = Json.fromJson[Shape](js).get
-    out should be equalTo in
+    val js: Json = in.asJson
+    val out = decode[Shape](js.toString)
+    out should be equalTo Right(in)
   }
 
 }

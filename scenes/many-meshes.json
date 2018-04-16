@@ -3,148 +3,135 @@
   "cameraPointing": {"x":0, "y":0,"z":4},
   "width"  : 2,
   "height" : 2,
-  "lights" : [ {"type": "PointLight",
-               "data": {"position" : {"x":0, "y": 0.9,"z":0},
-                       "color"    : {"red": 1, "green": 1, "blue": 1},
-                       "power": 1}
-                }
-              ],
-  "materials" : [{"type": "SingleColorMaterial",
-                    "data": {
-                      "name": "PlainWhite",
-                      "c":  {"red": 1, "green": 1, "blue": 1},
-                      "ambient": 0.05,
-                      "diffuse": 0.8,
-                      "spec": 0.15,
-                      "reflective": 0,
-                      "shininess": 64,
-                      "refractive" : 0,
-                      "n" : 1
-                    }
-                  },
-                  {"type": "CheckerMaterial",
-                    "data": {
-                      "name": "ChessboardWhite",
-                      "c1":  {"red": 1, "green": 0, "blue": 1},
-                      "c2":  {"red": 1, "green": 1, "blue": 0},
-                      "steps": 0.0832,
-                      "ambient": 0.05,
-                      "diffuse": 0.8,
-                      "spec": 0.15,
-                      "reflective": 0,
-                      "shininess": 64,
-                      "refractive" : 0,
-                      "n" : 1
-                    }
-                  },
-                  {"type": "SingleColorMaterial",
-                    "data": {
-                      "name": "Glass",
-                      "c":  {"red": 1, "green": 1, "blue": 1},
-                      "ambient": 0.05,
-                      "diffuse": 0.0,
-                      "spec": 0.1,
-                      "reflective": 0,
-                      "shininess": 64,
-                      "refractive" : 0.85,
-                      "n" : 1.55
-                    }
-                  }],
+  "ppi"    : 200,
+  "lights" : [ {"PointLight": {"position" : {"x":0, "y": 0.9,"z":0},
+    "color"    : {"red": 1, "green": 1, "blue": 1},
+    "power": 1}
+  }
+  ],
+  "materials" : [{"SingleColorMaterial": {
+    "name": "PlainWhite",
+    "c":  {"red": 1, "green": 1, "blue": 1},
+    "ambient": 0.05,
+    "diffuse": 0.8,
+    "spec": 0.15,
+    "reflective": 0,
+    "shininess": 64,
+    "refractive" : 0,
+    "n" : 1
+  }
+  },
+    {"CheckerMaterial": {
+      "name": "ChessboardWhite",
+      "c1":  {"red": 1, "green": 0, "blue": 1},
+      "c2":  {"red": 1, "green": 1, "blue": 0},
+      "steps": 0.0832,
+      "ambient": 0.05,
+      "diffuse": 0.8,
+      "spec": 0.15,
+      "reflective": 0,
+      "shininess": 64,
+      "refractive" : 0,
+      "n" : 1
+    }
+    },
+    {"SingleColorMaterial": {
+      "name": "Glass",
+      "c":  {"red": 1, "green": 1, "blue": 1},
+      "ambient": 0.05,
+      "diffuse": 0.0,
+      "spec": 0.1,
+      "reflective": 0,
+      "shininess": 64,
+      "refractive" : 0.85,
+      "n" : 1.55
+    }
+    }],
   "shapes" : [
     {
-      "type": "Triangle",
-      "data": {"a": {"x": -1,"y": -1,"z": -1},
-               "b": {"x": 1, "y": -1,"z": -1},
-               "c": {"x": -1,"y": -1,"z": 1},
-               "material": "PlainWhite"
+      "Triangle": {"a": {"x": -1,"y": -1,"z": -1},
+        "b": {"x": 1, "y": -1,"z": -1},
+        "c": {"x": -1,"y": -1,"z": 1},
+        "material": "PlainWhite"
       }
     },
-    { "type": "Triangle",
-                "data" : {"a" :{"x": 1, "y":-1,"z":-1},
-                          "b" :{"x": 1, "y":-1,"z": 1},
-                          "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
-                }
-     },
-     { "type": "Triangle",
-      "data" : {"a" :{"x": 1, "y": 1,"z":-1},
-                "b" :{"x":-1, "y": 1,"z":-1},
-                 "c" :{"x":-1, "y": 1,"z": 1},
-                 "material" : "PlainWhite"
-                }
-              },
-      { "type": "Triangle",
-                "data" : {"a" :{"x": 1, "y": 1,"z":-1},
-                          "b" :{"x":-1, "y": 1,"z": 1},
-                          "c" :{"x": 1, "y": 1,"z": 1},
-                          "material" : "PlainWhite"
-                }
-              },
-      { "type": "Triangle",
-                "data" : {"a" :{"x": 1, "y": 1,"z": 1},
-                          "b" :{"x": 1, "y":-1,"z": 1},
-                          "c" :{"x": 1, "y":-1,"z":-1},
-                          "material" : "PlainWhite"
-                }
-              },
-      { "type": "Triangle",
-                "data" : {"a" :{"x": 1, "y": 1,"z":-1},
-                          "b" :{"x": 1, "y": 1,"z": 1},
-                          "c" :{"x": 1, "y":-1,"z":-1},
-                          "material" : "PlainWhite"
-                }
-              },
-      { "type": "Triangle",
-                "data" : {"a" :{"x":-1, "y": 1,"z":-1},
-                          "b" :{"x":-1, "y":-1,"z":-1},
-                          "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
-                }
-              },
-      { "type": "Triangle",
-                "data" : {"a" :{"x":-1, "y": 1,"z": 1},
-                          "b" :{"x":-1, "y": 1,"z":-1},
-                          "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
-                }
-              },
-      { "type": "Triangle",
-                "data" : {"a" :{"x": 1, "y": 1,"z": 1},
-                          "b" :{"x":-1, "y": 1,"z": 1},
-                          "c" :{"x":-1, "y":-1,"z": 1},
-                          "material" : "PlainWhite"
-                }
-              },
-              { "type": "Triangle",
-                "data" : {"a" :{"x": 1, "y": 1,"z": 1},
-                          "b" :{"x":-1, "y":-1,"z": 1},
-                          "c" :{"x": 1, "y":-1,"z": 1},
-                          "material" : "ChessboardWhite"
-                }
-              }
-              ],
-      "objFiles" : [
-        { "filename": "scenes/obj/suzanne.obj.gz",
-          "center"   : {"x": -0.5, "y": -0.2,"z": -0.5},
-          "maxSide"  : 0.8,
-          "rotation" : 75,
-          "material": "Glass"
-        },{
-          "filename": "scenes/obj/bunny.obj.gz",
-          "center"   : {"x": 0.5, "y": -0.2,"z": -0.5},
-          "maxSide"  : 0.8,
-          "rotation" : 75,
-          "material": "Glass"
-        },{"filename": "scenes/obj/dragon.obj.gz",
-          "center"   : {"x": -0.5, "y": -0.2,"z":  0.5},
-          "maxSide"  : 0.8,
-          "rotation" : 75,
-          "material": "Glass"
-        },{"filename": "scenes/obj/happybuddha.obj.gz",
-          "center"   : {"x": 0.5, "y": -0.2,"z": 0.5},
-          "maxSide"  : 0.8,
-          "rotation" : 75,
-          "material": "Glass"
-        }]
+    { "Triangle": {"a" :{"x": 1, "y":-1,"z":-1},
+      "b" :{"x": 1, "y":-1,"z": 1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z":-1},
+      "b" :{"x":-1, "y": 1,"z":-1},
+      "c" :{"x":-1, "y": 1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z":-1},
+      "b" :{"x":-1, "y": 1,"z": 1},
+      "c" :{"x": 1, "y": 1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z": 1},
+      "b" :{"x": 1, "y":-1,"z": 1},
+      "c" :{"x": 1, "y":-1,"z":-1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z":-1},
+      "b" :{"x": 1, "y": 1,"z": 1},
+      "c" :{"x": 1, "y":-1,"z":-1},
+      "material" : "PlainWhite"
+    }
+    },
+    {"Triangle" : {"a" :{"x":-1, "y": 1,"z":-1},
+      "b" :{"x":-1, "y":-1,"z":-1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle": {"a" :{"x":-1, "y": 1,"z": 1},
+      "b" :{"x":-1, "y": 1,"z":-1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    {"Triangle": {"a" :{"x": 1, "y": 1,"z": 1},
+      "b" :{"x":-1, "y": 1,"z": 1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z": 1},
+      "b" :{"x":-1, "y":-1,"z": 1},
+      "c" :{"x": 1, "y":-1,"z": 1},
+      "material" : "ChessboardWhite"
+    }
+    }
+  ],
+  "objFiles" : [
+    { "filename": "scenes/obj/suzanne.obj.gz",
+      "centerBottom"   : {"x": -0.5, "y": -1,"z": -0.5},
+      "maxSide"  : 0.8,
+      "rotation" : 75,
+      "material": "Glass"
+    },{
+      "filename": "scenes/obj/bunny.obj.gz",
+      "centerBottom"   : {"x": 0.5, "y": -1, "z": -0.5},
+      "maxSide"  : 0.8,
+      "rotation" : 75,
+      "material": "Glass"
+    },{"filename": "scenes/obj/dragon.obj.gz",
+      "centerBottom"   : {"x": -0.5, "y": -1,"z":  0.5},
+      "maxSide"  : 0.8,
+      "rotation" : 75,
+      "material": "Glass"
+    },{"filename": "scenes/obj/happybuddha.obj.gz",
+      "centerBottom"   : {"x": 0.5, "y": -1,"z": 0.5},
+      "maxSide"  : 0.8,
+      "rotation" : 75,
+      "material": "Glass"
+    }]
 
 }

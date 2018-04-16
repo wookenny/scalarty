@@ -3,8 +3,10 @@ package material.node
 import color.RGB
 import math.Vector3
 import math.ThreeDimensionalFunction
-import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
-
+import io.circe.{Decoder, Encoder, Json}
+import io.circe.generic.auto._
+import io.circe.syntax._
+import cats.syntax.functor._
 
 
 trait ValueNode extends ThreeDimensionalFunction[Double]{
@@ -24,129 +26,122 @@ trait ColorNode extends ThreeDimensionalFunction[RGB]{
 
 
 object ValueNode{
-  def unapply(node: ValueNode): Option[(String, Json)] = {
-    val (prod: Product, sub) = node match {
-      case n: ConstantValue => (n, n.asJson)
-      case n: CheckerValue => (n, n.asJson)
-      case n: NoiseValue => (n, n.asJson)
-      case n: MultilayerNoiseValue => (n, n.asJson)
-      case n: ClampValue => (n, n.asJson)
-      case n: AddValues => (n, n.asJson)
-      case n: SubtractValues => (n, n.asJson)
-      case n: MultiplyValues => (n, n.asJson)
-      case n: MixValues => (n, n.asJson)
-    }
-    Some(prod.productPrefix -> sub)
+
+  implicit val encodeValueNode: Encoder[ValueNode] = Encoder.instance {
+    case n @ ConstantValue(_)     => Json.obj("ConstantValue"    -> n.asJson)
+    case n @ CheckerValue(_,_,_,_,_)     => Json.obj("CheckerValue"    -> n.asJson)
+    case n @ NoiseValue(_,_)     => Json.obj("NoiseValue"    -> n.asJson)
+    case n @ MultilayerNoiseValue(_,_,_)     => Json.obj("MultilayerNoiseValue"    -> n.asJson)
+    case n @ ClampValue(_,_,_)     => Json.obj("ClampValue"    -> n.asJson)
+    case n @ AddValues(_,_)     => Json.obj("AddValues"    -> n.asJson)
+    case n @ SubtractValues(_,_)     => Json.obj("SubtractValues"    -> n.asJson)
+    case n @ MultiplyValues(_,_)     => Json.obj("MultiplyValues"    -> n.asJson)
+    case n @ MixValues(_,_,_)     => Json.obj("MixValues"    -> n.asJson)
   }
 
-  def apply(`type`: String, data: String): ValueNode = {
-    (`type` match {
-      case "ConstantValue" => decode[ConstantValue](data)
-      case "CheckerValue" => decode[CheckerValue](data)
-      case "NoiseValue" => decode[NoiseValue](data)
-      case "MultilayerNoiseValue" => decode[MultilayerNoiseValue](data)
-      case "ClampValue" => decode[ClampValue](data)
-      case "AddValues" => decode[AddValues](data)
-      case "SubtractValues" => decode[SubtractValues](data)
-      case "MultiplyValues" => decode[MultiplyValues](data)
-      case "MixValues" => decode[MixValues](data)
-      case _ => Left(Error/*(s"Unknown ValueNode type: ${`type`}")*/)
-    }) match {
-      case Right(node) => node
-      case Left(error) =>  throw new IllegalArgumentException(s"Could parse the Json as ValueNode: $data. Error: $error")
-    }
-  }
+  private val decodeConstantValue = Decoder[ConstantValue].prepare(_.downField("ConstantValue"))
+  private val decodeCheckerValue = Decoder[CheckerValue].prepare(_.downField("CheckerValue"))
+  private val decodNoiseValue = Decoder[NoiseValue].prepare(_.downField("NoiseValue"))
+  private val decodeMultilayerNoiseValue = Decoder[MultilayerNoiseValue].prepare(_.downField("MultilayerNoiseValue"))
+  private val decodeClampValue = Decoder[ClampValue].prepare(_.downField("ClampValue"))
+  private val decodeAddValues = Decoder[AddValues].prepare(_.downField("AddValues"))
+  private val decodeSubtractValues = Decoder[SubtractValues].prepare(_.downField("SubtractValues"))
+  private val decodeMultiplyValues = Decoder[MultiplyValues].prepare(_.downField("MultiplyValues"))
+  private val decodeMixValues = Decoder[MixValues].prepare(_.downField("MixValues"))
+
+  implicit val decodeValueNode: Decoder[ValueNode] = decodeConstantValue
+    .or(decodeCheckerValue.widen[ValueNode])
+    .or(decodNoiseValue.widen[ValueNode])
+    .or(decodeMultilayerNoiseValue.widen[ValueNode])
+    .or(decodeClampValue.widen[ValueNode])
+    .or(decodeAddValues.widen[ValueNode])
+    .or(decodeSubtractValues.widen[ValueNode])
+    .or(decodeMultiplyValues.widen[ValueNode])
+    .or(decodeMixValues.widen[ValueNode])
 
 }
 
 object VectorNode{
-  
-  def unapply(node: VectorNode): Option[(String, Json)] = {
-    val (prod: Product, sub) = node match {
-      case n: ConstantVector => (n, n.asJson)
-      case n: ColorToVector => (n, n.asJson)
-      case n: ValuesToVector => (n, n.asJson)
-      case n: SingleValueToVector => (n, n.asJson)
-      case n: ClampVector => (n, n.asJson)
-      case n: ModVector => (n, n.asJson)
-      case n: AddVector => (n, n.asJson)
-      case n: SubtractVector => (n, n.asJson)
-      case n: MultiplyVector => (n, n.asJson)
-      case n: MixVector => (n, n.asJson)
-    }
-    Some(prod.productPrefix -> sub)
+
+  implicit val encodeVectorNode: Encoder[VectorNode] = Encoder.instance {
+    case n @ ConstantVector(_)     => Json.obj("ConstantVector"    -> n.asJson)
+    case n @ ColorToVector(_)     => Json.obj("ColorToVector"    -> n.asJson)
+    case n @ ValuesToVector(_,_,_)     => Json.obj("ValuesToVector"    -> n.asJson)
+    case n @ SingleValueToVector(_)     => Json.obj("SingleValueToVector"    -> n.asJson)
+    case n @ ClampVector(_,_,_)     => Json.obj("ClampVector"    -> n.asJson)
+    case n @ ModVector(_,_)     => Json.obj("ModVector"    -> n.asJson)
+    case n @ AddVector(_,_)     => Json.obj("AddVector"    -> n.asJson)
+    case n @ SubtractVector(_,_)     => Json.obj("SubtractVector"    -> n.asJson)
+    case n @ MultiplyVector(_,_)     => Json.obj("MultiplyVector"    -> n.asJson)
+    case n @ MixVector(_,_,_)     => Json.obj("MixVector"    -> n.asJson)
   }
 
-  def apply(`type`: String, data: String): VectorNode = {
-    (`type` match {
-      case "ConstantVector" => decode[ConstantVector](data)
+  private val decodeConstantVector = Decoder[ConstantVector].prepare(_.downField("ConstantVector"))
+  private val decodeColorToVector = Decoder[ColorToVector].prepare(_.downField("ColorToVector"))
+  private val decodeValuesToVector = Decoder[ValuesToVector].prepare(_.downField("ValuesToVector"))
+  private val decodeSingleValueToVector = Decoder[SingleValueToVector].prepare(_.downField("SingleValueToVector"))
+  private val decodeClampVector = Decoder[ClampVector].prepare(_.downField("ConstantVector"))
+  private val decodeModVector = Decoder[ModVector].prepare(_.downField("ModVector"))
+  private val decodeAddVector = Decoder[AddVector].prepare(_.downField("AddVector"))
+  private val decodeSubtractVector = Decoder[SubtractVector].prepare(_.downField("SubtractVector"))
+  private val decodeMultiplyVector = Decoder[MultiplyVector].prepare(_.downField("MultiplyVector"))
+  private val decodeMixVector = Decoder[MixVector].prepare(_.downField("MixVector"))
 
-      case "ColorToVector" => decode[ConstantVector](data)
-      case "ValuesToVector" => decode[ValuesToVector](data)
-      case "SingleValueToVector" => decode[SingleValueToVector](data)
-      case "ClampVector" => decode[ClampVector](data)
-      case "ModVector" => decode[ModVector](data)
-      case "AddVector" => decode[AddVector](data)
-      case "SubtractVector" => decode[SubtractVector](data)
-      case "MultiplyVector" => decode[MultiplyVector](data)
-      case "MixVector" => decode[MixVector](data)
-
-      case _ => Left(Error/*(s"Unknown VectorNode type: ${`type`}")*/)
-    }) match {
-      case Right(node) => node
-      case Left(error) =>
-        throw new IllegalArgumentException(s"Could parse the Json as VectorNode: $data. Error: $error")
-    }
-  }
+  implicit val decodeVectorNode: Decoder[VectorNode] = decodeConstantVector
+    .or(decodeColorToVector.widen[VectorNode])
+    .or(decodeValuesToVector.widen[VectorNode])
+    .or(decodeSingleValueToVector.widen[VectorNode])
+    .or(decodeClampVector.widen[VectorNode])
+    .or(decodeModVector.widen[VectorNode])
+    .or(decodeAddVector.widen[VectorNode])
+    .or(decodeSubtractVector.widen[VectorNode])
+    .or(decodeMultiplyVector.widen[VectorNode])
+    .or(decodeMixVector.widen[VectorNode])
 
 }
 
 object ColorNode{
 
-  implicit val mixColorDecoder = Decoder[MixColor]
-
-  def unapply(node: ColorNode): Option[(String, Json)] = {
-    val (prod: Product, sub) = node match {
-      case n: ConstantColor => (n, n.asJson)
-      case n: CheckerColor => (n, n.asJson)
-      case n: PointFallColor => (n, n.asJson)
-      case n: VectorToColor => (n, n.asJson)
-      case n: ValuesToColor => (n, n.asJson)
-      case n: SingleValueToColor => (n, n.asJson)
-      case n: ClampColor => (n, n.asJson)
-      case n: ModColor => (n, n.asJson)
-      case n: AddColor => (n, n.asJson)
-      case n: SubtractColor => (n, n.asJson)
-      case n: MultiplyColor => (n, n.asJson)
-      case n: MixColor => (n, n.asJson)
-    }
-    Some(prod.productPrefix -> sub)
+  implicit val encodeColorNode: Encoder[ColorNode] = Encoder.instance {
+    case n @ ConstantColor(_) => Json.obj("ConstantColor" -> n.asJson)
+    case n @ CheckerColor(_, _, _, _, _) => Json.obj("CheckerColor" -> n.asJson)
+    case n @ PointFallColor(_, _, _, _) => Json.obj("PointFallColor" -> n.asJson)
+    case n @ VectorToColor(_) => Json.obj("VectorToColor" -> n.asJson)
+    case n @ ValuesToColor(_, _, _) => Json.obj("ValuesToColor" -> n.asJson)
+    case n @ SingleValueToColor(_) => Json.obj("SingleValueToColor" -> n.asJson)
+    case n @ ClampColor(_, _, _) => Json.obj("ClampColor" -> n.asJson)
+    case n @ ModColor(_, _) => Json.obj("ModColor" -> n.asJson)
+    case n @ AddColor(_, _) => Json.obj("AddColor" -> n.asJson)
+    case n @ SubtractColor(_, _) => Json.obj("SubtractColor" -> n.asJson)
+    case n @ MultiplyColor(_, _) => Json.obj("MultiplyColor" -> n.asJson)
+    case n @ MixColor(_, _, _) => Json.obj("MixColor" -> n.asJson)
   }
 
-  def apply(`type`: String, data: String): ColorNode = {
-    (`type` match {
-      case "ConstantColor" => decode[ConstantColor](data)
-      case "CheckerColor" => decode[CheckerColor](data)
-      case "PointFallColor" => decode[PointFallColor](data)
-      case "VectorToColor" => decode[VectorToColor](data)
-      case "ValuesToColor" => decode[ValuesToColor](data)
-      case "SingleValueToColor" => decode[SingleValueToColor](data)
-      case "ClampColor" => decode[ClampColor](data)
-      case "ModColor" => decode[ModColor](data)
-      case "AddColor" => decode[AddColor](data)
-      case "SubtractColor" => decode[SubtractColor](data)
-      case "MultiplyColor" => decode[MultiplyColor](data)
-      case "MixColor" => decode[MixColor](data)
+  private val decodeConstantColor = Decoder[ConstantColor].prepare(_.downField("ConstantColor"))
+  private val decodeCheckerColor = Decoder[CheckerColor].prepare(_.downField("CheckerColor"))
+  private val decodePointFallColor = Decoder[PointFallColor].prepare(_.downField("PointFallColor"))
+  private val decodeVectorToColor = Decoder[VectorToColor].prepare(_.downField("VectorToColor"))
+  private val decodeValuesToColor = Decoder[ValuesToColor].prepare(_.downField("ValuesToColor"))
+  private val decodeSingleValueToColor = Decoder[SingleValueToColor].prepare(_.downField("SingleValueToColor"))
+  private val decodeClampColor = Decoder[ClampColor].prepare(_.downField("ClampColor"))
+  private val decodeModColor = Decoder[ModColor].prepare(_.downField("ModColor"))
+  private val decodeAddColor = Decoder[AddColor].prepare(_.downField("AddColor"))
+  private val decodeSubtractColor = Decoder[SubtractColor].prepare(_.downField("SubtractColor"))
+  private val decodeMultiplyColor = Decoder[MultiplyColor].prepare(_.downField("MultiplyColor"))
+  private val decodeMixColor = Decoder[MixColor].prepare(_.downField("MixColor"))
 
-      case _ => Left(Error/*(s"Unknown ColorNode type: ${`type`}")*/)
-    }) match {
-      case Right(node) => node
-      case Left(error) =>
-        throw new IllegalArgumentException(s"Could parse the Json as ColorNode: $data. Error: $error")
-    }
-  }
-
-
+  implicit val decodeColorNode: Decoder[ColorNode] = decodeConstantColor
+    .or(decodeCheckerColor.widen[ColorNode])
+    .or(decodePointFallColor.widen[ColorNode])
+    .or(decodeVectorToColor.widen[ColorNode])
+    .or(decodeValuesToColor.widen[ColorNode])
+    .or(decodeSingleValueToColor.widen[ColorNode])
+    .or(decodeClampColor.widen[ColorNode])
+    .or(decodeModColor.widen[ColorNode])
+    .or(decodeAddColor.widen[ColorNode])
+    .or(decodeSubtractColor.widen[ColorNode])
+    .or(decodeMultiplyColor.widen[ColorNode])
+    .or(decodeMixColor.widen[ColorNode])
 }
 
 

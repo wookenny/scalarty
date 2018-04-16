@@ -3,9 +3,11 @@ import lightning.{LightSource, PlaneLight, PointLight}
 import math.Vector3
 import org.specs2.matcher.MatchResult
 import org.specs2.{ScalaCheck, Specification}
-import play.api.libs.json.Json
+import io.circe.{Decoder, Encoder, Error, Json}
+import io.circe.generic.auto._
+import io.circe.parser.decode
+import io.circe.syntax._
 
-import scala.collection.immutable
 
 class LightSourceSpec extends Specification with ScalaCheck {
 
@@ -85,8 +87,8 @@ class LightSourceSpec extends Specification with ScalaCheck {
   }
 
   private def parseLight(in: LightSource) = {
-    val js = Json.toJson(in)
-    val out = Json.fromJson[LightSource](js).get
-    out should be equalTo in
+    val js = in.asJson
+    val out = decode[LightSource](js.toString)
+    out should be equalTo Right(in)
   }
 }
