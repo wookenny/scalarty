@@ -15,7 +15,7 @@ case class SceneDTO(cameraOrigin: Vector3,
                           lights: Seq[LightSource],
                           shapes: Seq[Shape],
                           materials: Seq[Material],
-                          objFiles: Seq[ObjObject] = Seq.empty) {}
+                          objFiles: Option[Seq[ObjObject]] = None) {}
 
 
 case class Scene(cameraOrigin: Vector3,
@@ -30,11 +30,15 @@ case class Scene(cameraOrigin: Vector3,
   // Fixed data
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
-  lazy val allShapes: ShapeContainer =
-    if (objFiles.nonEmpty)
-      ShapeMetaContainer(ShapeSeq(shapes), BVH(parseObjFiles(objFiles),config.bvhSplitLimit,config.sah))
-    else
-      ShapeSeq(shapes)
+
+  //TODO: Big triangles/quads /should be decomposed into smaller ones for speedup
+  lazy val allShapes: ShapeContainer = if(objFiles.nonEmpty)
+    ShapeMetaContainer(ShapeSeq(shapes),
+                        BVH(parseObjFiles(objFiles),
+                        config.bvhSplitLimit,config.sah))
+  else
+    ShapeSeq(shapes)
+
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
   private def parseObjFiles(objFiles: Seq[ObjObject]): Array[Triangle] = {
@@ -53,6 +57,6 @@ object Scene {
           sceneDTO.lights,
           sceneDTO.shapes,
           sceneDTO.materials,
-          sceneDTO.objFiles)
+          sceneDTO.objFiles.getOrElse(Seq.empty))
 
 }

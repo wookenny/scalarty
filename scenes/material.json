@@ -1,0 +1,38 @@
+{
+  "cameraOrigin":   {"x":0, "y":0,"z":-5},
+  "cameraPointing": {"x":0, "y":0,"z":4},
+  "width"  : 2,
+  "height" : 2,
+  "ppi" : 800,
+  "lights" : [ {"PointLight": {"position" : {"x":0, "y": 0.9,"z":0},
+    "color"    : {"red": 1, "green": 1, "blue": 1},
+    "power": 1.9}
+  }
+  ],
+  "materials" : [{"CheckerMaterial" : {
+    "name": "Chessboard",
+    "c1":  {"red": 0.9, "green": 0.9, "blue": 1},
+    "c2":  {"red": 1, "green": 0.7, "blue": 0.95},
+    "steps": 0.0432,
+    "ambient": 0.05,
+    "diffuse": 0.8,
+    "spec": 0.15,
+    "reflective": 0,
+    "shininess": 64,
+    "refractive" : 0,
+    "n" : 1
+  }}],
+  "shapes" : [
+    {"Triangle": {"a" :{"x": 3, "y": 3,"z": 1},
+      "b" :{"x":-3, "y": 3,"z": 1},
+      "c" :{"x":-3, "y":-3,"z": 1},
+      "material" : "Chessboard"
+    }
+    },
+    {"Triangle": {"a" :{"x": 3, "y": 3,"z": 1},
+      "b" :{"x":-3, "y":-3,"z": 1},
+      "c" :{"x": 3, "y":-3,"z": 1},
+      "material" : "Chessboard"
+    }
+    }]
+}

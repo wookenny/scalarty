@@ -28,7 +28,7 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "2.18.0",
   "com.google.inject" % "guice" % "4.2.0",
   "com.chuusai" %% "shapeless" % "2.3.3",
-  "org.typelevel" %% "cats-core" % "1.1.0",
+  "org.typelevel" %% "cats-core" % "1.0.1",
   "org.typelevel" %% "cats-effect" % "0.10",
   "org.scalanlp" %% "breeze" % "0.13.2",
   "org.scalanlp" %% "breeze-natives" % "0.13.2"
