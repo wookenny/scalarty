@@ -1,15 +1,18 @@
-import color.RGB
-import org.scalacheck.Prop._
-import org.scalacheck.{Arbitrary, Gen, Prop}
-import org.specs2.{ScalaCheck, Specification}
+package color
 
-class RGBSpec extends Specification with ScalaCheck {
+import generators.Generators._
+import org.specs2.{ScalaCheck, Specification}
+import org.scalacheck.Prop.forAll
+import org.specs2.mock.Mockito
+
+class RGBSpec extends Specification with ScalaCheck with Mockito{
   def is =
     s2"""
    An RGB should
       be added correctly to another RGB $addCorrectly
-      be subtracted correctlyfrom another RGB $subtractCorrectly
-      be multiplied correctly with a scalar $multiplyCorrectly
+      be subtracted correctly from another RGB $subtractCorrectly
+      be multiplied correctly with another RGB $multiplyCorrectly
+      be multiplied correctly with a scalar $multiplyScalarCorrectly
       be divided correctly with a scalar $divideCorrectly
 
       be negated correctly $negateCorrectly
@@ -19,45 +22,40 @@ class RGBSpec extends Specification with ScalaCheck {
       expose any value between 0 and 1 $testExposure
       calculate the power correctly $testPower
       gamma correct its values accordingly $testGammaCorrection
+      map its values according a given function correctly $testMapping
      """
 
-  def toSeq(c: RGB): Seq[Double] = Seq(c.red, c.green, c.blue)
+  private def toSeq(c: RGB): Seq[Double] = Seq(c.red, c.green, c.blue)
 
-  implicit lazy val RGBGenerator: Arbitrary[RGB] =
-    Arbitrary {
-      for {
-        r: Double <- DoubleGenerator.arbitrary
-        g: Double <- DoubleGenerator.arbitrary
-        b: Double <- DoubleGenerator.arbitrary
-      } yield RGB(r, g, b)
-    }
 
-  implicit lazy val DoubleGenerator: Arbitrary[Double] =
-    Arbitrary {
-      Gen.choose(0f, Double.MaxValue)
-    }
-
-  val addCorrectly: Prop = forAll { (a: RGB, b: RGB) =>
+  def addCorrectly = forAll(rgb, rgb){ (a: RGB, b: RGB) =>
     a + b should be equalTo RGB(a.red + b.red, a.green + b.green, a.blue + b.blue)
   }
-  val subtractCorrectly: Prop = forAll { (a: RGB, b: RGB) =>
+
+  def subtractCorrectly = forAll(rgb, rgb){ (a: RGB, b: RGB) =>
     a - b should be equalTo RGB(a.red - b.red, a.green - b.green, a.blue - b.blue)
   }
-  val multiplyCorrectly: Prop = forAll { (a: RGB, s: Double) =>
+
+  def multiplyCorrectly = forAll(rgb, rgb) { (a: RGB, b: RGB) =>
+    a mult b should be equalTo RGB(a.red * b.red, a.green * b.green, a.blue * b.blue)
+  }
+
+  def multiplyScalarCorrectly = forAll(rgb, positiveDouble) { (a: RGB, s: Double) =>
     a * s should be equalTo RGB(a.red * s, a.green * s, a.blue * s)
   }
-  val divideCorrectly: Prop = forAll { (a: RGB, s: Double) =>
+
+  def divideCorrectly = forAll(rgb, positiveDouble) { (a: RGB, s: Double) =>
     a / s should be equalTo RGB(a.red / s, a.green / s, a.blue / s)
   }
 
-  val negateCorrectly: Prop = forAll { (a: RGB) =>
+  def negateCorrectly = forAll(rgb) { (a: RGB) =>
     -a should be equalTo RGB(-a.red, -a.green, -a.blue)
   }
-  val positiveCorrectly: Prop = forAll { (a: RGB) =>
+  def positiveCorrectly = forAll(rgb) { (a: RGB) =>
     +a should be equalTo a
   }
 
-  val awtColor: Prop = forAll { (a: RGB) =>
+  def awtColor = forAll(rgb) { (a: RGB) =>
     val awtColor = a.awtColor
     val expectedColors = toSeq(a)
       .map { c =>
@@ -73,24 +71,35 @@ class RGBSpec extends Specification with ScalaCheck {
     maxDifference should be lessThanOrEqualTo 1
   }
 
-  val testExposure: Prop = forAll { (a: RGB) =>
+  def testExposure = forAll(rgb) { (a: RGB) =>
     val exposure = a.exposureCorrected
     val values = toSeq(exposure)
     (values.max should be lessThanOrEqualTo 1) and
       (values.min should be greaterThanOrEqualTo 0)
   }
 
-  val testPower: Prop = forAll { (a: RGB) =>
+  def testPower  = forAll(rgb) { (a: RGB) =>
     (a ^ 0 should be equalTo RGB(1d, 1d, 1d)) and
       (a ^ 1 should be equalTo a) and
       (a ^ 2 should be equalTo RGB(a.red * a.red, a.green * a.green, a.blue * a.blue))
   }
 
-  val testGammaCorrection: Prop = forAll { (a: RGB) =>
+  def testGammaCorrection = forAll(rgb) { (a: RGB) =>
     val expectedColor = RGB(Math.pow(a.red, 1 / RGB.GAMMA),
                             Math.pow(a.green, 1 / RGB.GAMMA),
                             Math.pow(a.blue, 1 / RGB.GAMMA))
     a.gammaCorrected should be equalTo expectedColor
+  }
+
+  def testMapping = forAll(rgb,threeDimensionalPoint) { (a: RGB, point: (Double,Double,Double)) =>
+
+    val (r,g,b) = point
+    val f = mock[(Double => Double)]
+    f(a.red) returns r
+    f(a.green) returns g
+    f(a.blue) returns b
+
+    a.map(f) should be equalTo RGB(r,g,b)
   }
 
 }

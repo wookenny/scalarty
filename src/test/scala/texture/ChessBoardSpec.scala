@@ -2,7 +2,6 @@ package texture
 
 import generators.Generators._
 import org.scalacheck.Gen
-import org.specs2.mock.Mockito
 import org.specs2.{ScalaCheck, Specification}
 import org.scalacheck.Prop.forAll
 
@@ -12,7 +11,7 @@ object TestType extends Enumeration {
 }
 
 
-class ChessBoardSpec extends Specification with ScalaCheck with Mockito {
+class ChessBoardSpec extends Specification with ScalaCheck {
   def is = s2"""
    A Chessboard texture should
     have the other element for an offset of once the stepsize in one dimension $testAlternatingPattern
