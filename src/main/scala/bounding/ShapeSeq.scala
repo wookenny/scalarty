@@ -10,13 +10,8 @@ final case class ShapeSeq(shapes: Seq[Shape]) extends ShapeContainer {
   override def intersect(ray: Ray): Option[Hit] =
     shapes.flatMap { s =>
       s intersect ray
-    } match {
-      case Nil => None
-      case xs => Some(xs.minBy(_.distance))
-    }
+    } reduceOption Ordering.by((_: Hit).distance).min
 
   override def intersectionTest(r: Ray, maxDist: Double): Boolean =
-    shapes.exists { s =>
-      s.intersect(r, maxDist)
-    }
+    shapes.exists { _.intersect(r, maxDist) }
 }

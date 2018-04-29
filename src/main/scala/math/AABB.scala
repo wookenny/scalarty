@@ -62,7 +62,7 @@ sealed case class AABB(x_min: Double,
     val t6 = (z_max - r.origin.z) * dirfrac.z
 
     val distances = Seq((t1, t2), (t3, t4), (t5, t6))
-    val tmin = distances.map { case (x, y) => x min y }.max
+    val tmin = distances.map { case (x, y)         => x min y }.max
     val tmax: Double = distances.map { case (x, y) => x max y }.min
     if (tmax < EPS || tmin > tmax)
       false
@@ -132,4 +132,10 @@ object AABB {
   }
   //TODO: empty is not really an empty element and mightbreak
   val empty = AABB(0, 0, 0, 0, 0, 0)
+  val unrestricted = AABB(Double.MinValue,
+                          Double.MaxValue,
+                          Double.MinValue,
+                          Double.MaxValue,
+                          Double.MinValue,
+                          Double.MaxValue)
 }

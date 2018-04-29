@@ -15,9 +15,9 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
       val b = t_ca + scala.math.sqrt(t_hc2)
       val dist: Option[Double] = (a > EPS, b > EPS) match {
         case (true, true) => Some(a min b)
-        case (true, _) => Some(a)
-        case (_, true) => Some(b)
-        case _ => None
+        case (true, _)    => Some(a)
+        case (_, true)    => Some(b)
+        case _            => None
       }
 
       dist match {

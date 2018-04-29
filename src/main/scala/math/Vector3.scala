@@ -2,15 +2,15 @@ package math
 
 final case class Vector3(x: Double, y: Double, z: Double) {
 
-  def /(s: Double): Vector3 = map(_/s)
-  def *(s: Double): Vector3 = map(s*)
+  def /(s: Double): Vector3 = map(_ / s)
+  def *(s: Double): Vector3 = map(s *)
 
   def +(p: Vector3) = Vector3(x + p.x, y + p.y, z + p.z)
   def -(p: Vector3) = Vector3(x - p.x, y - p.y, z - p.z)
   def *(p: Vector3): Double = x * p.x + y * p.y + z * p.z
-  def mult(p: Vector3): Vector3 = Vector3(x*p.y,y*p.y,z*p.z)
+  def mult(p: Vector3): Vector3 = Vector3(x * p.y, y * p.y, z * p.z)
 
-  def unary_-(): Vector3 = map(-1*)
+  def unary_-(): Vector3 = map(-1 *)
   def unary_+(): Vector3 = this
   def ~=(p: Vector3, delta: Double = 0.001): Boolean = (this - p).length < delta
 
@@ -25,7 +25,7 @@ final case class Vector3(x: Double, y: Double, z: Double) {
   def expf =
     Vector3(scala.math.exp(x), scala.math.exp(y), scala.math.exp(z))
 
-  def map(f: Double => Double) = Vector3(f(x),f(y),f(z))
+  def map(f: Double => Double) = Vector3(f(x), f(y), f(z))
 
 }
 

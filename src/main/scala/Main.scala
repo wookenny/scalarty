@@ -1,13 +1,10 @@
 import io.circe._, io.circe.generic.auto._, io.circe.parser._
 
-
 import renderer.Renderer
 import scene.{Scene, SceneDTO}
 import support.{Config, SamplingValue}
 import support.Implicits.imageWriter
 import scala.io.Source._
-
-
 
 object Main {
 
@@ -60,9 +57,7 @@ object Main {
     val bvhMin = opt[Int]("bvh.splitlimit")
       .abbr("bvh.sl")
       .text("set the limit at which the split into smaller subsets stops")
-      .action((x,c) => c.copy(bvhSplitLimit = x))
-
-
+      .action((x, c) => c.copy(bvhSplitLimit = x))
 
     val helpText = help("help").abbr("h").text("prints this usage text")
 
@@ -72,7 +67,7 @@ object Main {
   def main(args: Array[String]) {
     parser.parse(args, Config()) match {
       case Some(config) => main(config) // do stuff
-      case None => // arguments are bad, error message will be displayed
+      case None         => // arguments are bad, error message will be displayed
     }
 
   }
@@ -82,7 +77,7 @@ object Main {
 
     val sceneEither: Either[Error, SceneDTO] = decode[SceneDTO](sceneFile)
 
-    sceneEither match{
+    sceneEither match {
       case Right(scene) => Renderer(Scene.fromDTO(scene)).startRendering(config)
       case Left(error)  => println(s"Error rendering ${config.in}. Error: $error")
     }

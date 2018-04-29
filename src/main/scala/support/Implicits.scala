@@ -14,9 +14,9 @@ object Implicits {
       fromInputStream(new GZIPInputStream(new FileInputStream(filename)))
     else fromFile(filename)
 
-
-  implicit val imageWriter: ImageWriter = new ImageWriter{
-    def write(image: RenderedImage, fileFormat: String, file: File) = ImageIO.write(image,fileFormat, file)
+  implicit val imageWriter: ImageWriter = new ImageWriter {
+    def write(image: RenderedImage, fileFormat: String, file: File) =
+      ImageIO.write(image, fileFormat, file)
     val formats = ImageIO.getWriterFormatNames
   }
 

@@ -18,11 +18,11 @@ class BVHSpec extends Specification with ScalaCheck {
       add InnerBoxes for the leaves if requested $showLeafBoxes
   """
 
-  val spheres = for {
+  val spheres: Vector[Sphere] = (for {
     x <- 1 to 3
     y <- 1 to 3
     z <- 1 to 3
-  } yield Sphere(Vector3(x, y, z), radius = 0.2f)
+  } yield Sphere(Vector3(x, y, z), radius = 0.2f)).toVector
 
   val sphereBVH = BVH(spheres, 2, splitSAH = false)
   val sphereBVH_SAH = BVH(spheres, 2, splitSAH = true)
@@ -32,13 +32,13 @@ class BVHSpec extends Specification with ScalaCheck {
       s intersect ray
     } match {
       case Nil => None
-      case xs => Some(xs.minBy(_.distance))
+      case xs  => Some(xs.minBy(_.distance))
     }
   }
 
   def correctHeightAndSize = {
     ((sphereBVH.depth, sphereBVH.size) should be equalTo (4, 27)) and
-      ((sphereBVH_SAH.depth, sphereBVH_SAH.size) should be equalTo (2, 27))
+      ((sphereBVH_SAH.depth, sphereBVH_SAH.size) should be equalTo (3, 27))
   }
 
   def intersectionSpheres = {

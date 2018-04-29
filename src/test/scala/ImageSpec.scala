@@ -29,8 +29,8 @@ class ImageSpec extends Specification with Mockito {
       detect the set of edges $testDetectEdges
       """
 
-  implicit val writer : ImageWriter = new ImageWriter {
-    override def formats: Seq[String] = Seq("jpg","png")
+  implicit val writer: ImageWriter = new ImageWriter {
+    override def formats: Seq[String] = Seq("jpg", "png")
     override def write(image: RenderedImage, fileFormat: String, file: File): Boolean = true
   }
 
@@ -67,7 +67,7 @@ class ImageSpec extends Specification with Mockito {
     val success = img.set(12, 10, RGB.RED)
 
     (success must be equalTo true) and
-      (img.get(12, 10) must be equalTo Some(Pixel(RGB.RED,0,0)))
+      (img.get(12, 10) must be equalTo Some(Pixel(RGB.RED, 0, 0)))
   }
 
   val testSetColorsForIncorrectIndices = {
@@ -89,12 +89,12 @@ class ImageSpec extends Specification with Mockito {
   val testGetWithCorrectParameter = {
     val img = new Image(400, 600)
 
-    val colors: Set[Option[Pixel]]  = (for {
+    val colors: Set[Option[Pixel]] = (for {
       x <- 0 until 400
       y <- 0 until 600
     } yield img.get(x, y)).toSet
 
-    colors should be equalTo Set(Some(Pixel(RGB.BLACK,0,0)))
+    colors should be equalTo Set(Some(Pixel(RGB.BLACK, 0, 0)))
   }
 
   val testDetectEdges = {

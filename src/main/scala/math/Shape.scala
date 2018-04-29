@@ -25,12 +25,11 @@ trait Shape {
 
 object Shape {
 
-
   implicit val encodeShape: Encoder[Shape] = Encoder.instance {
-    case n @ AABB(_,_,_,_,_,_,_)     => Json.obj("AABB"    -> n.asJson)
-    case n @ Sphere(_,_,_)     => Json.obj("Sphere"    -> n.asJson)
-    case n @ Triangle(_,_,_,_,_)     => Json.obj("Triangle"    -> n.asJson)
-    case n @ Cuboid(_,_,_,_)     => Json.obj("Cuboid"    -> n.asJson)
+    case n @ AABB(_, _, _, _, _, _, _) => Json.obj("AABB" -> n.asJson)
+    case n @ Sphere(_, _, _)           => Json.obj("Sphere" -> n.asJson)
+    case n @ Triangle(_, _, _, _, _)   => Json.obj("Triangle" -> n.asJson)
+    case n @ Cuboid(_, _, _, _)        => Json.obj("Cuboid" -> n.asJson)
   }
 
   private val decodeAABB = Decoder[AABB].prepare(_.downField("AABB"))
@@ -42,8 +41,6 @@ object Shape {
     .or(decodeSphere.widen[Shape])
     .or(decodeTriangle.widen[Shape])
     .or(decodeCuboid.widen[Shape])
-
-
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty

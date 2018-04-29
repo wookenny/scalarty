@@ -19,7 +19,7 @@ class SceneSpec extends Specification with Mockito {
     A scene
       without shapes should be initialized correctly $testSceneWithoutObjInit
       with shapes and obj files should be initialized correctly $testSceneWithObjInit
-      create Scene from sceneDTO obj $testJson
+      create Scene from json object$testConstructionFromJson
     """
 
   implicit val config: _root_.support.Config = Config()
@@ -32,7 +32,8 @@ class SceneSpec extends Specification with Mockito {
     val (shape1, shape2) = (mock[Shape], mock[Shape])
     val lights = Seq(PointLight(Vector3(1, 2, 3), RGB.WHITE, 12))
 
-    val scene = Scene(Vector3.ZERO, Vector3.Z, 2, 2, ppi = 100,lights, Seq(shape1, shape2), Seq(mat1, mat2))
+    val scene =
+      Scene(Vector3.ZERO, Vector3.Z, 2, 2, ppi = 100, lights, Seq(shape1, shape2), Seq(mat1, mat2))
 
     (Shape.materialMap should havePairs("mat1" -> mat1, "mat2" -> mat2)) and
       (scene.materials should be equalTo Seq(mat1, mat2)) and
@@ -70,7 +71,6 @@ class SceneSpec extends Specification with Mockito {
                       Seq(mat1),
                       Seq(objObj1, objObj2))
 
-    //println(s"some tests: ${scene.allShapes.size}")
     (Shape.materialMap should havePair("def_mat" -> mat1)) and
       (scene.materials should be equalTo Seq(mat1)) and
       (scene.objFiles should contain(exactly(objObj1, objObj2))) and
@@ -80,19 +80,30 @@ class SceneSpec extends Specification with Mockito {
   }
 
   //TODO: BVH, ShapeContainer,... should be injected for nicer tests
-
-  def testJson = {
+  def testConstructionFromJson = {
 
     val sceneDTO = SceneDTO(Vector3.ONE,
-                          Vector3.X,
-                          21.4,
-                          2.4,
-                          100,
-                          Seq.empty[LightSource],
-                          Seq.empty[Shape],
-                          Seq.empty[Material])
+                            Vector3.X,
+                            21.4,
+                            2.4,
+                            100,
+                            Seq.empty[LightSource],
+                            Seq.empty[Shape],
+                            Seq.empty[Material])
     val json = sceneDTO.asJson.toString
-    decode[SceneDTO](json) should beRight
+    (decode[SceneDTO](json) should beRight) and
+      (Scene.fromDTO(sceneDTO) should beEqualTo(
+        Scene(
+          sceneDTO.cameraOrigin,
+          sceneDTO.cameraPointing,
+          sceneDTO.width,
+          sceneDTO.height,
+          sceneDTO.ppi,
+          sceneDTO.lights,
+          sceneDTO.shapes,
+          sceneDTO.materials,
+          sceneDTO.objFiles.getOrElse(Seq.empty)
+        )))
   }
 
 }

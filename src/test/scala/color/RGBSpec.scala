@@ -5,7 +5,7 @@ import org.specs2.{ScalaCheck, Specification}
 import org.scalacheck.Prop.forAll
 import org.specs2.mock.Mockito
 
-class RGBSpec extends Specification with ScalaCheck with Mockito{
+class RGBSpec extends Specification with ScalaCheck with Mockito {
   def is =
     s2"""
    An RGB should
@@ -27,12 +27,11 @@ class RGBSpec extends Specification with ScalaCheck with Mockito{
 
   private def toSeq(c: RGB): Seq[Double] = Seq(c.red, c.green, c.blue)
 
-
-  def addCorrectly = forAll(rgb, rgb){ (a: RGB, b: RGB) =>
+  def addCorrectly = forAll(rgb, rgb) { (a: RGB, b: RGB) =>
     a + b should be equalTo RGB(a.red + b.red, a.green + b.green, a.blue + b.blue)
   }
 
-  def subtractCorrectly = forAll(rgb, rgb){ (a: RGB, b: RGB) =>
+  def subtractCorrectly = forAll(rgb, rgb) { (a: RGB, b: RGB) =>
     a - b should be equalTo RGB(a.red - b.red, a.green - b.green, a.blue - b.blue)
   }
 
@@ -78,7 +77,7 @@ class RGBSpec extends Specification with ScalaCheck with Mockito{
       (values.min should be greaterThanOrEqualTo 0)
   }
 
-  def testPower  = forAll(rgb) { (a: RGB) =>
+  def testPower = forAll(rgb) { (a: RGB) =>
     (a ^ 0 should be equalTo RGB(1d, 1d, 1d)) and
       (a ^ 1 should be equalTo a) and
       (a ^ 2 should be equalTo RGB(a.red * a.red, a.green * a.green, a.blue * a.blue))
@@ -91,15 +90,15 @@ class RGBSpec extends Specification with ScalaCheck with Mockito{
     a.gammaCorrected should be equalTo expectedColor
   }
 
-  def testMapping = forAll(rgb,threeDimensionalPoint) { (a: RGB, point: (Double,Double,Double)) =>
+  def testMapping = forAll(rgb, threeDimensionalPoint) {
+    (a: RGB, point: (Double, Double, Double)) =>
+      val (r, g, b) = point
+      val f = mock[(Double => Double)]
+      f(a.red) returns r
+      f(a.green) returns g
+      f(a.blue) returns b
 
-    val (r,g,b) = point
-    val f = mock[(Double => Double)]
-    f(a.red) returns r
-    f(a.green) returns g
-    f(a.blue) returns b
-
-    a.map(f) should be equalTo RGB(r,g,b)
+      a.map(f) should be equalTo RGB(r, g, b)
   }
 
 }

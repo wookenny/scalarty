@@ -1,7 +1,6 @@
 package color
 
-
-final case class RGB(red: Double, green: Double, blue: Double){
+final case class RGB(red: Double, green: Double, blue: Double) {
   def ^(pow: Double) = RGB(
     Math.pow(red, pow),
     Math.pow(green, pow),
@@ -25,7 +24,7 @@ final case class RGB(red: Double, green: Double, blue: Double){
   def unary_-(): RGB = this * -1
   def unary_+(): RGB = this
 
-  def map(f: Double => Double) = RGB(f(red),f(green),f(blue))
+  def map(f: Double => Double) = RGB(f(red), f(green), f(blue))
 
   def exposureCorrected = RGB(
     1 - Math.exp(-red),

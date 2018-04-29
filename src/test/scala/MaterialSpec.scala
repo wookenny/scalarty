@@ -59,7 +59,7 @@ class MaterialSpec extends Specification with ScalaCheck {
     val matJson =  EmissionMaterial("Light1", RGB.GREEN, 1.3).asJson
     decodeMaterial("wrongMaterialTye", matJson) should throwA(
       new IllegalArgumentException("Unknown Material type: wrongMaterialTye"))
-    */
+   */
   }
 
   val parseMalformedMaterial = {
@@ -69,7 +69,7 @@ class MaterialSpec extends Specification with ScalaCheck {
     val malformedMat: JsValue = JsString("incorrect Json")
     Material("EmissionMaterial", malformedMat) should throwA(
       new IllegalArgumentException("Could parse the Json as material: \"incorrect Json\""))
-    */
+   */
   }
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
@@ -94,16 +94,15 @@ class MaterialSpec extends Specification with ScalaCheck {
   }
 
   val testCheckerMaterial: Prop =
-    forAll(Gen.choose(-1000, 1000), Gen.choose(-1000, 1000), Gen.choose(-1000, 1000)) {
-      (x, y, z) =>
-        {
-          val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
-          val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1, 0.5, 0.3, 0.2)
-          val expectedColor =
-            if ((x % 2 + y % 2 + z % 2 + 10) % 2 == 1) RGB.WHITE else RGB.BLACK
+    forAll(Gen.choose(-1000, 1000), Gen.choose(-1000, 1000), Gen.choose(-1000, 1000)) { (x, y, z) =>
+      {
+        val pos = Vector3(x + 0.5, y + 0.5, z + 0.5)
+        val mat = CheckerMaterial("CheckerMaterial1", RGB.WHITE, RGB.BLACK, 1, 0.5, 0.3, 0.2)
+        val expectedColor =
+          if ((x % 2 + y % 2 + z % 2 + 10) % 2 == 1) RGB.WHITE else RGB.BLACK
 
-          mat.getMat(pos).color shouldEqual expectedColor
-        }
+        mat.getMat(pos).color shouldEqual expectedColor
+      }
     }
 }
 //see: http://stackoverflow.com/questions/17021847/noise-free-json-format-for-sealed-traits-with-play-2-2-library

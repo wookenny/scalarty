@@ -10,7 +10,6 @@ object TestType extends Enumeration {
   val Even, Odd = Value
 }
 
-
 class ChessBoardSpec extends Specification with ScalaCheck {
   def is = s2"""
    A Chessboard texture should
@@ -19,17 +18,17 @@ class ChessBoardSpec extends Specification with ScalaCheck {
 
   val stepSizeGen = Gen.choose(0.01, 20d)
 
-  def testAlternatingPattern = forAll(stepSizeGen, threeDimensionalPoint){ (stepSize:Double, point:(Double,Double,Double)) =>
+  def testAlternatingPattern = forAll(stepSizeGen, threeDimensionalPoint) {
+    (stepSize: Double, point: (Double, Double, Double)) =>
+      import TestType._
+      val chessboard = ChessBoard(Even, Odd, stepSize)
 
-    import TestType._
-    val chessboard = ChessBoard(Even, Odd, stepSize)
+      val (x, y, z) = point
+      val colorReferece = chessboard.eval(x, y, z)
 
-    val (x,y,z) = point
-    val colorReferece = chessboard.eval(x,y,z)
-
-    ((x+stepSize,y,z) !== colorReferece)    and
-       ((x,y+stepSize,z) !== colorReferece) and
-       ((x,y,z+stepSize) !== colorReferece)
+      ((x + stepSize, y, z) !== colorReferece) and
+        ((x, y + stepSize, z) !== colorReferece) and
+        ((x, y, z + stepSize) !== colorReferece)
   }
 
 }

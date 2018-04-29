@@ -11,13 +11,14 @@ class CuboidSpec extends Specification with ScalaCheck {
 
   """
 
-  val cuboid = Cuboid(center = Vector3.ZERO, sideLengths = Vector3(1,1.5,4),rotation = Vector3(0,90,0))
+  val cuboid =
+    Cuboid(center = Vector3.ZERO, sideLengths = Vector3(1, 1.5, 4), rotation = Vector3(0, 90, 0))
 
   def intersectFrontal = {
     val hit = cuboid.intersect(Ray(Vector3(0.5, 0.5, -1f), Vector3.Z))
     (hit shouldNotEqual None) and
-     (hit.get.normal ~= Vector3(0, 0, -1f)) and
-      (hit.get.position ~= Vector3(0.5,0.5,-0.5))
+      (hit.get.normal ~= Vector3(0, 0, -1f)) and
+      (hit.get.position ~= Vector3(0.5, 0.5, -0.5))
   }
 
   def intersectFrontalFromInside = {

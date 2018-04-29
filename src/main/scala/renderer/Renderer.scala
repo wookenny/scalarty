@@ -17,15 +17,13 @@ object Renderer {
   private val ChunkSize = 5
 }
 
-final case class TracingResult(color: RGB, depth: Double, shadow: Double){
-  def +(otherResult :TracingResult) : TracingResult = TracingResult(color + otherResult.color,
-                                                                    depth + otherResult.depth,
-                                                                    shadow + otherResult.shadow )
+final case class TracingResult(color: RGB, depth: Double, shadow: Double) {
+  def +(otherResult: TracingResult): TracingResult =
+    TracingResult(color + otherResult.color, depth + otherResult.depth, shadow + otherResult.shadow)
 }
-object TracingResult{
+object TracingResult {
   val Miss = TracingResult(Renderer.BackgroundColor, Double.PositiveInfinity, 0)
 }
-
 
 case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
 
@@ -36,19 +34,20 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
 
   def traceRay(ray: Ray): TracingResult =
     scene.allShapes.intersect(ray) match {
-      case Some(hit) => val (color,shadow) = shader.shadeHit(hit, ray)
-                        TracingResult(color,hit.distance, shadow) //find out this value
+      case Some(hit) =>
+        val (color, shadow) = shader.shadeHit(hit, ray)
+        TracingResult(color, hit.distance, shadow) //find out this value
       case _ => TracingResult.Miss
     }
 
-  def startRendering(config: Config) : Unit = {
+  def startRendering(config: Config): Unit = {
 
     time("Parsing scene took") {
       logger.info("Starting to trace")
       logger.info(s"scene contains ${scene.allShapes.size} shapes")
     }
 
-    val image = time("Rendering scene took"){ render(config) }
+    val image = time("Rendering scene took") { render(config) }
 
     if (!image.save(config.out))
       logger.error(s"Could not save image at ${config.out}")
@@ -57,50 +56,56 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
 
   def render(config: Config): Image = {
 
-    implicit val img: Image = new Image((scene.width * scene.ppi).toInt, (scene.height * scene.ppi).toInt)
+    implicit val img: Image =
+      new Image((scene.width * scene.ppi).toInt, (scene.height * scene.ppi).toInt)
 
-    logger.info(s"tracing ${config.supersampling.full}x${config.supersampling.full} per pixel " +
-      s"with shadows sampled ${config.shadowsampling.full}x${config.shadowsampling.full}")
+    logger.info(
+      s"tracing ${config.supersampling.full}x${config.supersampling.full} per pixel " +
+        s"with shadows sampled ${config.shadowsampling.full}x${config.shadowsampling.full}")
 
     renderPath(img, config.supersampling.full, config.shadowsampling.full, None)
 
     logger.info("first path done. ")
 
-    val edges = if(config.supersampling.secondPath) img.detectEdges()
-                  else GenSet.empty[(Int, Int)]
+    val edges =
+      if (config.supersampling.secondPath) img.detectEdges()
+      else GenSet.empty[(Int, Int)]
 
+    val shadowEdges = erode(if (config.shadowsampling.secondPath) img.detectShadowEdges()
+                            else GenSet.empty[(Int, Int)],
+                            3)
 
-    val shadowEdges = erode(if(config.shadowsampling.secondPath) img.detectShadowEdges()
-                            else GenSet.empty[(Int, Int)],3)
-
-
-    renderSubset(edges.intersect(shadowEdges), config.supersampling.adaptive, config.shadowsampling.adaptive)
-    renderSubset(edges.diff(shadowEdges), supersampling  = config.supersampling.adaptive)
+    renderSubset(edges.intersect(shadowEdges),
+                 config.supersampling.adaptive,
+                 config.shadowsampling.adaptive)
+    renderSubset(edges.diff(shadowEdges), supersampling = config.supersampling.adaptive)
     renderSubset(shadowEdges.diff(edges), shadowsampling = config.shadowsampling.adaptive)
 
     img
   }
 
-  def erode(pixels : GenSet[(Int, Int)], strength : Int = 1)(implicit img:Image) : GenSet[(Int,Int)] = (for {
-      (x,y) <- pixels.toStream
-      i <- -strength to strength if (x+i) >= 0 && (x+i) < img.width
-      j <- -strength to strength if (y+j) >= 0 && (y+j) < img.height
-  } yield (x+i, y+j)).toSet
+  def erode(pixels: GenSet[(Int, Int)], strength: Int = 1)(
+      implicit img: Image): GenSet[(Int, Int)] =
+    (for {
+      (x, y) <- pixels.toStream
+      i <- -strength to strength if (x + i) >= 0 && (x + i) < img.width
+      j <- -strength to strength if (y + j) >= 0 && (y + j) < img.height
+    } yield (x + i, y + j)).toSet
 
   def renderSubset(pixels: GenSet[(Int, Int)],
                    supersampling: Int = config.supersampling.full,
                    shadowsampling: Int = config.shadowsampling.full)(implicit img: Image) {
     if (pixels.nonEmpty) {
       val percentage = 100 * pixels.size.toFloat / (img.height * img.width)
-      logger.info( f"tracing for $percentage%2.1f%% of all pixels" +
-        f" with sampling $supersampling and shadow sampling $shadowsampling")
+      logger.info(
+        f"tracing for $percentage%2.1f%% of all pixels" +
+          f" with sampling $supersampling and shadow sampling $shadowsampling")
       renderPath(img, supersampling, shadowsampling, Some(pixels))
     }
   }
 
-  def buildRenderChunks(
-      img: Image,
-      selection: Option[GenSet[(Int, Int)]]): Array[Array[(Int, Int)]] = {
+  def buildRenderChunks(img: Image,
+                        selection: Option[GenSet[(Int, Int)]]): Array[Array[(Int, Int)]] = {
 
     val allPixels: Array[(Int, Int)] =
       (for {
@@ -109,9 +114,9 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
         if selection.isEmpty || selection.get.contains((x, y))
       } yield (x, y)).toArray
 
-   (for {
-        s <- 0 to allPixels.length / Renderer.ChunkSize
-      } yield allPixels.slice(s * Renderer.ChunkSize, (s + 1) * Renderer.ChunkSize)).toArray
+    (for {
+      s <- 0 to allPixels.length / Renderer.ChunkSize
+    } yield allPixels.slice(s * Renderer.ChunkSize, (s + 1) * Renderer.ChunkSize)).toArray
 
   }
 
@@ -139,20 +144,22 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
         case (x: Int, y: Int) =>
           val S = supersampling * supersampling
           val tracedSum: TracingResult = (for {
-              i <- 0 until supersampling
-              j <- 0 until supersampling
-              shift = (supersampling - 1) / (2.0 * supersampling)
-              rayTarget = (corner
-                + scene.side * ((w * (x + i.toDouble / supersampling - shift)) / X)
-                - scene.up * (h * (y + j.toDouble / supersampling - shift) / Y))
-              rayDir = (rayTarget - scene.cameraOrigin).normalized
-              description = s"pixel ($x:$y) sample ${i * supersampling + (j + 1)}/$S"
-            } yield
-              traceRay(Ray(scene.cameraOrigin, rayDir, source = description))
-                match{ case TracingResult(color,d,s) => TracingResult(color.exposureCorrected.gammaCorrected,d,s)})
+            i <- 0 until supersampling
+            j <- 0 until supersampling
+            shift = (supersampling - 1) / (2.0 * supersampling)
+            rayTarget = (corner
+              + scene.side * ((w * (x + i.toDouble / supersampling - shift)) / X)
+              - scene.up * (h * (y + j.toDouble / supersampling - shift) / Y))
+            rayDir = (rayTarget - scene.cameraOrigin).normalized
+            description = s"pixel ($x:$y) sample ${i * supersampling + (j + 1)}/$S"
+          } yield
+            traceRay(Ray(scene.cameraOrigin, rayDir, source = description)) match {
+              case TracingResult(color, d, s) =>
+                TracingResult(color.exposureCorrected.gammaCorrected, d, s)
+            })
             .reduce(_ + _)
 
-          img.set(x, y, tracedSum.color/S, tracedSum.depth/S, tracedSum.shadow/S)
+          img.set(x, y, tracedSum.color / S, tracedSum.depth / S, tracedSum.shadow / S)
           val status = tracedPixels.incrementAndGet()
 
           if (status % (5 * one_percent) == 0)

@@ -8,9 +8,6 @@ import renderer.Hit
 import support.Config
 import support.Util._
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-
 abstract class Node {
   def getDepth: Int
   def closestHit(ray: Ray): Option[Hit]
@@ -25,17 +22,17 @@ abstract class Node {
   }
 
   def intersectBoundingBox(ray: Ray): Option[Double] = boundingBox match {
-    case None => None
+    case None       => None
     case Some(aabb) => aabb.intersect(ray).map(_.distance)
   }
 }
 
 private final case class Candidate(node: Node, distance: Double)
 
-final case class InnerNode(boundingBox: Option[AABB], children: Seq[Node], depth: Int)
+final case class InnerNode(boundingBox: Option[AABB], children: Vector[Node], depth: Int)
     extends Node {
   override def closestHit(ray: Ray) = None
-  override def getDepth: Int = children.map { _ getDepth }.max
+  override lazy val getDepth: Int = children.map { _ getDepth }.max
 
   override def countNodes: Int = 1 + children.foldLeft(0)(_ + _.countNodes)
 }
@@ -47,15 +44,15 @@ final case class Leaf(boundingBox: Option[AABB], shapes: Seq[Shape], depth: Int)
       s intersect ray
     } match {
       case Nil => None
-      case xs => Some(xs.minBy(_.distance))
+      case xs  => Some(xs.minBy(_.distance))
     }
 
-  override def getDepth: Int = depth
+  override val getDepth: Int = depth
 
-  override def countNodes: Int = 1
+  override val countNodes: Int = 1
 }
 
-case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean = true)(
+case class BVH(shapes: Vector[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean = true)(
     implicit config: Config)
     extends ShapeContainer
     with LazyLogging {
@@ -66,93 +63,94 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean 
   var nodesCreated: Int = 0
   val root: Node = time("Building BVH took") { buildBVH(shapes, 0) }
 
-  logger.info(s"Build BVH tree with ${size} primitives, ${numNodes} nodes and depth $depth")
+  logger.info(s"Build BVH tree with $size primitives, $numNodes nodes and depth $depth")
 
-  override def size = shapes.size
+  override lazy val size = shapes.size
 
   Shape.materialMap = Shape.materialMap + (BVH.leafMaterial.name -> BVH.leafMaterial)
 
   lazy val numNodes: Int = root.countNodes
   lazy val depth: Int = root.getDepth
 
-  private def getBoundingBox(shapes: Seq[Shape]): Option[AABB] =
-    AABB.wrapping(shapes)
+  private def getBoundingBox(shapes: Vector[Shape]): Option[AABB] = AABB.wrapping(shapes)
 
-  private def splitPrimitives(shapes: Seq[Shape],
-                              aabb: Option[AABB]): Option[(Seq[Shape], Seq[Shape])] = {
+  private def splitPrimitives(shapes: Vector[Shape],
+                              aabb: Option[AABB]): Option[(Vector[Shape], Vector[Shape])] = {
     //primitive split: select max dim and choose mean midpoint
     if (aabb.isEmpty || shapes.lengthCompare(leaf_node_limit) <= 0)
       None
     else {
-      val split = if(splitSAH)
-        getSplitSAH(shapes, aabb.get)
-      else getSplit(shapes, aabb.get)
+      val split =
+        if (splitSAH)
+          getSplitSAH(shapes, aabb.get)
+        else getSplit(shapes, aabb.get)
       split match {
         case (a, b) if (a.size min b.size) == 0 /* leaf_node_limit*/ => None
-        case (a, b) => Some(a, b)
+        case (a, b)                                                  => Some(a, b)
       }
     }
   }
 
-  private def getSplit(shapes: Seq[Shape], aabb: AABB): (Seq[Shape], Seq[Shape]) = {
-    val split: Seq[Shape] =
+  private def getSplit(shapes: Vector[Shape], aabb: AABB): (Vector[Shape], Vector[Shape]) = {
+    val split: Vector[Shape] =
       (aabb.x_max - aabb.x_min, aabb.y_max - aabb.y_min, aabb.z_max - aabb.z_min) match {
         case (x, y, z) if x >= y && x >= z => shapes.sortBy(_.midpoint.x)
         case (x, y, z) if y >= x && y >= z => shapes.sortBy(_.midpoint.y)
-        case _ => shapes.sortBy(_.midpoint.z)
+        case _                             => shapes.sortBy(_.midpoint.z)
       }
 
     val splitIndex = split.size / 2
     (split.take(splitIndex), split.drop(splitIndex))
   }
 
-  private def getSplitSAH(shapes: Seq[Shape], aabb: AABB): (Seq[Shape], Seq[Shape]) = {
-    val split: Seq[Shape] =
+  private def getSplitSAH(shapes: Vector[Shape], aabb: AABB): (Vector[Shape], Vector[Shape]) = {
+    val split: Vector[Shape] =
       (aabb.x_max - aabb.x_min, aabb.y_max - aabb.y_min, aabb.z_max - aabb.z_min) match {
         case (x, y, z) if x >= y && x >= z => shapes.sortBy(_.midpoint.x)
         case (x, y, z) if y >= x && y >= z => shapes.sortBy(_.midpoint.y)
-        case _ => shapes.sortBy(_.midpoint.z)
+        case _                             => shapes.sortBy(_.midpoint.z)
       }
 
-     val splitIndex = getOptimalSplit(split, aabb.area)
+    val splitIndex = getOptimalSplit(split, aabb.area)
     (split.take(splitIndex), split.drop(splitIndex))
 
   }
 
-  def getOptimalSplit(shapes: Seq[Shape], wholeSurfaceArea: Double): Int = {
+  def getOptimalSplit(shapes: Vector[Shape], wholeSurfaceArea: Double): Int = {
 
-    val forw = BVH.findBoundingBoxes(shapes.toIndexedSeq)
-    val backw = BVH.findBoundingBoxes(shapes.toIndexedSeq.reverse).reverse
+    val forw = BVH.findBoundingBoxes(shapes)
+    val backw = BVH.findBoundingBoxes(shapes.reverse).reverse
 
-    val splitcost : Int => Double = i  => BVH.CostAABBIntersection +
-      (forw(i) / wholeSurfaceArea) * i * BVH.CostShapeIntersection +
-      (backw(i + 1) / wholeSurfaceArea) * (backw.size - i) * BVH.CostShapeIntersection
+    val splitcost: Int => Double = i =>
+      BVH.CostAABBIntersection +
+        (forw(i) / wholeSurfaceArea) * i * BVH.CostShapeIntersection +
+        (backw(i + 1) / wholeSurfaceArea) * (backw.size - i) * BVH.CostShapeIntersection
 
-    val costNoSplit: Seq[(Int, Double)] = Seq((0,shapes.size * BVH.CostShapeIntersection))
-    val costs = costNoSplit ++ (1 until forw.size - 1).par.map(i => (i,splitcost(i)))
+    val costNoSplit: Vector[(Int, Double)] = Vector((0, shapes.size * BVH.CostShapeIntersection))
+    val costs = costNoSplit ++ (1 until forw.size - 1).par.map(i => (i, splitcost(i)))
 
     costs.minBy(_._2)._1
   }
 
-  private def buildBVH(shapes: Seq[Shape], depth: Int): Node = {
+  private def buildBVH(shapes: Vector[Shape], depth: Int): Node = {
     val aabb = getBoundingBox(shapes)
     val split = splitPrimitives(shapes, aabb)
     (split, aabb) match {
       case (None, Some(box)) if config.showBvHLeaves =>
         Leaf(aabb, shapes :+ box.copy(material = BVH.leafMaterial.name), depth)
       case (None, _) => Leaf(aabb, shapes, depth)
-      case (Some((a: Seq[Shape], b: Seq[Shape])), _) =>
-        InnerNode(aabb, Seq(buildBVH(a, depth + 1), buildBVH(b, depth + 1)), depth)
+      case (Some((a: Vector[Shape], b: Vector[Shape])), _) =>
+        InnerNode(aabb, Vector(buildBVH(a, depth + 1), buildBVH(b, depth + 1)), depth)
     }
 
   }
 
   private def getCandidatesWithCloseHits(node: InnerNode,
                                          ray: Ray,
-                                         closestHitDist: Double): Seq[Candidate] = {
+                                         closestHitDist: Double): Vector[Candidate] = {
     val candidates = node.children map { (node: Node) =>
       node.intersectBoundingBox(ray) match {
-        case None => Candidate(node, Double.MaxValue)
+        case None       => Candidate(node, Double.MaxValue)
         case Some(dist) => Candidate(node, dist)
       }
     }
@@ -165,26 +163,28 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean 
       None
     } else {
       var closestHit: Option[Hit] = None
-      val nodeStack = scala.collection.mutable.Queue[Node]()
+      val nodeStack = scala.collection.mutable.Queue[Node]() //Replace by non-mutable
       nodeStack += root
       while (nodeStack.nonEmpty) {
         val closestHitDist = closestHit match {
-          case None => Double.MaxValue
+          case None      => Double.MaxValue
           case Some(hit) => hit.distance
         }
         nodeStack.dequeue match {
           case node: InnerNode =>
-            val nodeBoundingBoxHits: Seq[Candidate] =
+            val nodeBoundingBoxHits: Vector[Candidate] =
               getCandidatesWithCloseHits(node, ray, closestHitDist)
             //remember closest aabb hit if this hould be shown
             if (BVH.showInnerNodes && nodeBoundingBoxHits.nonEmpty) {
               val aabbHitDist = nodeBoundingBoxHits.map(_.distance).min
               if (aabbHitDist < closestHitDist)
                 closestHit = Some(
-                  Hit(distance = aabbHitDist,
-                      position = ray.march(aabbHitDist),
-                      originalNormal = Vector3.X, /*not needed for shading*/
-                      color = BVH.innerNodeMaterial.getMat(Vector3.ZERO)))
+                  Hit(
+                    distance = aabbHitDist,
+                    position = ray.march(aabbHitDist),
+                    originalNormal = Vector3.X, /*not needed for shading*/
+                    color = BVH.innerNodeMaterial.getMat(Vector3.ZERO)
+                  ))
             }
             //add to stack
             nodeStack ++= nodeBoundingBoxHits
@@ -207,7 +207,7 @@ case class BVH(shapes: Seq[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean 
   override def intersectionTest(ray: Ray, maxDist: Double): Boolean =
     intersect(ray) match {
       case Some(hit) if hit.distance <= maxDist => true
-      case _ => false
+      case _                                    => false
     }
 
 }
@@ -229,26 +229,24 @@ object BVH {
                                                       refractive = .99,
                                                       n = 1)
 
+  //new: 93,103,114,114,122,126 ~> 30% fluc.
+  //old: 112,81,113,
+
   private val CostShapeIntersection: Int = 1
   private val CostAABBIntersection: Int = 7
 
-  private def findBoundingBoxes(l: Seq[Shape]): Seq[Double] = l match {
-    case Nil => Seq.empty
-    case x =>
-      findBoundingBoxesRec(x.tail, x.head.boundingBox, new mutable.ArraySeq[Double](l.size), 0)
-  }
+  private def findBoundingBoxes(shapes: Vector[Shape]): Vector[Double] =
+    if (shapes.nonEmpty)
+      shapes.tail
+        .foldLeft((shapes.head.boundingBox, Vector.empty[Double])) {
+          case ((aabb, areas), shape) =>
+            val newBoundingBox: AABB = aabb union shape.boundingBox
+            (newBoundingBox, areas :+ newBoundingBox.area)
+        }
+        ._2
+    else Vector.empty
 
-  @tailrec
-  private def findBoundingBoxesRec(l: Seq[Shape],
-                                   value: AABB,
-                                   acc: mutable.ArraySeq[Double],
-                                   position: Int): Seq[Double] = l match {
-    case Nil => acc
-    case x if position == l.size => acc
-    case x =>
-      val v = value union x(position).boundingBox
-      acc(position) = v.area
-      findBoundingBoxesRec(x, v, acc, position + 1)
-  }
-
+  //SAH: 478/
+  //no SAH: 554/
+  //-- why big vcariations? using smac for best parameter tunning? http://www.ml4aad.org/algorithm-configuration/smac/
 }

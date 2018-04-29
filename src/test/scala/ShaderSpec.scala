@@ -25,20 +25,19 @@ class ShaderSpec extends Specification with Mockito {
             should correct color for multiple lights $testShadeDiffuse
 
     """
-  case class ColorToCompare(color:RGB, delta: Double = 0.01){
+  case class ColorToCompare(color: RGB, delta: Double = 0.01) {
 
-   def withDelta(d:Double) = this.copy(delta = d)
+    def withDelta(d: Double) = this.copy(delta = d)
 
-   def shouldBeSimilarTo (color2: RGB) = {
+    def shouldBeSimilarTo(color2: RGB) = {
       def colorToSeq(color: RGB) = Seq(color.red, color.green, color.blue)
 
       val zippedColorComponents = colorToSeq(color).zip(colorToSeq(color2))
-      foreach(zippedColorComponents){ case(a:Double,b: Double) => a  must be ~(b +/- delta) }
+      foreach(zippedColorComponents) { case (a: Double, b: Double) => a must be ~ (b +/- delta) }
     }
   }
 
   implicit def colorToCompare(color: RGB) = ColorToCompare(color)
-
 
   implicit val config: Config = Config()
 
@@ -47,26 +46,26 @@ class ShaderSpec extends Specification with Mockito {
   val shader = Shader(mockedRenderer)
   mockedRenderer.scene returns mockedScene
 
-  val unshadedColor =  UnshadedColor(color = CYAN,
-                                     ambient = 0.2,
-                                     diffuse = 0.4,
-                                     spec = 0.2,
-                                     reflective = 0.1,
-                                     refractive = 0.1,
-                                     n = 1.33,
-                                     shininess = 16)
+  val unshadedColor = UnshadedColor(color = CYAN,
+                                    ambient = 0.2,
+                                    diffuse = 0.4,
+                                    spec = 0.2,
+                                    reflective = 0.1,
+                                    refractive = 0.1,
+                                    n = 1.33,
+                                    shininess = 16)
 
-  val hit = Hit(0.2, Vector3.Y, Vector3.ONE,unshadedColor)
-  val ray = Ray(Vector3.ZERO,Vector3.Z)
+  val hit = Hit(0.2, Vector3.Y, Vector3.ONE, unshadedColor)
+  val ray = Ray(Vector3.ZERO, Vector3.Z)
 
   val testShadowRayPositive = {
-    val shapes = Seq( Sphere( Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * 0.3, 0.1))
+    val shapes = Seq(Sphere(Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * 0.3, 0.1))
     mockedScene.allShapes returns ShapeSeq(shapes)
     shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beTrue
   }
 
   val testShadowRayNegative = {
-    val shapes = Seq( Sphere( Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * -0.5, 0.1))
+    val shapes = Seq(Sphere(Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * -0.5, 0.1))
     mockedScene.allShapes returns ShapeSeq(shapes)
     shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beFalse
   }
@@ -79,8 +78,10 @@ class ShaderSpec extends Specification with Mockito {
   }
 
   val testShadeReflection = {
-    val color = RGB(0.2,0.6,0.1)
-    mockedRenderer.traceRay(ray.reflectedAt(hit.position, hit.normal)) returns TracingResult(color,0,0)
+    val color = RGB(0.2, 0.6, 0.1)
+    mockedRenderer.traceRay(ray.reflectedAt(hit.position, hit.normal)) returns TracingResult(color,
+                                                                                             0,
+                                                                                             0)
     shader.shadeReflection(hit, ray) should be equalTo (color * 0.1)
   }
 
@@ -90,12 +91,12 @@ class ShaderSpec extends Specification with Mockito {
   }
 
   val testShadeDiffuse = {
-    val sample1 = LightSample(PointLight(Vector3.ONE,  RGB.RED, power = 2),
-                              weight = 1, position = Vector3.ONE)
-    val sample2 = LightSample(PointLight(Vector3.ONE,  RGB.RED, power = 2),
-                              weight = 1, position = Vector3.ONE)
+    val sample1 =
+      LightSample(PointLight(Vector3.ONE, RGB.RED, power = 2), weight = 1, position = Vector3.ONE)
+    val sample2 =
+      LightSample(PointLight(Vector3.ONE, RGB.RED, power = 2), weight = 1, position = Vector3.ONE)
 
-    val lights  = Seq(sample1, sample2)
+    val lights = Seq(sample1, sample2)
     val color = shader.shadeDiffuse(hit, ray, lights)
     color shouldBeSimilarTo RGB(0, 0.653, 0.653) //TODO: Why these values?
 

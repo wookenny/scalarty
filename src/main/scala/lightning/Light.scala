@@ -57,13 +57,12 @@ object LightSource {
   val rand: Random = new Random(0)
 
   implicit val encodeLightsource: Encoder[LightSource] = Encoder.instance {
-    case n @ PointLight(_,_,_)     => Json.obj("PointLight"    -> n.asJson)
-    case n @ PlaneLight(_,_,_,_,_)   => Json.obj("PlaneLight"  -> n.asJson)
+    case n @ PointLight(_, _, _)       => Json.obj("PointLight" -> n.asJson)
+    case n @ PlaneLight(_, _, _, _, _) => Json.obj("PlaneLight" -> n.asJson)
   }
 
   private val decodePointLight = Decoder[PointLight].prepare(_.downField("PointLight"))
   private val decodePlaneLight = Decoder[PlaneLight].prepare(_.downField("PlaneLight"))
-
 
   implicit val decodeLightsource: Decoder[LightSource] = decodePointLight
     .or(decodePlaneLight.widen[LightSource])

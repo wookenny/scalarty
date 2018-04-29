@@ -43,13 +43,13 @@ case class ObjObject(filename: String,
     val objFile = reader(filename).getLines
 
     objFile foreach {
-      case line if line.trim.isEmpty => Unit //skip empty lines
-      case line if line.trim.startsWith("#") => Unit //comment
-      case line if line.trim.startsWith("g") => Unit //TODO: parse what?
+      case line if line.trim.isEmpty          => Unit //skip empty lines
+      case line if line.trim.startsWith("#")  => Unit //comment
+      case line if line.trim.startsWith("g")  => Unit //TODO: parse what?
       case line if line.trim.startsWith("vn") => parseNormal(line)
-      case line if line.trim.startsWith("v") => parseVertex(line)
-      case line if line.trim.startsWith("f") => parseFace(line)
-      case line => logger.error(s"ERROR: Cannot parse this line: <$line>")
+      case line if line.trim.startsWith("v")  => parseVertex(line)
+      case line if line.trim.startsWith("f")  => parseFace(line)
+      case line                               => logger.error(s"ERROR: Cannot parse this line: <$line>")
     }
 
     val (coordinates_x, coordinates_y, coordinates_z) =
@@ -64,8 +64,8 @@ case class ObjObject(filename: String,
       (coordinates_z.max - coordinates_z.min) / 2 + coordinates_z.min
     )
 
-    val height = (coordinates_y.max - coordinates_y.min)*scalingFactor
-    val newCenter = centerBottom.copy(y = centerBottom.y + height/2)
+    val height = (coordinates_y.max - coordinates_y.min) * scalingFactor
+    val newCenter = centerBottom.copy(y = centerBottom.y + height / 2)
 
     for (i <- vertices.indices.par)
       vertices(i) = transformVertex(vertices(i), currentCenter, newCenter, scalingFactor, rotation)
