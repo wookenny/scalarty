@@ -1,7 +1,8 @@
 package material.node
+import java.lang.Math.exp
+
 import color.RGB
 import math.Vector3
-import Math.exp
 
 //TODO: color nodes should be limited to 0 to 1 as values!!!
 

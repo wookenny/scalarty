@@ -32,7 +32,8 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze-natives" % "0.13.2",
   "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
   "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
-  "com.github.julien-truffaut" %% "monocle-law" % monocleVersion % "test"
+  "com.github.julien-truffaut" %% "monocle-law" % monocleVersion % "test",
+  "com.github.ichoran" %% "thyme" % "0.1.2-SNAPSHOT"
 )
 
 parallelExecution in Test := false
@@ -52,6 +53,6 @@ coverageEnabled := true
 coverageFailOnMinimum := false
 //wartremoverErrors in (Compile, compile) ++= Warts.unsafe.filterNot(_==Wart.DefaultArguments)
 
-lazy val example = InputKey[Unit]("example", "Run something.")
+lazy val example = InputKey[Unit]("benchmark", "Run something.")
 
 fullRunInputTask(example, Compile, "bench.BenchTest")

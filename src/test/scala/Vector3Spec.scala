@@ -6,11 +6,11 @@ import org.specs2.{ScalaCheck, Specification}
 class VectorSpec extends Specification with ScalaCheck {
   def is = s2"""
   A Vector should
-    calculate its length ${lengthTest}
-    calculate the distance to another vector ${distTest}
-    normalize correctly ${normalizedTest}
+    calculate its length $lengthTest
+    calculate the distance to another vector $distTest
+    normalize correctly $normalizedTest
 
-    have correct scalar division ${scalarDivision}
+    have correct scalar division $scalarDivision
     have a correct scalar multiplication $scalarMultiplication
     have a correct negation $negation
     have a correct identity $identity
@@ -52,6 +52,9 @@ class VectorSpec extends Specification with ScalaCheck {
   }
   val multiplication = forAll { (a: Vector3, b: Vector3) =>
     a * b == a.x * b.x + a.y * b.y + a.z * b.z
+  }
+  val multi = forAll { (a: Vector3, b: Vector3) =>
+    (a mult b) == Vector3(a.x * b.x, a.y * b.y, a.z * b.z)
   }
   val crossproduct = forAll { (a: Vector3, b: Vector3) =>
     (a cross a) == Vector3.ZERO && ((a cross b) == -(b cross a))

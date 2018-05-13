@@ -40,6 +40,6 @@ object Config {
   val DefaultVerbose = false
   val DefaultSupersampling = "1:0"
   val DefaultShadowSupersampling = "1:0"
-  val DefaultSAH = false
-  val DefaultBvhSplitlimit = 20
+  val DefaultSAH = true
+  val DefaultBvhSplitlimit = 12
 }

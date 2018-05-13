@@ -52,11 +52,11 @@ final case class Leaf(boundingBox: Option[AABB], shapes: Seq[Shape], depth: Int)
   override val countNodes: Int = 1
 }
 
-case class BVH(shapes: Vector[Shape], leaf_node_limit: Int = 20, splitSAH: Boolean = true)(
+case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean = true)(
     implicit config: Config)
     extends ShapeContainer
     with LazyLogging {
-  logger.info("Building BVH ...")
+  logger.info(s"Building BVH with sah=$splitSAH and leafNodeLimit=$leafNodeLimit...")
 
   implicit val log: (String) => Unit = s => logger.info(s)
 
@@ -77,7 +77,7 @@ case class BVH(shapes: Vector[Shape], leaf_node_limit: Int = 20, splitSAH: Boole
   private def splitPrimitives(shapes: Vector[Shape],
                               aabb: Option[AABB]): Option[(Vector[Shape], Vector[Shape])] = {
     //primitive split: select max dim and choose mean midpoint
-    if (aabb.isEmpty || shapes.lengthCompare(leaf_node_limit) <= 0)
+    if (aabb.isEmpty || shapes.lengthCompare(leafNodeLimit) <= 0)
       None
     else {
       val split =
@@ -85,8 +85,8 @@ case class BVH(shapes: Vector[Shape], leaf_node_limit: Int = 20, splitSAH: Boole
           getSplitSAH(shapes, aabb.get)
         else getSplit(shapes, aabb.get)
       split match {
-        case (a, b) if (a.size min b.size) == 0 /* leaf_node_limit*/ => None
-        case (a, b)                                                  => Some(a, b)
+        case (a, b) if (a.size min b.size) == 0 => None
+        case (a, b)                             => Some(a, b)
       }
     }
   }
@@ -229,9 +229,6 @@ object BVH {
                                                       refractive = .99,
                                                       n = 1)
 
-  //new: 93,103,114,114,122,126 ~> 30% fluc.
-  //old: 112,81,113,
-
   private val CostShapeIntersection: Int = 1
   private val CostAABBIntersection: Int = 7
 
@@ -246,7 +243,4 @@ object BVH {
         ._2
     else Vector.empty
 
-  //SAH: 478/
-  //no SAH: 554/
-  //-- why big vcariations? using smac for best parameter tunning? http://www.ml4aad.org/algorithm-configuration/smac/
 }

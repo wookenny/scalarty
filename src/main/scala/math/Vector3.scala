@@ -8,7 +8,7 @@ final case class Vector3(x: Double, y: Double, z: Double) {
   def +(p: Vector3) = Vector3(x + p.x, y + p.y, z + p.z)
   def -(p: Vector3) = Vector3(x - p.x, y - p.y, z - p.z)
   def *(p: Vector3): Double = x * p.x + y * p.y + z * p.z
-  def mult(p: Vector3): Vector3 = Vector3(x * p.y, y * p.y, z * p.z)
+  def mult(p: Vector3): Vector3 = Vector3(x * p.x, y * p.y, z * p.z)
 
   def unary_-(): Vector3 = map(-1 *)
   def unary_+(): Vector3 = this

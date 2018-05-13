@@ -65,7 +65,7 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
 
     renderPath(img, config.supersampling.full, config.shadowsampling.full, None)
 
-    logger.info("first path done. ")
+    logger.info("first path done.")
 
     val edges =
       if (config.supersampling.secondPath) img.detectEdges()
@@ -81,6 +81,7 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
     renderSubset(edges.diff(shadowEdges), supersampling = config.supersampling.adaptive)
     renderSubset(shadowEdges.diff(edges), shadowsampling = config.shadowsampling.adaptive)
 
+    logger.info("rendering done.")
     img
   }
 

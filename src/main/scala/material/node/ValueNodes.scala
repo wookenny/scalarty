@@ -27,7 +27,7 @@ case class CheckerValue(stepSize: Double,
   }
 }
 
-case class NoiseValue(seed: Long, size: Double) extends ValueNode {
+case class NoiseValue(seed: Long, size: Double = 1) extends ValueNode {
 
   val noise = new OpenSimplex(seed, size)
 
@@ -35,7 +35,8 @@ case class NoiseValue(seed: Long, size: Double) extends ValueNode {
     noise.evalNormalized(position.x, position.y, position.z)
 }
 
-case class MultilayerNoiseValue(seed: Long, size: Double, octaves: Option[Int]) extends ValueNode {
+case class MultilayerNoiseValue(seed: Long, size: Double = 1, octaves: Option[Int] = None)
+    extends ValueNode {
 
   val numOctaves = (1 max octaves.getOrElse(7)) max 10
 
