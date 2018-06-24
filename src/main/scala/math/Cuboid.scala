@@ -6,11 +6,12 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import math.Cuboid.Dimension.Dimension
 import renderer.Hit
 
-sealed case class Cuboid(center: Vector3,
-                         sideLengths: Vector3,
-                         rotation: Vector3,
-                         material: String = "DEFAULT_MATERIAL")
-    extends Shape {
+sealed case class Cuboid(
+    center: Vector3,
+    sideLengths: Vector3,
+    rotation: Vector3,
+    material: String = "DEFAULT_MATERIAL"
+) extends Shape {
 
   import Cuboid._, Dimension._
 
@@ -18,12 +19,14 @@ sealed case class Cuboid(center: Vector3,
     val x = sideLengths.x
     val y = sideLengths.y
     val z = sideLengths.z
-    Seq(Vector3(x, 0, 0),
-        Vector3(-1 * x, 0, 0),
-        Vector3(0, y, 0),
-        Vector3(0, -1 * y, 0),
-        Vector3(0, 0, z),
-        Vector3(0, 0, -1 * z)).map(rotatePoint(_) + center)
+    Seq(
+      Vector3(x, 0, 0),
+      Vector3(-1 * x, 0, 0),
+      Vector3(0, y, 0),
+      Vector3(0, -1 * y, 0),
+      Vector3(0, 0, z),
+      Vector3(0, 0, -1 * z)
+    ).map(rotatePoint(_) + center)
 
   }
 
@@ -87,17 +90,21 @@ sealed case class Cuboid(center: Vector3,
 
   override lazy val maxZ = vertices.map(_.z).max
 
-  private def rotateRay(ray: Ray,
-                        center: Vector3 = Vector3.ZERO,
-                        rotateInverse: Boolean = false): Ray = {
+  private def rotateRay(
+      ray: Ray,
+      center: Vector3 = Vector3.ZERO,
+      rotateInverse: Boolean = false
+  ): Ray = {
     val rotatedOrigin = rotatePoint(ray.origin, center, rotateInverse)
     val rotatedDirection = rotatePoint(ray.direction, Vector3.ZERO, rotateInverse)
     ray.copy(origin = rotatedOrigin, direction = rotatedDirection)
   }
 
-  private def rotatePoint(point: Vector3,
-                          center: Vector3 = Vector3.ZERO,
-                          rotateInverse: Boolean = false): Vector3 = {
+  private def rotatePoint(
+      point: Vector3,
+      center: Vector3 = Vector3.ZERO,
+      rotateInverse: Boolean = false
+  ): Vector3 = {
     val matrix =
       if (rotateInverse)
         inverseRotMatrix

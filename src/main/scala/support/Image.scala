@@ -119,10 +119,12 @@ class Image(val width: Int, val height: Int) {
       sobelFilterMagnitute(x, y, (c: RGB) => c.green, imageToFilter) max
       sobelFilterMagnitute(x, y, (c: RGB) => c.blue, imageToFilter)
 
-  private def sobelFilterMagnitute(x: Int,
-                                   y: Int,
-                                   f: RGB => Double,
-                                   imageToFilter: BufferedImage): Double = {
+  private def sobelFilterMagnitute(
+      x: Int,
+      y: Int,
+      f: RGB => Double,
+      imageToFilter: BufferedImage
+  ): Double = {
     val kernelFiltered: Seq[(Double, Double)] = for {
       a <- 0 to 2
       b <- 0 to 2

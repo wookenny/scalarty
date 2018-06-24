@@ -50,12 +50,14 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
   }
 
   override lazy val boundingBox: AABB =
-    AABB(center.x - radius,
-         center.x + radius,
-         center.y - radius,
-         center.y + radius,
-         center.z - radius,
-         center.z + radius)
+    AABB(
+      center.x - radius,
+      center.x + radius,
+      center.y - radius,
+      center.y + radius,
+      center.z - radius,
+      center.z + radius
+    )
 
   override val midpoint: Vector3 = center
 

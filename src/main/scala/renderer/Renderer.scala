@@ -61,7 +61,8 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
 
     logger.info(
       s"tracing ${config.supersampling.full}x${config.supersampling.full} per pixel " +
-        s"with shadows sampled ${config.shadowsampling.full}x${config.shadowsampling.full}")
+        s"with shadows sampled ${config.shadowsampling.full}x${config.shadowsampling.full}"
+    )
 
     renderPath(img, config.supersampling.full, config.shadowsampling.full, None)
 
@@ -71,13 +72,17 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
       if (config.supersampling.secondPath) img.detectEdges()
       else GenSet.empty[(Int, Int)]
 
-    val shadowEdges = erode(if (config.shadowsampling.secondPath) img.detectShadowEdges()
-                            else GenSet.empty[(Int, Int)],
-                            3)
+    val shadowEdges = erode(
+      if (config.shadowsampling.secondPath) img.detectShadowEdges()
+      else GenSet.empty[(Int, Int)],
+      3
+    )
 
-    renderSubset(edges.intersect(shadowEdges),
-                 config.supersampling.adaptive,
-                 config.shadowsampling.adaptive)
+    renderSubset(
+      edges.intersect(shadowEdges),
+      config.supersampling.adaptive,
+      config.shadowsampling.adaptive
+    )
     renderSubset(edges.diff(shadowEdges), supersampling = config.supersampling.adaptive)
     renderSubset(shadowEdges.diff(edges), shadowsampling = config.shadowsampling.adaptive)
 
@@ -86,27 +91,33 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
   }
 
   def erode(pixels: GenSet[(Int, Int)], strength: Int = 1)(
-      implicit img: Image): GenSet[(Int, Int)] =
+      implicit img: Image
+  ): GenSet[(Int, Int)] =
     (for {
       (x, y) <- pixels.toStream
       i <- -strength to strength if (x + i) >= 0 && (x + i) < img.width
       j <- -strength to strength if (y + j) >= 0 && (y + j) < img.height
     } yield (x + i, y + j)).toSet
 
-  def renderSubset(pixels: GenSet[(Int, Int)],
-                   supersampling: Int = config.supersampling.full,
-                   shadowsampling: Int = config.shadowsampling.full)(implicit img: Image) {
+  def renderSubset(
+      pixels: GenSet[(Int, Int)],
+      supersampling: Int = config.supersampling.full,
+      shadowsampling: Int = config.shadowsampling.full
+  )(implicit img: Image) {
     if (pixels.nonEmpty) {
       val percentage = 100 * pixels.size.toFloat / (img.height * img.width)
       logger.info(
         f"tracing for $percentage%2.1f%% of all pixels" +
-          f" with sampling $supersampling and shadow sampling $shadowsampling")
+          f" with sampling $supersampling and shadow sampling $shadowsampling"
+      )
       renderPath(img, supersampling, shadowsampling, Some(pixels))
     }
   }
 
-  def buildRenderChunks(img: Image,
-                        selection: Option[GenSet[(Int, Int)]]): Array[Array[(Int, Int)]] = {
+  def buildRenderChunks(
+      img: Image,
+      selection: Option[GenSet[(Int, Int)]]
+  ): Array[Array[(Int, Int)]] = {
 
     val allPixels: Array[(Int, Int)] =
       (for {
@@ -121,10 +132,12 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
 
   }
 
-  def renderPath(img: Image,
-                 supersampling: Int,
-                 shadowsampling: Int,
-                 selection: Option[GenSet[(Int, Int)]]): Unit = {
+  def renderPath(
+      img: Image,
+      supersampling: Int,
+      shadowsampling: Int,
+      selection: Option[GenSet[(Int, Int)]]
+  ): Unit = {
     val w: Double = scene.width
     val h: Double = scene.height
     val corner = scene.cameraOrigin + scene.cameraPointing - scene.side * (w / 2) + scene.up * (h / 2)

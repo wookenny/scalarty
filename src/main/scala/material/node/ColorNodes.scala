@@ -10,12 +10,13 @@ case class ConstantColor(color: RGB) extends ColorNode {
   override def value(position: Vector3): RGB = color.clamp
 }
 
-case class CheckerColor(color1: RGB,
-                        color2: RGB,
-                        stepSize: Double,
-                        offset: Option[Vector3] = None,
-                        scaling: Option[Vector3] = None)
-    extends ColorNode {
+case class CheckerColor(
+    color1: RGB,
+    color2: RGB,
+    stepSize: Double,
+    offset: Option[Vector3] = None,
+    scaling: Option[Vector3] = None
+) extends ColorNode {
   private val checkerPattern = CheckerValue(stepSize, offset, scaling)
   override def value(position: Vector3): RGB =
     if (checkerPattern.value(position) > 0.5) color1.clamp
@@ -23,11 +24,12 @@ case class CheckerColor(color1: RGB,
 }
 
 //TODO falloff between two points
-case class PointFallColor(color1: RGB,
-                          color2: RGB,
-                          center: Vector3,
-                          scaling: Option[Double] = Some(0.1))
-    extends ColorNode {
+case class PointFallColor(
+    color1: RGB,
+    color2: RGB,
+    center: Vector3,
+    scaling: Option[Double] = Some(0.1)
+) extends ColorNode {
   override def value(position: Vector3): RGB = {
     val mix = 1 / exp(scaling.getOrElse(0.1) * (center - position).length)
     (color1 * mix + color2 * (1 - mix)).clamp

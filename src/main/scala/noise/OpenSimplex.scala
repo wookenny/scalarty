@@ -198,7 +198,8 @@ case class OpenSimplex(override val seed: Long, override val noiseSize: Double =
 
             val i = perm4D((perm((perm((perm(px & 0xFF) + py) & 0xFF) + pz) & 0xFF) + pw) & 0xFF)
             val valuePart = Gradients4D(i) * dx + Gradients4D(i + 1) * dy + Gradients4D(i + 2) * dz + Gradients4D(
-              i + 3) * dw
+              i + 3
+            ) * dw
 
             val sqattn = attn * attn
             value + sqattn * sqattn * valuePart
@@ -280,7 +281,8 @@ object OpenSimplex {
   private val base3D = Array(
     Array[Int](0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1),
     Array[Int](2, 1, 1, 0, 2, 1, 0, 1, 2, 0, 1, 1, 3, 1, 1, 1),
-    Array[Int](1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 2, 1, 1, 0, 2, 1, 0, 1, 2, 0, 1, 1))
+    Array[Int](1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 2, 1, 1, 0, 2, 1, 0, 1, 2, 0, 1, 1)
+  )
 
   private val p3D = Array[Int](0, 0, 1, -1, 0, 0, 1, 0, -1, 0, 0, -1, 1, 0, 0, 0, 1, -1, 0, 0, -1,
     0, 1, 0, 0, -1, 1, 0, 2, 1, 1, 0, 1, 1, 1, -1, 0, 2, 1, 0, 1, 1, 1, -1, 1, 0, 2, 0, 1, 1, 1, -1,
@@ -302,11 +304,14 @@ object OpenSimplex {
   for (i <- p3D.indices by 9) {
     val baseSet = base3D(p3D(i))
     val tail = Some(
-      Contribution3(p3D(i + 1),
-                    p3D(i + 2),
-                    p3D(i + 3),
-                    p3D(i + 4),
-                    next = Some(Contribution3(p3D(i + 5), p3D(i + 6), p3D(i + 7), p3D(i + 8)))))
+      Contribution3(
+        p3D(i + 1),
+        p3D(i + 2),
+        p3D(i + 3),
+        p3D(i + 4),
+        next = Some(Contribution3(p3D(i + 5), p3D(i + 6), p3D(i + 7), p3D(i + 8)))
+      )
+    )
     contributions3D(i / 9) = (baseSet.indices by 4).reverse.foldLeft(tail) {
       case (next: Option[Contribution3], k: Int) =>
         Some(Contribution3(baseSet(k), baseSet(k + 1), baseSet(k + 2), baseSet(k + 3), next))
@@ -455,17 +460,23 @@ object OpenSimplex {
             p4D(i + 9),
             p4D(i + 10),
             next =
-              Some(Contribution4(p4D(i + 11), p4D(i + 12), p4D(i + 13), p4D(i + 14), p4D(i + 15)))))
-      ))
+              Some(Contribution4(p4D(i + 11), p4D(i + 12), p4D(i + 13), p4D(i + 14), p4D(i + 15)))
+          )
+        )
+      )
+    )
     contributions4D(i / 16) = (baseSet.indices by 5).reverse.foldLeft(tail) {
       case (next: Option[Contribution4], k: Int) =>
         Some(
-          Contribution4(baseSet(k),
-                        baseSet(k + 1),
-                        baseSet(k + 2),
-                        baseSet(k + 3),
-                        baseSet(k + 4),
-                        next))
+          Contribution4(
+            baseSet(k),
+            baseSet(k + 1),
+            baseSet(k + 2),
+            baseSet(k + 3),
+            baseSet(k + 4),
+            next
+          )
+        )
     }
   }
 
@@ -473,30 +484,36 @@ object OpenSimplex {
   for (i <- lookupPairs4D.indices by 2)
     lookup4D(lookupPairs4D(i)) = contributions4D(lookupPairs4D(i + 1))
 
-  private[OpenSimplex] case class Contribution2(multiplier: Double,
-                                                xsb: Int,
-                                                ysb: Int,
-                                                next: Option[Contribution2] = None) {
+  private[OpenSimplex] case class Contribution2(
+      multiplier: Double,
+      xsb: Int,
+      ysb: Int,
+      next: Option[Contribution2] = None
+  ) {
     val dx: Double = -xsb - multiplier * SQUISH_2D
     val dy: Double = -ysb - multiplier * SQUISH_2D
   }
 
-  private[OpenSimplex] case class Contribution3(multiplier: Double,
-                                                xsb: Int,
-                                                ysb: Int,
-                                                zsb: Int,
-                                                next: Option[Contribution3] = None) {
+  private[OpenSimplex] case class Contribution3(
+      multiplier: Double,
+      xsb: Int,
+      ysb: Int,
+      zsb: Int,
+      next: Option[Contribution3] = None
+  ) {
     val dx: Double = -xsb - multiplier * SQUISH_3D
     val dy: Double = -ysb - multiplier * SQUISH_3D
     val dz: Double = -zsb - multiplier * SQUISH_3D
   }
 
-  private[OpenSimplex] case class Contribution4(multiplier: Double,
-                                                xsb: Int,
-                                                ysb: Int,
-                                                zsb: Int,
-                                                wsb: Int,
-                                                next: Option[Contribution4] = None) {
+  private[OpenSimplex] case class Contribution4(
+      multiplier: Double,
+      xsb: Int,
+      ysb: Int,
+      zsb: Int,
+      wsb: Int,
+      next: Option[Contribution4] = None
+  ) {
     val dx: Double = -xsb - multiplier * SQUISH_4D
     val dy: Double = -ysb - multiplier * SQUISH_4D
     val dz: Double = -zsb - multiplier * SQUISH_4D

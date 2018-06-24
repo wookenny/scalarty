@@ -23,12 +23,13 @@ final case class PointLight(position: Vector3, color: RGB, power: Double) extend
   override def sample(n: Int) = Seq(position)
 }
 
-final case class PlaneLight(position: Vector3,
-                            width: Double,
-                            length: Double,
-                            color: RGB,
-                            power: Double)
-    extends LightSource {
+final case class PlaneLight(
+    position: Vector3,
+    width: Double,
+    length: Double,
+    color: RGB,
+    power: Double
+) extends LightSource {
 
   private def randomOffset(s: Double) = {
     s * (LightSource.rand.nextDouble() - 0.5)
@@ -46,9 +47,11 @@ final case class PlaneLight(position: Vector3,
       x <- (-n + 1).until(n) by 2
       z <- (-n + 1).until(n) by 2
     } yield
-      Vector3((x.toDouble / n) * width + position.x + randomOffset(width / n),
-              position.y,
-              (z.toDouble / n) * length + position.z + randomOffset(length / n))
+      Vector3(
+        (x.toDouble / n) * width + position.x + randomOffset(width / n),
+        position.y,
+        (z.toDouble / n) * length + position.z + randomOffset(length / n)
+      )
 
 }
 

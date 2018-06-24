@@ -43,16 +43,18 @@ object Material {
 
 }
 
-final case class UnshadedColor(color: RGB,
-                               ambient: Double,
-                               diffuse: Double,
-                               spec: Double,
-                               reflective: Double,
-                               refractive: Double,
-                               n: Double,
-                               shininess: Double,
-                               emission: Double = 0,
-                               normalModifier: Vector3 = Vector3.ZERO)
+final case class UnshadedColor(
+    color: RGB,
+    ambient: Double,
+    diffuse: Double,
+    spec: Double,
+    reflective: Double,
+    refractive: Double,
+    n: Double,
+    shininess: Double,
+    emission: Double = 0,
+    normalModifier: Vector3 = Vector3.ZERO
+)
 
 trait Material {
   def getMat(position: Vector3): UnshadedColor

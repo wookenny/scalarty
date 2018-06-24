@@ -13,7 +13,6 @@ object Generators {
   val generalDouble = Gen.choose(Double.MinValue, Double.MaxValue)
   val smallMultipleOfaQuarter =  Gen.choose(1, 20).flatMap(_ * 0.25)
 
-
   val regularRgb = for {
     x <- Gen.choose(0d, 1d)
     y <- Gen.choose(0d, 1d)

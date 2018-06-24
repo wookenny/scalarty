@@ -7,8 +7,9 @@ object Util {
   // default implicit time measurement
   implicit def currentTimeInNanos: () => Long = () => System.nanoTime()
 
-  def time[A](msg: String)(block: => A)(implicit log: String => Unit,
-                                        currentTimeInNanos: () => Long): A = {
+  def time[A](
+      msg: String
+  )(block: => A)(implicit log: String => Unit, currentTimeInNanos: () => Long): A = {
     val start = currentTimeInNanos()
     val res = block
     log(s"$msg ${elapsedTime(start, currentTimeInNanos())}")

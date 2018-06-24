@@ -1,11 +1,13 @@
 package math
 import Math._
 
-final case class Ray(origin: Vector3,
-                     direction: Vector3,
-                     depth: Int = 0,
-                     n: Double = 1f,
-                     source: String = "") {
+final case class Ray(
+    origin: Vector3,
+    direction: Vector3,
+    depth: Int = 0,
+    n: Double = 1f,
+    source: String = ""
+) {
   def march(length: Double) = origin + direction * length
 
   def reflectedAt(position: Vector3, normal: Vector3): Ray = {
@@ -29,10 +31,13 @@ final case class Ray(origin: Vector3,
       val refractedDir =
         (V * refractionFactor + norm * (refractionFactor * cosI - cosT)).normalized
       Some(
-        this.copy(origin = position + refractedDir * EPS,
-                  direction = refractedDir,
-                  depth = depth + 1,
-                  n = newN))
+        this.copy(
+          origin = position + refractedDir * EPS,
+          direction = refractedDir,
+          depth = depth + 1,
+          n = newN
+        )
+      )
     }
   }
 }

@@ -2,12 +2,13 @@ package math
 
 import renderer.Hit
 
-final case class Triangle(a: Vector3,
-                          b: Vector3,
-                          c: Vector3,
-                          material: String = "DEFAULT_MATERIAL",
-                          normals: Option[Seq[Vector3]] = None)
-    extends Shape {
+final case class Triangle(
+    a: Vector3,
+    b: Vector3,
+    c: Vector3,
+    material: String = "DEFAULT_MATERIAL",
+    normals: Option[Seq[Vector3]] = None
+) extends Shape {
   import Math._
   lazy val edge1: Vector3 = b - a
   lazy val edge2: Vector3 = c - a
@@ -97,12 +98,14 @@ final case class Triangle(a: Vector3,
 
   override lazy val boundingBox: AABB = {
     val points: Seq[Vector3] = Seq(a, b, c)
-    AABB(points.map(_.x).min,
-         points.map(_.x).max,
-         points.map(_.y).min,
-         points.map(_.y).max,
-         points.map(_.z).min,
-         points.map(_.z).max)
+    AABB(
+      points.map(_.x).min,
+      points.map(_.x).max,
+      points.map(_.y).min,
+      points.map(_.y).max,
+      points.map(_.z).min,
+      points.map(_.z).max
+    )
   }
 
   override lazy val midpoint: Vector3 = (a + b + c) / 3

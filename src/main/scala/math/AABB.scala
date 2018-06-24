@@ -3,14 +3,15 @@ package math
 import material.Material.DEFAULT_MATERIAL
 import renderer.Hit
 
-sealed case class AABB(x_min: Double,
-                       x_max: Double,
-                       y_min: Double,
-                       y_max: Double,
-                       z_min: Double,
-                       z_max: Double,
-                       material: String = DEFAULT_MATERIAL.name)
-    extends Shape {
+sealed case class AABB(
+    x_min: Double,
+    x_max: Double,
+    y_min: Double,
+    y_max: Double,
+    z_min: Double,
+    z_max: Double,
+    material: String = DEFAULT_MATERIAL.name
+) extends Shape {
   import Math._
   require(x_min <= x_max)
   require(y_min <= y_max)
@@ -122,20 +123,24 @@ object AABB {
       AABB.empty
     else
       boxes.reduce { (a: AABB, b: AABB) =>
-        AABB(a.x_min min b.x_min,
-             a.x_max max b.x_max,
-             a.y_min min b.y_min,
-             a.y_max max b.y_max,
-             a.z_min min b.z_min,
-             a.z_max max b.z_max)
+        AABB(
+          a.x_min min b.x_min,
+          a.x_max max b.x_max,
+          a.y_min min b.y_min,
+          a.y_max max b.y_max,
+          a.z_min min b.z_min,
+          a.z_max max b.z_max
+        )
       }
   }
   //TODO: empty is not really an empty element and mightbreak
   val empty = AABB(0, 0, 0, 0, 0, 0)
-  val unrestricted = AABB(Double.MinValue,
-                          Double.MaxValue,
-                          Double.MinValue,
-                          Double.MaxValue,
-                          Double.MinValue,
-                          Double.MaxValue)
+  val unrestricted = AABB(
+    Double.MinValue,
+    Double.MaxValue,
+    Double.MinValue,
+    Double.MaxValue,
+    Double.MinValue,
+    Double.MaxValue
+  )
 }

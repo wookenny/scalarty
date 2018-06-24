@@ -2,14 +2,16 @@ package material.node
 
 import generators.Generators._
 import math.Vector3
+import noise.{Noise, NoiseTester}
 import org.scalacheck.{Gen, Prop}
 import org.scalacheck.Prop.forAll
 import org.specs2.ScalaCheck
 import org.specs2.Specification
 import org.scalacheck.Arbitrary.arbitrary
+import org.specs2.mock.Mockito
 
 
-class ValueNodeSpec extends Specification with ScalaCheck {
+class ValueNodeSpec extends Specification with ScalaCheck with Mockito{
   def is =
     s2"""
       A ConstantValue should
@@ -22,15 +24,18 @@ class ValueNodeSpec extends Specification with ScalaCheck {
 
       A NoiseValue should
         return the same value for same position and seed $testNoiseValueSameInput
-        return a different values for different seeds ${testNoiseValueDifferentSeed.pendingUntilFixed("(test noise first and inject it)")}
-        return scaled version for bigger size $testNoiseValueDifferentSize
         return value be in range [-1,1] $testNoiseValueRange
+        be initialized with seed and size $testNoiseValueInitialization
+        call the noise function with correct parameters $testNoiseValueCorrectNoiseCall
+
 
       A MultilayerNoiseValue
         return the same value for same position and seed $testMultilayerNoiseValueSameInput
         return a different value for a different seed $testMultilayerNoiseValueDifferentSeed
-        return scaled version for bigger size ${testMultilayerNoiseValueDifferentSize.pendingUntilFixed("(adding NoiseValueTest and inject the Noise Function)")}
-         return value be in range [-1,1] $testMultilayerNoiseValueRange
+        be initialized with seed, size and octaves $testMultilayerNoiseValueInitialization
+        return scaled version for bigger size $testMultilayerNoiseValueDifferentSize
+        return value be in range [-1,1] $testMultilayerNoiseValueRange
+        call the noise function with correct parameters $testMultilayeNoiseValueCorrectNoiseCall
 
       """
 
@@ -71,20 +76,21 @@ class ValueNodeSpec extends Specification with ScalaCheck {
     noiseValue.value(position) shouldEqual noiseValue.value(position)
   }
 
-  def testNoiseValueDifferentSeed: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>
-    val noiseForDifferentSeeds = Range(1,30).map(v => NoiseValue(v + seed).value(position)).toSet
-    noiseForDifferentSeeds.size should beGreaterThan(1)
+  def testNoiseValueInitialization: Prop = forAll(arbitrary[Long],arbitrary[Double], vector3) { (seed, size, position) =>
+    val genNoise = mock[(Long,Double) => Noise]
+    NoiseValue(seed,size)(genNoise)
+    there was one(genNoise).apply(seed,size)
   }
 
-  def testNoiseValueDifferentSize: Prop = forAll(vector3, smallMultipleOfaQuarter) { (position, scaling) =>
-    val noiseValue       = NoiseValue(seed = 0L)
-    val noiseValueScaled = NoiseValue(seed = 0L, size = scaling)
-    noiseValue.value(position) shouldEqual noiseValueScaled.value(position * scaling)
+  def testNoiseValueCorrectNoiseCall: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>
+    val noiseFunction = mock[Noise]
+    val genNoise : (Long,Double) => Noise = (_,_) => noiseFunction
+    val noiseValue = NoiseValue(seed)(genNoise).value(position)
+    there was one(noiseFunction).evalNormalized(position.x,position.y,position.z)
   }
 
   def testNoiseValueRange: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>
-    val noiseValue = NoiseValue(seed).value(position)
-    noiseValue should be beBetween(-1d,1d)
+    NoiseValue(seed).value(position) should be beBetween(-1d,1d)
   }
 
   def testMultilayerNoiseValueSameInput: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>
@@ -98,20 +104,51 @@ class ValueNodeSpec extends Specification with ScalaCheck {
     noiseValue1.value(position) shouldNotEqual noiseValue2.value(position)
   }
 
-  def testMultilayerNoiseValueDifferentSize: Prop = forAll(vector3,smallMultipleOfaQuarter) { (position,scaling) =>
-    val noiseValue       = MultilayerNoiseValue(seed = 0L)
-    val noiseValueScaled = MultilayerNoiseValue(seed = 0L, size = scaling)
-    noiseValue.value(position) shouldEqual noiseValueScaled.value(position * scaling)
+
+
+  def testMultilayerNoiseValueDifferentSize: Prop = forAll(vector3,smallPositiveDouble) { (position,scaling) =>
+
+    val noise2 = mock[(Double,Double) => Double]
+    val noise3 = mock[(Double,Double,Double) => Double]
+    val noise4 = mock[(Double,Double,Double,Double) => Double]
+    noise2.apply(anyDouble,anyDouble).returns(0d)
+    noise3.apply(anyDouble,anyDouble,anyDouble).returns(0d)
+    noise4.apply(anyDouble,anyDouble,anyDouble,anyDouble).returns(0d)
+
+
+    val range = (0d,1d)
+    val noiseScaled: Noise = NoiseTester(noise2, noise3, noise4, range, range, range, noiseSize = scaling)
+
+
+    val genNoise : (Long,Double) => Noise = (_,_) => noiseScaled
+    val noiseValueScaled = MultilayerNoiseValue(seed = 0L, size = scaling)(genNoise)
+    val noiseValue       = MultilayerNoiseValue(seed = 0L)(genNoise)
+
+
+    noiseValue.value(position)
+    noiseValueScaled.value(position * scaling)
+    got {
+      one(noise3).apply(be ~ (position.x +/- 0.1), be ~ (position.y +/- 0.1), be ~ (position.z +/- 0.1))
+      one(noise3).apply(be ~ (position.x +/- 0.1), be ~ (position.y +/- 0.1), be ~ (position.z +/- 0.1))
+    }
+
   }
 
   def testMultilayerNoiseValueRange: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>
     val noiseValue = MultilayerNoiseValue(seed).value(position)
     noiseValue should be beBetween(-1d,1d)
   }
+
+  def testMultilayerNoiseValueInitialization: Prop = forAll(arbitrary[Long], arbitrary[Double], arbitrary[Option[Int]], vector3) { (seed, size, octaves, position) =>
+    val genNoise = mock[(Long,Double) => Noise]
+    MultilayerNoiseValue(seed,size,octaves)(genNoise)
+    there was one(genNoise).apply(seed,size)
+  }
+
+  def testMultilayeNoiseValueCorrectNoiseCall: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>
+    val noiseFunction = mock[Noise]
+    val genNoise : (Long,Double) => Noise = (_,_) => noiseFunction
+    val noiseValue = MultilayerNoiseValue(seed)(genNoise).value(position)
+    there was one(noiseFunction).evalNormalized(position.x,position.y,position.z)
+  }
 }
-
-/*
-stepSize: 1.2, pos: Vector3(-10.0,0.0,-16.0) and scaling: Vector3(1.0,1.0,1.0)
-comparing with: Vector3(-8.8,0.0,-16.0), Vector3(-10.0,1.2,-16.0), Vector3(-10.0,0.0,-14.8)
-
- */

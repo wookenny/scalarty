@@ -4,16 +4,17 @@ import color.RGB
 import math.Math._
 import math.Vector3
 
-final case class SingleColorMaterial(name: String,
-                                     c: RGB,
-                                     ambient: Double,
-                                     diffuse: Double,
-                                     spec: Double,
-                                     reflective: Double = 0,
-                                     refractive: Double = 0,
-                                     n: Double = 1.33f,
-                                     shininess: Double = 64)
-    extends Material {
+final case class SingleColorMaterial(
+    name: String,
+    c: RGB,
+    ambient: Double,
+    diffuse: Double,
+    spec: Double,
+    reflective: Double = 0,
+    refractive: Double = 0,
+    n: Double = 1.33f,
+    shininess: Double = 64
+) extends Material {
   require(Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
   override def getMat(position: Vector3) =

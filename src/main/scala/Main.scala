@@ -21,14 +21,18 @@ object Main {
       .required()
       .valueName("<file>")
       .action((x, c) => c.copy(out = x))
-      .text("output file for the rendered image. Available file formats: " +
-        s"${imageWriter.formats.map(_.toLowerCase).distinct.mkString(", ")}")
+      .text(
+        "output file for the rendered image. Available file formats: " +
+          s"${imageWriter.formats.map(_.toLowerCase).distinct.mkString(", ")}"
+      )
 
     val supersampling = opt[SamplingValue]('s', "supersampling")
       .action((x, c) => c.copy(supersampling = x))
       .valueName("<a:b>")
-      .text(s" for a² full and b² adaptive supersamples," +
-        s" (default value=${Config.DefaultSupersampling})")
+      .text(
+        s" for a² full and b² adaptive supersamples," +
+          s" (default value=${Config.DefaultSupersampling})"
+      )
 
     val showBvHLeaves = opt[Unit]("bvh.showleafes")
       .abbr("bvh.l")
@@ -47,8 +51,10 @@ object Main {
       .abbr("shs")
       .valueName("<a:b>")
       .action((x, c) => c.copy(shadowsampling = x))
-      .text(s" for a² full and b² adaptive shadow samples for area light." +
-        s" (default value=${Config.DefaultShadowSupersampling})")
+      .text(
+        s" for a² full and b² adaptive shadow samples for area light." +
+          s" (default value=${Config.DefaultShadowSupersampling})"
+      )
 
     val sah = opt[Unit]("sah")
       .action((_, c) => c.copy(sah = true))

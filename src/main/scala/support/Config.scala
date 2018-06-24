@@ -4,8 +4,10 @@ import scopt.Read
 import scopt.Read.reads
 
 case class SamplingValue(full: Int, adaptive: Int) {
-  require(adaptive == 0 || full < adaptive,
-          "adaptive sampling has to be bigger than the full image sampling or disabled")
+  require(
+    adaptive == 0 || full < adaptive,
+    "adaptive sampling has to be bigger than the full image sampling or disabled"
+  )
   lazy val secondPath: Boolean = adaptive > 1 && adaptive > full
 }
 

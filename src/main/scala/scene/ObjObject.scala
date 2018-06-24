@@ -7,23 +7,26 @@ import math.Math.π
 
 import scala.io.BufferedSource
 
-case class ObjObject(filename: String,
-                     centerBottom: Vector3,
-                     maxSide: Double,
-                     rotation: Double,
-                     material: Option[String] = None)
-    extends LazyLogging {
+case class ObjObject(
+    filename: String,
+    centerBottom: Vector3,
+    maxSide: Double,
+    rotation: Double,
+    material: Option[String] = None
+) extends LazyLogging {
 
   val triangles = scala.collection.mutable.ArrayBuffer
     .empty[(Array[Int], Array[Int], Array[Int])]
   val normals = scala.collection.mutable.ArrayBuffer.empty[Vector3]
   val vertices = scala.collection.mutable.ArrayBuffer.empty[Vector3]
 
-  private def transformVertex(vector: Vector3,
-                              currentCenter: Vector3,
-                              targetCenter: Vector3,
-                              scalingFactor: Double,
-                              rotation: Double): Vector3 = {
+  private def transformVertex(
+      vector: Vector3,
+      currentCenter: Vector3,
+      targetCenter: Vector3,
+      scalingFactor: Double,
+      rotation: Double
+  ): Vector3 = {
 
     val sin: Double = Math.sin(2 * π * rotation / 360)
     val cos: Double = Math.cos(2 * π * rotation / 360)
@@ -54,9 +57,11 @@ case class ObjObject(filename: String,
 
     val (coordinates_x, coordinates_y, coordinates_z) =
       (vertices.map(_.x), vertices.map(_.y), vertices.map(_.z))
-    val scalingFactor = maxSide / Seq(coordinates_x.max - coordinates_x.min,
-                                      coordinates_y.max - coordinates_y.min,
-                                      coordinates_z.max - coordinates_z.min).max
+    val scalingFactor = maxSide / Seq(
+      coordinates_x.max - coordinates_x.min,
+      coordinates_y.max - coordinates_y.min,
+      coordinates_z.max - coordinates_z.min
+    ).max
 
     val currentCenter = Vector3(
       (coordinates_x.max - coordinates_x.min) / 2 + coordinates_x.min,
@@ -88,7 +93,8 @@ case class ObjObject(filename: String,
         }
 
     logger.info(
-      s"Object read with ${vertices.size} vertices, ${normals.size} normals and ${triangles.size} triangles")
+      s"Object read with ${vertices.size} vertices, ${normals.size} normals and ${triangles.size} triangles"
+    )
     ts.toList
   }
 

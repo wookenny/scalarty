@@ -7,25 +7,29 @@ import math.{Shape, Triangle, Vector3}
 import support.Config
 import support.Implicits._
 
-case class SceneDTO(cameraOrigin: Vector3,
-                    cameraPointing: Vector3,
-                    width: Double,
-                    height: Double,
-                    ppi: Int,
-                    lights: Seq[LightSource],
-                    shapes: Seq[Shape],
-                    materials: Seq[Material],
-                    objFiles: Option[Seq[ObjObject]] = None) {}
+case class SceneDTO(
+    cameraOrigin: Vector3,
+    cameraPointing: Vector3,
+    width: Double,
+    height: Double,
+    ppi: Int,
+    lights: Seq[LightSource],
+    shapes: Seq[Shape],
+    materials: Seq[Material],
+    objFiles: Option[Seq[ObjObject]] = None
+) {}
 
-case class Scene(cameraOrigin: Vector3,
-                 cameraPointing: Vector3,
-                 width: Double,
-                 height: Double,
-                 ppi: Int,
-                 lights: Seq[LightSource],
-                 shapes: Seq[Shape],
-                 materials: Seq[Material],
-                 objFiles: Seq[ObjObject] = Seq.empty)(implicit config: Config) {
+case class Scene(
+    cameraOrigin: Vector3,
+    cameraPointing: Vector3,
+    width: Double,
+    height: Double,
+    ppi: Int,
+    lights: Seq[LightSource],
+    shapes: Seq[Shape],
+    materials: Seq[Material],
+    objFiles: Seq[ObjObject] = Seq.empty
+)(implicit config: Config) {
   // Fixed data
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
@@ -33,8 +37,10 @@ case class Scene(cameraOrigin: Vector3,
   //TODO: Big triangles/quads /should be decomposed into smaller ones for speedup
   val allShapes: ShapeContainer =
     if (objFiles.nonEmpty)
-      ShapeMetaContainer(ShapeSeq(shapes),
-                         BVH(parseObjFiles(objFiles.toVector), config.bvhSplitLimit, config.sah))
+      ShapeMetaContainer(
+        ShapeSeq(shapes),
+        BVH(parseObjFiles(objFiles.toVector), config.bvhSplitLimit, config.sah)
+      )
     else
       ShapeSeq(shapes)
 

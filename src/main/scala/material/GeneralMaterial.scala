@@ -4,17 +4,18 @@ import color.RGB
 import material.node._
 import math.Vector3
 
-final case class GeneralMaterial(name: String,
-                                 colorNode: Option[ColorNode],
-                                 bump: Option[VectorNode],
-                                 ambientNode: Option[ValueNode],
-                                 diffuseNode: Option[ValueNode],
-                                 specNode: Option[ValueNode],
-                                 reflectiveNode: Option[ValueNode],
-                                 refractiveNode: Option[ValueNode],
-                                 n: Option[Double],
-                                 shininessNode: Option[ValueNode])
-    extends Material {
+final case class GeneralMaterial(
+    name: String,
+    colorNode: Option[ColorNode],
+    bump: Option[VectorNode],
+    ambientNode: Option[ValueNode],
+    diffuseNode: Option[ValueNode],
+    specNode: Option[ValueNode],
+    reflectiveNode: Option[ValueNode],
+    refractiveNode: Option[ValueNode],
+    n: Option[Double],
+    shininessNode: Option[ValueNode]
+) extends Material {
 
   import GeneralMaterial._
   override def getMat(position: Vector3): UnshadedColor = {

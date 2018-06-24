@@ -1,11 +1,12 @@
 package noise
 
-class MultilayerNoise(override val seed: Long,
-                      override val noiseSize: Double,
-                      octaves: Int = 7,
-                      normalized: Boolean = false, //map to [0,1]
-                      noiseOption: Option[Noise] = None)
-    extends Noise {
+class MultilayerNoise(
+    override val seed: Long,
+    override val noiseSize: Double,
+    octaves: Int = 7,
+    normalized: Boolean = false, //map to [0,1]
+    noiseOption: Option[Noise] = None
+) extends Noise {
 
   lazy val noise = noiseOption.getOrElse(new OpenSimplex(seed, noiseSize * octaves))
 

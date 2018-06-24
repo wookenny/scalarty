@@ -53,8 +53,8 @@ final case class Leaf(boundingBox: Option[AABB], shapes: Seq[Shape], depth: Int)
 }
 
 case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean = true)(
-    implicit config: Config)
-    extends ShapeContainer
+    implicit config: Config
+) extends ShapeContainer
     with LazyLogging {
   logger.info(s"Building BVH with sah=$splitSAH and leafNodeLimit=$leafNodeLimit...")
 
@@ -74,8 +74,10 @@ case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean
 
   private def getBoundingBox(shapes: Vector[Shape]): Option[AABB] = AABB.wrapping(shapes)
 
-  private def splitPrimitives(shapes: Vector[Shape],
-                              aabb: Option[AABB]): Option[(Vector[Shape], Vector[Shape])] = {
+  private def splitPrimitives(
+      shapes: Vector[Shape],
+      aabb: Option[AABB]
+  ): Option[(Vector[Shape], Vector[Shape])] = {
     //primitive split: select max dim and choose mean midpoint
     if (aabb.isEmpty || shapes.lengthCompare(leafNodeLimit) <= 0)
       None
@@ -145,9 +147,11 @@ case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean
 
   }
 
-  private def getCandidatesWithCloseHits(node: InnerNode,
-                                         ray: Ray,
-                                         closestHitDist: Double): Vector[Candidate] = {
+  private def getCandidatesWithCloseHits(
+      node: InnerNode,
+      ray: Ray,
+      closestHitDist: Double
+  ): Vector[Candidate] = {
     val candidates = node.children map { (node: Node) =>
       node.intersectBoundingBox(ray) match {
         case None       => Candidate(node, Double.MaxValue)
@@ -184,7 +188,8 @@ case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean
                     position = ray.march(aabbHitDist),
                     originalNormal = Vector3.X, /*not needed for shading*/
                     color = BVH.innerNodeMaterial.getMat(Vector3.ZERO)
-                  ))
+                  )
+                )
             }
             //add to stack
             nodeStack ++= nodeBoundingBoxHits
@@ -214,20 +219,24 @@ case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean
 
 object BVH {
   private val showInnerNodes = false
-  private val leafMaterial = SingleColorMaterial("BVH_Leaf_Material",
-                                                 RGB.RED,
-                                                 ambient = 0.1,
-                                                 diffuse = 0,
-                                                 spec = 0,
-                                                 refractive = .9,
-                                                 n = 1)
-  private val innerNodeMaterial = SingleColorMaterial("BVH_Inner_Node_Material",
-                                                      RGB.YELLOW,
-                                                      ambient = 0.01,
-                                                      diffuse = 0,
-                                                      spec = 0,
-                                                      refractive = .99,
-                                                      n = 1)
+  private val leafMaterial = SingleColorMaterial(
+    "BVH_Leaf_Material",
+    RGB.RED,
+    ambient = 0.1,
+    diffuse = 0,
+    spec = 0,
+    refractive = .9,
+    n = 1
+  )
+  private val innerNodeMaterial = SingleColorMaterial(
+    "BVH_Inner_Node_Material",
+    RGB.YELLOW,
+    ambient = 0.01,
+    diffuse = 0,
+    spec = 0,
+    refractive = .99,
+    n = 1
+  )
 
   private val CostShapeIntersection: Int = 1
   private val CostAABBIntersection: Int = 7
