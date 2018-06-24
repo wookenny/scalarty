@@ -9,15 +9,15 @@ trait Noise
   val seed: Long
   val noiseSize: Double
 
-  override def eval(x: Double, y: Double) = valueFunction(x / noiseSize, y / noiseSize)
-  override def eval(x: Double, y: Double, z: Double) =
+  override def eval(x: Double, y: Double): Double = valueFunction(x / noiseSize, y / noiseSize)
+  override def eval(x: Double, y: Double, z: Double): Double =
     valueFunction(x / noiseSize, y / noiseSize, z / noiseSize)
-  override def eval(x: Double, y: Double, z: Double, w: Double) =
+  override def eval(x: Double, y: Double, z: Double, w: Double): Double =
     valueFunction(x / noiseSize, y / noiseSize, z / noiseSize, w / noiseSize)
 
-  def evalNormalized(x: Double, y: Double) = normalizeValue2(eval(x, y))
-  def evalNormalized(x: Double, y: Double, z: Double) = normalizeValue3(eval(x, y, z))
-  def evalNormalized(x: Double, y: Double, z: Double, w: Double) =
+  def evalNormalized(x: Double, y: Double): Double = normalizeValue2(eval(x, y))
+  def evalNormalized(x: Double, y: Double, z: Double): Double = normalizeValue3(eval(x, y, z))
+  def evalNormalized(x: Double, y: Double, z: Double, w: Double): Double =
     normalizeValue4(eval(x, y, z, w))
 
   private[noise] def valueFunction(x: Double, y: Double): Double

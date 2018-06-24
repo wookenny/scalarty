@@ -9,7 +9,7 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots")
 )
 
-val specs2Version = "4.1.0"
+val specs2Version = "4.3.0"
 val circeVersion = "0.9.3"
 val monocleVersion = "1.5.0"
 
@@ -23,11 +23,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion,
-  "org.mockito" % "mockito-core" % "2.18.3",
-  "com.google.inject" % "guice" % "4.2.0",
+  "org.mockito" % "mockito-core" % "2.19.0",
   "com.chuusai" %% "shapeless" % "2.3.3",
-  "org.typelevel" %% "cats-core" % "1.1.0",
-  "org.typelevel" %% "cats-effect" % "0.10.1",
   "org.scalanlp" %% "breeze" % "0.13.2",
   "org.scalanlp" %% "breeze-natives" % "0.13.2",
   "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
@@ -37,6 +34,7 @@ libraryDependencies ++= Seq(
 )
 
 parallelExecution in Test := false
+fork in Test := true
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 

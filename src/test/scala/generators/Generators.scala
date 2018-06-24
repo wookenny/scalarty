@@ -52,4 +52,5 @@ object Generators {
     b: Double <- positiveDouble
   } yield RGB(r, g, b)
 
+
 }

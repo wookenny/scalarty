@@ -98,10 +98,10 @@ class ValueNodeSpec extends Specification with ScalaCheck {
     noiseValue1.value(position) shouldNotEqual noiseValue2.value(position)
   }
 
-  def testMultilayerNoiseValueDifferentSize: Prop = forAll(vector3) { position =>
-    val noiseValue       = MultilayerNoiseValue(seed = 0L, size = 1)
-    val noiseValueScaled = MultilayerNoiseValue(seed = 0L, size = 2)
-    noiseValue.value(position) shouldEqual noiseValueScaled.value(position * 2)
+  def testMultilayerNoiseValueDifferentSize: Prop = forAll(vector3,smallMultipleOfaQuarter) { (position,scaling) =>
+    val noiseValue       = MultilayerNoiseValue(seed = 0L)
+    val noiseValueScaled = MultilayerNoiseValue(seed = 0L, size = scaling)
+    noiseValue.value(position) shouldEqual noiseValueScaled.value(position * scaling)
   }
 
   def testMultilayerNoiseValueRange: Prop = forAll(arbitrary[Long], vector3) { (seed, position) =>

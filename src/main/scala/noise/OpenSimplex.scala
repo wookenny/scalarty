@@ -3,11 +3,9 @@ package noise
 import scala.annotation.tailrec
 //see: https://gist.github.com/digitalshadow/134a3a02b67cecd72181
 
-class OpenSimplex(override val seed: Long, override val noiseSize: Double = 1) extends Noise {
+case class OpenSimplex(override val seed: Long, override val noiseSize: Double = 1) extends Noise {
 
   import OpenSimplex._
-
-  def this() = this(System.currentTimeMillis)
 
   private def modifySeed(seed: Long): Long = seed * 6364136223846793005L + 1442695040888963407L
 
