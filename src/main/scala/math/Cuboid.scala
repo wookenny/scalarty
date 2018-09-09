@@ -30,7 +30,7 @@ sealed case class Cuboid(
 
   }
 
-  private val unrotated = AABB(
+  private val unrotated = NonEmptyAABB(
     center.x - sideLengths.x / 2,
     center.x + sideLengths.x / 2,
     center.y - sideLengths.y / 2,
@@ -74,7 +74,7 @@ sealed case class Cuboid(
     unrotated.intersect(rr, maxDist) //no need to rotate back
   }
 
-  override lazy val boundingBox = AABB(minX, maxX, minY, maxY, minZ, maxZ)
+  override lazy val boundingBox = NonEmptyAABB(minX, maxX, minY, maxY, minZ, maxZ)
 
   override val midpoint = center
 

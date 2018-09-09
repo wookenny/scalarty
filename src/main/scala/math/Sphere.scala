@@ -49,8 +49,8 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
     }
   }
 
-  override lazy val boundingBox: AABB =
-    AABB(
+  override lazy val boundingBox: NonEmptyAABB =
+    NonEmptyAABB(
       center.x - radius,
       center.x + radius,
       center.y - radius,

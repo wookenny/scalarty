@@ -1,4 +1,4 @@
-import math.{AABB, Ray, Vector3}
+import math.{NonEmptyAABB, Ray, Vector3}
 import org.specs2.{ScalaCheck, Specification}
 
 class AABBSpec extends Specification with ScalaCheck {
@@ -11,7 +11,7 @@ class AABBSpec extends Specification with ScalaCheck {
 
   """
 
-  val aabb = AABB(.5f, 2, .5f, 2, .5f, 2)
+  val aabb = NonEmptyAABB(.5f, 2, .5f, 2, .5f, 2)
 
   def intersectFrontal = {
     val hit = aabb.intersect(Ray(Vector3(1, 1, 0), Vector3.Z))

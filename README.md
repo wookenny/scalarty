@@ -33,3 +33,9 @@ Since my first raytracer was named *Arty*, a phonetic version of the abbreviatio
 ##Example Renderings
  
 ![Start screen](./renderings/image.png)
+
+[//]: # (Adding examples:
+ * obj files
+ * texture generator
+ * soft shadow
+)

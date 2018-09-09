@@ -1,9 +1,41 @@
 package math
 
+import cats.data.NonEmptyVector
 import material.Material.DEFAULT_MATERIAL
 import renderer.Hit
 
-sealed case class AABB(
+
+abstract class AABB extends Shape{
+  def contains(vec: Vector3): Boolean
+
+  def union(otherAABB: AABB): AABB = AABB.union(this, otherAABB)
+
+  def area: Double
+
+  def lenghtX : Double
+  def lenghtY : Double
+  def lenghtZ : Double
+}
+
+sealed case class EmptyAABB() extends AABB{
+  override def intersect(r: Ray): Option[Hit] = None
+  override def intersect(r: Ray, maxDist: Double): Boolean = false
+  override def boundingBox: AABB = this
+  override def midpoint: Vector3 = Vector3.ZERO
+  override def minX: Double = 0
+  override def minY: Double = 0
+  override def minZ: Double = 0
+  override def maxX: Double = 0
+  override def maxY: Double = 0
+  override def maxZ: Double = 0
+  override def contains(vec: Vector3): Boolean = false
+  override def area: Double = 0d
+  override def lenghtX: Double = 0
+  override def lenghtY: Double = 0
+  override def lenghtZ: Double = 0
+}
+
+sealed case class NonEmptyAABB(
     x_min: Double,
     x_max: Double,
     y_min: Double,
@@ -11,11 +43,15 @@ sealed case class AABB(
     z_min: Double,
     z_max: Double,
     material: String = DEFAULT_MATERIAL.name
-) extends Shape {
-  import Math._
+) extends AABB {
+  import AABB._
   require(x_min <= x_max)
   require(y_min <= y_max)
   require(z_min <= z_max)
+
+  override lazy val lenghtX: Double = x_max - x_min
+  override lazy val lenghtY: Double = y_max - y_min
+  override lazy val lenghtZ: Double = z_max - z_min
 
   override def intersect(r: Ray): Option[Hit] = {
 
@@ -87,60 +123,48 @@ sealed case class AABB(
 
   override def maxZ: Double = z_max
 
-  def contains(vec: Vector3): Boolean =
+  override def contains(vec: Vector3): Boolean =
     x_min <= vec.x && vec.x <= x_max &&
       y_min <= vec.y && vec.y <= y_max &&
       z_min <= vec.z && vec.z <= z_max
 
-  lazy val area: Double =
+  override lazy val area: Double =
     2 * ((x_max - x_min) * (y_max - y_min) + (x_max - x_min) * (z_max - z_min) * (y_max - y_min) * (z_max - z_min))
-
-  def union(otherAABB: AABB): AABB = AABB.union(this, otherAABB)
 
 }
 
 object AABB {
+  val Empty = EmptyAABB()
+  val EPS = 0.001
 
-  def wrapping(shapes: Seq[Shape]): Option[AABB] = {
-    if (shapes.isEmpty)
-      None
-    else
-      Some(
-        AABB(
-          shapes.tail.foldLeft(shapes.head.minX)(_ min _.minX) - Math.EPS,
-          shapes.tail.foldLeft(shapes.head.maxX)(_ max _.maxX) + Math.EPS,
-          shapes.tail.foldLeft(shapes.head.minY)(_ min _.minY) - Math.EPS,
-          shapes.tail.foldLeft(shapes.head.maxY)(_ max _.maxY) + Math.EPS,
-          shapes.tail.foldLeft(shapes.head.minZ)(_ min _.minZ) - Math.EPS,
-          shapes.tail.foldLeft(shapes.head.maxZ)(_ max _.maxZ) + Math.EPS
-        )
-      )
+  def wrappingShapes(shapes: NonEmptyVector[Shape]): NonEmptyAABB = {
+    NonEmptyAABB(
+      shapes.tail.foldLeft(shapes.head.minX)(_ min _.minX) - EPS,
+      shapes.tail.foldLeft(shapes.head.maxX)(_ max _.maxX) + EPS,
+      shapes.tail.foldLeft(shapes.head.minY)(_ min _.minY) - EPS,
+      shapes.tail.foldLeft(shapes.head.maxY)(_ max _.maxY) + EPS,
+      shapes.tail.foldLeft(shapes.head.minZ)(_ min _.minZ) - EPS,
+      shapes.tail.foldLeft(shapes.head.maxZ)(_ max _.maxZ) + EPS
+    )
   }
+
 
   def union(a: AABB, b: AABB): AABB = union(Seq(a, b))
-  def union(boxes: Iterable[AABB]): AABB = {
-    if (boxes.isEmpty)
-      AABB.empty
-    else
-      boxes.reduce { (a: AABB, b: AABB) =>
-        AABB(
-          a.x_min min b.x_min,
-          a.x_max max b.x_max,
-          a.y_min min b.y_min,
-          a.y_max max b.y_max,
-          a.z_min min b.z_min,
-          a.z_max max b.z_max
-        )
-      }
+
+  def union(boxes: Iterable[AABB]): AABB = boxes.foldLeft[AABB](AABB.Empty) {
+    (a: AABB, b: AABB) => (a,b) match {
+        case (a:NonEmptyAABB, b: NonEmptyAABB) =>
+          NonEmptyAABB(
+            a.x_min min b.x_min,
+            a.x_max max b.x_max,
+            a.y_min min b.y_min,
+            a.y_max max b.y_max,
+            a.z_min min b.z_min,
+            a.z_max max b.z_max)
+          case (a:NonEmptyAABB, _) => a
+          case (_, b) => b
+
+        }
   }
-  //TODO: empty is not really an empty element and mightbreak
-  val empty = AABB(0, 0, 0, 0, 0, 0)
-  val unrestricted = AABB(
-    Double.MinValue,
-    Double.MaxValue,
-    Double.MinValue,
-    Double.MaxValue,
-    Double.MinValue,
-    Double.MaxValue
-  )
+
 }

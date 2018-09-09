@@ -5,6 +5,7 @@ import math.Vector3
 import math.Math.EPS
 import noise.{MultilayerNoise, OpenSimplex}
 import math.Gradient._
+import math.Gradient.implicits._
 
 final case class OpenSimplexNoiseMaterial(
     name: String,

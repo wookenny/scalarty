@@ -5,7 +5,6 @@ import renderer.Hit
 import cats.syntax.functor._
 import io.circe.{Decoder, Encoder, Json}
 import io.circe.generic.auto._
-
 import io.circe.syntax._
 
 trait Shape {
@@ -26,13 +25,13 @@ trait Shape {
 object Shape {
 
   implicit val encodeShape: Encoder[Shape] = Encoder.instance {
-    case n @ AABB(_, _, _, _, _, _, _) => Json.obj("AABB" -> n.asJson)
+    case n @ NonEmptyAABB(_, _, _, _, _, _, _) => Json.obj("AABB" -> n.asJson)
     case n @ Sphere(_, _, _)           => Json.obj("Sphere" -> n.asJson)
     case n @ Triangle(_, _, _, _, _)   => Json.obj("Triangle" -> n.asJson)
     case n @ Cuboid(_, _, _, _)        => Json.obj("Cuboid" -> n.asJson)
   }
 
-  private val decodeAABB = Decoder[AABB].prepare(_.downField("AABB"))
+  private val decodeAABB = Decoder[NonEmptyAABB].prepare(_.downField("AABB"))
   private val decodeSphere = Decoder[Sphere].prepare(_.downField("Sphere"))
   private val decodeTriangle = Decoder[Triangle].prepare(_.downField("Triangle"))
   private val decodeCuboid = Decoder[Cuboid].prepare(_.downField("Cuboid"))

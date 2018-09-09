@@ -1,6 +1,7 @@
 package math
 
 import color.RGB
+
 import scala.language.implicitConversions
 
 object Gradient {
@@ -10,12 +11,12 @@ object Gradient {
     def /(scalar: Double): T
   }
 
-  val EPS = 0.01
+
+    private val EPS = 0.01
 
   def gradient[T](
       x: Double
   )(implicit function: OneDimensionalFunction[T], op: T => Gradientable[T]): T = {
-    implicit def gradFromT(t: T) = op(t)
     (function.eval(x + EPS) - function.eval(x - EPS)) / (2 * EPS)
   }
 
@@ -33,18 +34,16 @@ object Gradient {
       implicit function: ThreeDimensionalFunction[T],
       op: T => Gradientable[T]
   ): (T, T, T) = {
-    implicit def gradFromT(t: T) = op(t)
     (
       (function.eval(x + EPS, y, z) - function.eval(x - EPS, y, z)) / (2 * EPS),
       (function.eval(x, y + EPS, z) - function.eval(x, y - EPS, z)) / (2 * EPS),
       (function.eval(x, y, z + EPS) - function.eval(x, y, z - EPS)) / (2 * EPS)
     )
   }
-  def gradient[T: Numeric](x: Double, y: Double, z: Double, w: Double)(
+  def gradient[T](x: Double, y: Double, z: Double, w: Double)(
       implicit function: FourDimensionalFunction[T],
       op: T => Gradientable[T]
   ): (T, T, T, T) = {
-    implicit def gradFromT(t: T) = op(t)
 
     (
       (function.eval(x + EPS, y, z, w) - function.eval(x - EPS, y, z, w)) / (2 * EPS),
@@ -54,19 +53,24 @@ object Gradient {
     )
   }
 
-  implicit def gradientableDouble(value: Double) = new Gradientable[Double] {
-    override def -(other: Double): Double = value - other
-    override def /(scalar: Double): Double = value / scalar
-  }
+ object implicits {
+   implicit val gradientableDouble : Double => Gradientable[Double] = value => new Gradientable[Double] {
+     override def -(other: Double): Double = value - other
 
-  implicit def gradientableRGB(value: RGB) = new Gradientable[RGB] {
-    override def -(other: RGB): RGB = value - other
-    override def /(scalar: Double): RGB = value / scalar
-  }
+     override def /(scalar: Double): Double = value / scalar
+   }
 
-  implicit def gradientableVector3(value: Vector3) = new Gradientable[Vector3] {
-    override def -(other: Vector3): Vector3 = value - other
-    override def /(scalar: Double): Vector3 = value / scalar
-  }
+   implicit val gradientableRGB : RGB => Gradientable[RGB] = value => new Gradientable[RGB] {
+     override def -(other: RGB): RGB = value - other
+
+     override def /(scalar: Double): RGB = value / scalar
+   }
+
+   implicit val gradientableVector3 : Vector3 => Gradientable[Vector3] = value => new Gradientable[Vector3]{
+     override def -(other: Vector3): Vector3 = value - other
+
+     override def /(scalar: Double): Vector3 = value / scalar
+   }
+ }
 
 }

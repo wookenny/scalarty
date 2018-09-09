@@ -10,12 +10,14 @@ class BVHSpec extends Specification with ScalaCheck {
 
   def is = s2"""
    An BVH should
-      be constructed with correct height and size $correctHeightAndSize
-      hit  spheres correctly $intersectionSpheres
-      miss spheres correctly $missSpheres
-      hit  spheres inside maximal distance $intersectionTestPositive
-      miss spheres outside maximal distance $intersectionTestNegative
-      add InnerBoxes for the leaves if requested $showLeafBoxes
+      be constructed with correct height and size %correctHeightAndSize
+
+      miss boundingBox correctly $missBoundingBox
+      hit  spheres correctly %intersectionSpheres
+      miss spheres correctly %missSpheres
+      hit  spheres inside maximal distance %intersectionTestPositive
+      miss spheres outside maximal distance %intersectionTestNegative
+      add InnerBoxes for the leaves if requested %showLeafBoxes
   """
 
   val spheres: Vector[Sphere] = (for {
@@ -28,9 +30,7 @@ class BVHSpec extends Specification with ScalaCheck {
   val sphereBVH_SAH = BVH(spheres, 2, splitSAH = true)
 
   def intersect(shapes: Seq[Shape], ray: Ray): Option[Hit] = {
-    shapes.flatMap { s =>
-      s intersect ray
-    } match {
+    shapes.flatMap { _ intersect ray } match {
       case Nil => None
       case xs  => Some(xs.minBy(_.distance))
     }
@@ -39,6 +39,11 @@ class BVHSpec extends Specification with ScalaCheck {
   def correctHeightAndSize = {
     ((sphereBVH.depth, sphereBVH.size) should be equalTo (4, 27)) and
       ((sphereBVH_SAH.depth, sphereBVH_SAH.size) should be equalTo (3, 27))
+  }
+
+  def missBoundingBox = {
+    val ray = Ray(origin = Vector3(20, 20, 20), direction = Vector3.Z)
+    sphereBVH.intersect(ray) shouldEqual None
   }
 
   def intersectionSpheres = {

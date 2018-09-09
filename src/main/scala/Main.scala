@@ -34,10 +34,10 @@ object Main {
           s" (default value=${Config.DefaultSupersampling})"
       )
 
-    val showBvHLeaves = opt[Unit]("bvh.showleafes")
+    val showBvHLeaves = opt[Unit]("bvh.showleaves")
       .abbr("bvh.l")
       .action((_, c) => c.copy(showBvHLeaves = true))
-      .text("show BvH leafes used in obj file constructions")
+      .text("show BvH leaves used in obj file constructions")
 
     val verbose = opt[Unit]("verbose")
       .action((_, c) => c.copy(verbose = true))
@@ -56,9 +56,9 @@ object Main {
           s" (default value=${Config.DefaultShadowSupersampling})"
       )
 
-    val sah = opt[Unit]("sah")
-      .action((_, c) => c.copy(sah = true))
-      .text("use SAH to construct BVHs")
+    val sah = opt[Unit]("nosah")
+      .action((_, c) => c.copy(sah = false))
+      .text("disable SAH to construct BVHs")
 
     val bvhMin = opt[Int]("bvh.splitlimit")
       .abbr("bvh.sl")
