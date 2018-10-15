@@ -21,11 +21,10 @@ final case class Sphere(center: Vector3, radius: Double, material: String = "DEF
       }
 
       dist match {
-        case Some(dist) => {
-          lazy val pos = r.march(dist)
+        case Some(d) =>
+          lazy val pos = r.march(d)
           lazy val normal = (pos - center).normalized
-          Some(Hit(dist, pos, normal, Shape.getMaterial(material, pos)))
-        }
+          Some(Hit(d, pos, normal, Shape.getMaterial(material, pos)))
         case None => None
       }
     }

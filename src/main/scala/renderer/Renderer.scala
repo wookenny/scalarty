@@ -15,6 +15,15 @@ import scala.collection.GenSet
 object Renderer {
   val BackgroundColor = RGB.BLACK
   private val ChunkSize = 5
+
+
+  def abbrevNumber(n:Int) = n match {
+    case _ if n < 1000 => n.toString
+    case _ if n < 1000*1000 => f"${n/1000}%3dK"
+    case _ if n < 1000*1000*1000 => f"${n/(1000*1000)}%3dM"
+    case _ if n < 1000*1000*1000*1000 => f"${n/(1000*1000*1000)}%3dG"
+    case _ => n.toString
+  }
 }
 
 final case class TracingResult(color: RGB, depth: Double, shadow: Double) {
@@ -25,9 +34,9 @@ object TracingResult {
   val Miss = TracingResult(Renderer.BackgroundColor, Double.PositiveInfinity, 0)
 }
 
-case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLogging {
+case class Renderer(scene: Scene)(implicit config: Config) extends LazyLogging {
 
-  implicit val log: (String) => Unit = s => logger.info(s)
+  implicit val log: String => Unit = s => logger.info(s)
   private val tracedPixels: AtomicInteger = new AtomicInteger(0)
 
   private val shader = Shader(this)
@@ -177,7 +186,7 @@ case class Renderer(val scene: Scene)(implicit config: Config) extends LazyLoggi
           val status = tracedPixels.incrementAndGet()
 
           if (status % (5 * one_percent) == 0)
-            logger.info(s"traced $status pixels -> ${status / one_percent}%")
+            logger.info(f"traced ${Renderer.abbrevNumber(status)} pixels -> ${status / one_percent}%3d%%")
       }
     }
   }

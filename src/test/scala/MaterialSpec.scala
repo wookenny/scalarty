@@ -74,7 +74,7 @@ class MaterialSpec extends Specification with ScalaCheck {
 
   val testSingleColorMaterial: Prop = forAll { (x: Vector3) =>
     val mat = SingleColorMaterial("TestMat", RGB.BLUE, 0.4, 0.2, 0.1, 0.1, 0.2)
-    val expectedColor = UnshadedColor(RGB.BLUE,
+    val expectedColor = UnshadedMaterial(RGB.BLUE,
                                       mat.ambient,
                                       mat.diffuse,
                                       mat.spec,
@@ -89,7 +89,7 @@ class MaterialSpec extends Specification with ScalaCheck {
   val testEmissionMaterial: Prop = forAll { (x: Vector3) =>
     val mat = EmissionMaterial("Light1", RGB.YELLOW, 2.6)
 
-    val expectedColor = UnshadedColor(RGB.YELLOW, 0, 0, 0, 0, 0, 0, 0, 2.6)
+    val expectedColor = UnshadedMaterial(RGB.YELLOW, 0, 0, 0, 0, 0, 0, 0, 2.6)
     mat.getMat(x) should be equalTo expectedColor
   }
 

@@ -18,7 +18,8 @@
     "reflective": 0,
     "shininess": 64,
     "refractive" : 0,
-    "n" : 1
+    "n" : 1,
+    "absorption": 0
   }
   },
     {"CheckerMaterial": {
@@ -32,19 +33,21 @@
       "reflective": 0,
       "shininess": 64,
       "refractive" : 0,
-      "n" : 1
+      "n" : 1,
+      "absorption": 0
     }
     },
     {"SingleColorMaterial": {
       "name": "Glass",
-      "c":  {"red": 1, "green": 1, "blue": 1},
+      "c":  {"red": 0.75, "green": 0.75, "blue": 1},
       "ambient": 0.05,
       "diffuse": 0.0,
       "spec": 0.1,
       "reflective": 0,
       "shininess": 64,
       "refractive" : 0.85,
-      "n" : 1.55
+      "n" : 1.55,
+      "absorption": 0.5
     }
     }, {"OpenSimplexNoiseMaterial": {
       "name": "SimplexGreenBlue",
@@ -68,7 +71,8 @@
       "reflective": 0,
       "shininess": 64,
       "refractive" : 0,
-      "n" : 1
+      "n" : 1,
+      "absorption": 0
     }
     },{"SingleColorMaterial": {
       "name": "Chrome",
@@ -79,7 +83,8 @@
       "reflective": 0.85,
       "shininess": 64,
       "refractive" : 0,
-      "n" : 1
+      "n" : 1,
+      "absorption": 0
     }
     }, {"SingleColorMaterial": {
       "name": "Green",
@@ -90,7 +95,8 @@
       "reflective": 0,
       "shininess": 64,
       "refractive" : 0,
-      "n" : 1
+      "n" : 1,
+      "absorption": 0
     }
     }],
   "shapes" : [

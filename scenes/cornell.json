@@ -19,7 +19,8 @@
     "reflective": 0,
     "shininess": 64,
     "refractive" : 0,
-    "n" : 1
+    "n" : 1,
+    "absorption": 0
   }
   },
     { "CheckerMaterial": {
@@ -33,7 +34,8 @@
       "reflective": 0,
       "shininess": 64,
       "refractive" : 0,
-      "n" : 1
+      "n" : 1,
+      "absorption": 0
     }
     },
     {"SingleColorMaterial": {
@@ -45,7 +47,8 @@
       "reflective": 0,
       "shininess": 64,
       "refractive" : 0.85,
-      "n" : 1.55
+      "n" : 1.55,
+      "absorption": 0.1
     }
     }],
   "shapes" : [

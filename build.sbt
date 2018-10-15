@@ -30,7 +30,8 @@ libraryDependencies ++= Seq(
   "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
   "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
   "com.github.julien-truffaut" %% "monocle-law" % monocleVersion % "test",
-  "com.github.ichoran" %% "thyme" % "0.1.2-SNAPSHOT"
+  "com.github.ichoran" %% "thyme" % "0.1.2-SNAPSHOT",
+  "com.chuusai"        %% "shapeless" % "2.3.2"
 )
 
 parallelExecution in Test := false

@@ -1,4 +1,4 @@
-import math.{AABB, Ray, Triangle, Vector3}
+import math.{AABB, NonEmptyAABB, Ray, Triangle, Vector3}
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.{ScalaCheck, Specification}
@@ -103,7 +103,7 @@ class TriangleSpec extends Specification with ScalaCheck {
     val ys = Seq(a, b, c).map(_.y)
     val zs = Seq(a, b, c).map(_.z)
 
-    aabb == AABB(xs.min, xs.max, ys.min, ys.max, zs.min, zs.max)
+    aabb == NonEmptyAABB(xs.min, xs.max, ys.min, ys.max, zs.min, zs.max)
   }
 
   def midpointTest = forAll { (a: Vector3, b: Vector3, c: Vector3) =>

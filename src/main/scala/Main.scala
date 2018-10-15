@@ -79,7 +79,10 @@ object Main {
   }
 
   def main(implicit config: Config): Unit = {
-    val sceneFile: String = fromFile(config.in).getLines.mkString
+    val sceneFile: String = fromFile(config.in).getLines
+      .map(_.replaceAll("//.*", ""))
+      .mkString
+      .replaceAll("/\\*.*\\*/", "")
 
     val sceneEither: Either[Error, SceneDTO] = decode[SceneDTO](sceneFile)
 

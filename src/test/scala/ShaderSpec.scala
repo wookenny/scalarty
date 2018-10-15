@@ -2,7 +2,7 @@ import bounding.ShapeSeq
 import color.RGB
 import color.RGB._
 import lightning.PointLight
-import material.UnshadedColor
+import material.UnshadedMaterial
 import math.{Ray, Sphere, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
@@ -46,7 +46,7 @@ class ShaderSpec extends Specification with Mockito {
   val shader = Shader(mockedRenderer)
   mockedRenderer.scene returns mockedScene
 
-  val unshadedColor = UnshadedColor(color = CYAN,
+  val unshadedColor = UnshadedMaterial(color = CYAN,
                                     ambient = 0.2,
                                     diffuse = 0.4,
                                     spec = 0.2,
@@ -74,7 +74,7 @@ class ShaderSpec extends Specification with Mockito {
     val nonReflectiveColor = unshadedColor.copy(reflective = 0)
 
     (shader.shadeReflection(hit, ray.copy(depth = Shader.RayDepthReflection + 1)) should be equalTo BLACK) and
-      (shader.shadeReflection(hit.copy(color = nonReflectiveColor), ray) should be equalTo BLACK)
+      (shader.shadeReflection(hit.copy(material = nonReflectiveColor), ray) should be equalTo BLACK)
   }
 
   val testShadeReflection = {

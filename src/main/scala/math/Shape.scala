@@ -1,6 +1,6 @@
 package math
 
-import material.{Material, UnshadedColor}
+import material.{Material, UnshadedMaterial}
 import renderer.Hit
 import cats.syntax.functor._
 import io.circe.{Decoder, Encoder, Json}
@@ -43,6 +43,6 @@ object Shape {
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty
-  def getMaterial(name: String, pos: Vector3): UnshadedColor =
+  def getMaterial(name: String, pos: Vector3): UnshadedMaterial =
     materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos)
 }

@@ -1,5 +1,5 @@
 import color.RGB
-import material.UnshadedColor
+import material.UnshadedMaterial
 import math.{Ray, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
@@ -89,7 +89,7 @@ class RendererSpec extends Specification with Mockito {
       distance = 3,
       position = Vector3.ZERO,
       originalNormal = Vector3.X,
-      color = UnshadedColor(color = RGB.RED,
+      material = UnshadedMaterial(color = RGB.RED,
                             ambient = 0.2f,
                             diffuse = 0.2f,
                             spec = 0.2f,

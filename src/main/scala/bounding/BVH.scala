@@ -78,7 +78,7 @@ case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean
 
   logger.info(s"Build BVH tree with $size primitives, $numNodes nodes and depth $depth")
 
-  override lazy val size = shapes.size
+  override lazy val size: Int = shapes.size
 
   Shape.materialMap = Shape.materialMap + (BVH.leafMaterial.name -> BVH.leafMaterial)
 
@@ -207,7 +207,7 @@ case class BVH(shapes: Vector[Shape], leafNodeLimit: Int = 12, splitSAH: Boolean
                     distance = aabbHitDist,
                     position = ray.march(aabbHitDist),
                     originalNormal = Vector3.X, /*not needed for shading*/
-                    color = BVH.innerNodeMaterial.getMat(Vector3.ZERO)
+                    material = BVH.innerNodeMaterial.getMat(Vector3.ZERO)
                   )
                 )
             }

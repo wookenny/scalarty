@@ -1,4 +1,5 @@
 package color
+import math.Vector3
 
 final case class RGB(red: Double, green: Double, blue: Double) {
   def ^(pow: Double) = RGB(
@@ -6,6 +7,9 @@ final case class RGB(red: Double, green: Double, blue: Double) {
     Math.pow(green, pow),
     Math.pow(blue, pow)
   )
+
+  def expf =
+    RGB(scala.math.exp(red), scala.math.exp(green), scala.math.exp(blue))
 
   def awtColor() = new java.awt.Color(
     (0f max red.toFloat) min 1f,

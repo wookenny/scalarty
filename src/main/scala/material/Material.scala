@@ -13,9 +13,9 @@ object Material {
     SingleColorMaterial("DEFAULT_MATERIAL", RGB(.4, .4, .4), 0.05f, 0.75f, .15f, .05f)
 
   implicit val encodeMaterial: Encoder[Material] = Encoder.instance {
-    case n @ SingleColorMaterial(_, _, _, _, _, _, _, _, _) =>
+    case n @ SingleColorMaterial(_, _, _, _, _, _, _, _, _, _) =>
       Json.obj("SingleColorMaterial" -> n.asJson)
-    case n @ CheckerMaterial(_, _, _, _, _, _, _, _, _, _, _) =>
+    case n @ CheckerMaterial(_, _, _, _, _, _, _, _, _, _, _, _) =>
       Json.obj("CheckerMaterial" -> n.asJson)
     case n @ EmissionMaterial(_, _, _) => Json.obj("EmissionMaterial" -> n.asJson)
     case n @ OpenSimplexNoiseMaterial(_, _, _, _, _, _, _, _, _, _, _) =>
@@ -43,7 +43,7 @@ object Material {
 
 }
 
-final case class UnshadedColor(
+final case class UnshadedMaterial(
     color: RGB,
     ambient: Double,
     diffuse: Double,
@@ -53,10 +53,11 @@ final case class UnshadedColor(
     n: Double,
     shininess: Double,
     emission: Double = 0,
-    normalModifier: Vector3 = Vector3.ZERO
+    normalModifier: Vector3 = Vector3.ZERO,
+    absorption: Double = 0,
 )
 
 trait Material {
-  def getMat(position: Vector3): UnshadedColor
+  def getMat(position: Vector3): UnshadedMaterial
   def name: String
 }

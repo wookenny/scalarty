@@ -6,14 +6,17 @@ final case class Ray(
     direction: Vector3,
     depth: Int = 0,
     n: Double = 1f,
-    source: String = ""
+    source: String = "",
+    insideMedia: Boolean = false
 ) {
+
+  def marchedRay(length: Double) = copy(origin = this.origin + direction * length)
   def march(length: Double) = origin + direction * length
 
   def reflectedAt(position: Vector3, normal: Vector3): Ray = {
     val dir = (direction - normal * (direction * normal) * 2).normalized
     this
-      .copy(origin = position + dir * EPS, direction = dir, depth = depth + 1)
+      .copy(origin = position + dir * EPS, direction = dir, depth = depth + 1, insideMedia = false)
   }
 
   def refractedAt(position: Vector3, normal: Vector3, newN: Double) = {
@@ -31,11 +34,13 @@ final case class Ray(
       val refractedDir =
         (V * refractionFactor + norm * (refractionFactor * cosI - cosT)).normalized
       Some(
-        this.copy(
+        Ray(
           origin = position + refractedDir * EPS,
           direction = refractedDir,
-          depth = depth + 1,
-          n = newN
+          depth = this.depth + 1,
+          n = newN,
+          source = this.source,
+          insideMedia = !this.insideMedia //TODO: use normalto set this instead of alternating
         )
       )
     }

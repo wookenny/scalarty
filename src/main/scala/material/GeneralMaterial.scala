@@ -18,7 +18,7 @@ final case class GeneralMaterial(
 ) extends Material {
 
   import GeneralMaterial._
-  override def getMat(position: Vector3): UnshadedColor = {
+  override def getMat(position: Vector3): UnshadedMaterial = {
     val ambient = ambientNode.map(_.value(position)).getOrElse(DefaultAmbient)
     val diffuse = diffuseNode.map(_.value(position)).getOrElse(DefaultDiffuse)
     val spec = specNode.map(_.value(position)).getOrElse(DefaultSpec)
@@ -26,7 +26,7 @@ final case class GeneralMaterial(
     val refractive = refractiveNode.map(_.value(position)).getOrElse(DefaultRefractive)
     val sum: Double = ambient + diffuse + reflective + refractive
 
-    UnshadedColor(
+    UnshadedMaterial(
       colorNode.map(_.value(position)).getOrElse(DefaultColor),
       ambient / sum,
       diffuse / sum,
@@ -35,7 +35,8 @@ final case class GeneralMaterial(
       refractive / sum,
       n.getOrElse(DefaultN),
       shininessNode.getOrElse(ConstantValue(0)).value(position),
-      normalModifier = bump.map(_.value(position)).getOrElse(DefaultBump)
+      normalModifier = bump.map(_.value(position)).getOrElse(DefaultBump),
+      absorption = 0
     )
   }
 }

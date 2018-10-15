@@ -1,0 +1,301 @@
+{
+  "cameraOrigin":   {"x":0, "y":0,"z":-5},
+  "cameraPointing": {"x":0, "y":0,"z":4},
+  "width"  : 2,
+  "height" : 2,
+  "ppi" : 400,
+  "lights" : [ {"PointLight": {"position" : {"x":0, "y": 0.9,"z":0},
+    "color"    : {"red": 1, "green": 1, "blue": 1},
+    "power": 1.9}
+  }
+  ],
+  "materials" : [{"SingleColorMaterial": {
+    "name": "PlainWhite",
+    "c":  {"red": 1, "green": 1, "blue": 1},
+    "ambient": 0.15,
+    "diffuse": 0.8,
+    "spec": 0.05,
+    "reflective": 0,
+    "shininess": 64,
+    "refractive" : 0,
+    "n" : 1,
+    "absorption": 0.3
+  }
+  },
+    {"CheckerMaterial": {
+      "name": "Chessboard",
+      "c1":  {"red": 0.9, "green": 0.9, "blue": 1},
+      "c2":  {"red": 1, "green": 0.7, "blue": 0.95},
+      "steps": 0.0432,
+      "ambient": 1,
+      "diffuse": 0,
+      "spec": 0,
+      "reflective": 0,
+      "shininess": 64,
+      "refractive" : 0,
+      "n" : 1,
+      "absorption": 0.15
+    }
+    },
+    {"SingleColorMaterial": {
+      "name": "Glass1",
+      "c":  {"red": 0, "green": 0, "blue": 1},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.01,
+      "absorption": 0.45
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass2",
+      "c":  {"red": 0, "green": 1, "blue": 0},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.02,
+      "absorption": 0.45
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass3",
+      "c":  {"red": 1, "green": 0, "blue": 0},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.03,
+      "absorption": 0.45
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass4",
+      "c":  {"red": 0, "green": 0, "blue": 1},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.05,
+      "absorption": 0.9
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass5",
+      "c":  {"red": 0, "green": 1, "blue": 0},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.1,
+      "absorption": 0.9
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass6",
+      "c":  {"red": 1, "green": 0, "blue": 0},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.2,
+      "absorption": 0.9
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass7",
+      "c":  {"red": 0, "green": 0, "blue": 1},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 1.5,
+      "absorption": 1.8
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass8",
+      "c":  {"red": 0, "green": 1, "blue": 0},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 2,
+      "absorption": 1.8
+    }},
+    {"SingleColorMaterial": {
+      "name": "Glass9",
+      "c":  {"red": 1, "green": 0, "blue": 0},
+      "ambient": 0.1,
+      "diffuse": 0.05,
+      "spec": 0.0,
+      "reflective": 0.05,
+      "shininess": 64,
+      "refractive" : 0.8,
+      "n" : 3,
+      "absorption": 1.8
+    }},
+    {"OpenSimplexNoiseMaterial": {
+      "name": "SimplexGreenBlue",
+      "color1":  {"red": 1, "green": 1, "blue": 0},
+      "color2":  {"red": 0.5, "green": 0, "blue": 0},
+      "size": 0.1,
+      "ambient": 0.05,
+      "diffuse": 0.8,
+      "spec": 0.15,
+      "reflective": 0,
+      "shininess": 64,
+      "refractive" : 0,
+      "n" : 1
+    }
+    },{"SingleColorMaterial": {
+      "name": "Red",
+      "c":  {"red": 1, "green": 0, "blue": 0},
+      "ambient": 0.05,
+      "diffuse": 0.8,
+      "spec": 0.15,
+      "reflective": 0,
+      "shininess": 64,
+      "refractive" : 0,
+      "n" : 1,
+      "absorption": 0
+    }
+    },{"SingleColorMaterial": {
+      "name": "Chrome",
+      "c":  {"red": 1, "green": 1, "blue": 1},
+      "ambient": 0.05,
+      "diffuse": 0,
+      "spec": 0.1,
+      "reflective": 0.85,
+      "shininess": 64,
+      "refractive" : 0,
+      "n" : 1,
+      "absorption": 0.2
+    }
+    }, {"SingleColorMaterial": {
+      "name": "Green",
+      "c":  {"red": 0, "green": 1, "blue": 0},
+      "ambient": 0.05,
+      "diffuse": 0.8,
+      "spec": 0.15,
+      "reflective": 0,
+      "shininess": 64,
+      "refractive" : 0,
+      "n" : 1,
+      "absorption": 0.1
+    }
+    }],
+  "shapes" : [
+    {
+      "Triangle": {"a": {"x": -1,"y": -1,"z": -1},
+        "b": {"x": 1, "y": -1,"z": -1},
+        "c": {"x": -1,"y": -1,"z": 1},
+        "material": "PlainWhite"
+      }
+    },
+    {"Triangle" : {"a" :{"x": 1, "y":-1,"z":-1},
+      "b" :{"x": 1, "y":-1,"z": 1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    {"Triangle" : {"a" :{"x": 1, "y": 1,"z":-1},
+      "b" :{"x":-1, "y": 1,"z":-1},
+      "c" :{"x":-1, "y": 1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z":-1},
+      "b" :{"x":-1, "y": 1,"z": 1},
+      "c" :{"x": 1, "y": 1,"z": 1},
+      "material" : "PlainWhite"
+    }
+    },
+    {"Triangle" : {"a" :{"x": 1, "y": 1,"z": 1},
+      "b" :{"x": 1, "y":-1,"z": 1},
+      "c" :{"x": 1, "y":-1,"z":-1},
+      "material" : "Green"
+    }
+    },
+    {"Triangle" : {"a" :{"x": 1, "y": 1,"z":-1},
+      "b" :{"x": 1, "y": 1,"z": 1},
+      "c" :{"x": 1, "y":-1,"z":-1},
+      "material" : "Green"
+    }
+    },
+    {"Triangle" : {"a" :{"x":-1, "y": 1,"z":-1},
+      "b" :{"x":-1, "y":-1,"z":-1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "Red"
+    }
+    },
+    { "Triangle" : {"a" :{"x":-1, "y": 1,"z": 1},
+      "b" :{"x":-1, "y": 1,"z":-1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "Red"
+    }
+    },
+    {"Triangle" : {"a" :{"x": 1, "y": 1,"z": 1},
+      "b" :{"x":-1, "y": 1,"z": 1},
+      "c" :{"x":-1, "y":-1,"z": 1},
+      "material" : "Chessboard"
+    }},
+    { "Triangle" : {"a" :{"x": 1, "y": 1,"z": 1},
+      "b" :{"x":-1, "y":-1,"z": 1},
+      "c" :{"x": 1, "y":-1,"z": 1},
+      "material" : "Chessboard"
+    }},
+    { "Sphere" : {
+      "center": {"x": -0.5, "y": -0.5,"z": 0},
+      "radius": 0.2,
+      "material": "Glass1"
+    }},
+    { "Sphere" : {"center" :{"x": 0, "y":-0.5,"z":0},
+      "radius" : 0.2,
+      "material" : "Glass2"
+    }},
+    { "Sphere" : {"center" :{"x": 0.5, "y":-0.5,"z":0},
+      "radius" : 0.2,
+      "material" : "Glass3"
+    }},
+    { "Sphere" : {
+      "center": {"x": -0.5, "y": 0,"z": 0},
+      "radius": 0.2,
+      "material": "Glass4"
+    }},
+    { "Sphere" : {"center" :{"x": 0, "y":0,"z":0},
+      "radius" : 0.2,
+      "material" : "Glass5"
+    }},
+    { "Sphere" : {"center" :{"x": 0.5, "y":0,"z":0},
+      "radius" : 0.2,
+      "material" : "Glass6"
+    }},
+    { "Sphere" : {
+      "center": {"x": -0.5, "y": 0.5,"z": 0},
+      "radius": 0.2,
+      "material": "Glass7"
+    }},
+    { "Sphere" : {"center" :{"x": 0, "y":0.5,"z":0},
+      "radius" : 0.2,
+      "material" : "Glass8"
+    }},
+    { "Sphere" : {"center" :{"x": 0.5, "y":0.5,"z":0},
+      "radius" : 0.2,
+      "material" : "Glass9"
+    }}
+
+  ]
+
+
+}
