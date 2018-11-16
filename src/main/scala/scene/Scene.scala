@@ -1,11 +1,15 @@
 package scene
 
+import java.io.File
+
 import bounding.{BVH, ShapeContainer, ShapeMetaContainer, ShapeSeq}
 import lightning.LightSource
 import material.Material
 import math.{Shape, Triangle, Vector3}
 import support.Config
 import support.Implicits._
+
+
 
 case class SceneDTO(
     cameraOrigin: Vector3,
@@ -20,6 +24,7 @@ case class SceneDTO(
 ) {}
 
 case class Scene(
+    pathPrefix : String,
     cameraOrigin: Vector3,
     cameraPointing: Vector3,
     width: Double,
@@ -34,27 +39,36 @@ case class Scene(
   val up = Vector3(0, 1, 0)
   val side = Vector3(1, 0, 0)
 
-  //TODO: Big triangles/quads /should be decomposed into smaller ones for speedup
+  //TODO: Big triangles/quads could/should be decomposed into smaller ones for speedup
   val allShapes: ShapeContainer =
     if (objFiles.nonEmpty)
       ShapeMetaContainer(
         ShapeSeq(shapes),
-        BVH(parseObjFiles(objFiles.toVector), config.bvhSplitLimit, config.sah)
+        BVH(parseObjFiles(objFiles.toVector, pathPrefix), config.bvhSplitLimit, config.sah)
       )
     else
       ShapeSeq(shapes)
 
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
-  private def parseObjFiles(objFiles: Vector[ObjObject]): Vector[Triangle] = {
-    objFiles.flatMap(_.getTriangles)
+  private def parseObjFiles(objFiles: Vector[ObjObject], pathPrefix: String): Vector[Triangle] = {
+    objFiles.map(objFile => objFile.copy(filename = pathPrefix + objFile.filename))
+            .flatMap(_.getTriangles)
   }
 
 }
 
 object Scene {
-  def fromDTO(sceneDTO: SceneDTO)(implicit config: Config) =
+
+  val pathSeparator = "/" //TODO: File.pathSeparator was not working??
+
+  def getFolderOfFile(filepath: String) = {
+    filepath.substring(0,filepath.lastIndexOf(pathSeparator)+1)
+  }
+
+  def fromDTO(sceneDTO: SceneDTO, path: String = "")(implicit config: Config) =
     Scene(
+      getFolderOfFile(path),
       sceneDTO.cameraOrigin,
       sceneDTO.cameraPointing,
       sceneDTO.width,

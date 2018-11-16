@@ -3,6 +3,7 @@ package renderer
 import color.RGB
 import com.typesafe.scalalogging.LazyLogging
 import lightning.LightSource
+import material.UnshadedMaterial
 import math.{Ray, Vector3}
 import support.Config
 
@@ -20,14 +21,14 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
 
   def shadeHit(hit: Hit, ray: Ray): (RGB, Double) = {
 
-    val colorInfo = hit.material
+    val colorInfo: UnshadedMaterial = hit.material
     val baseColor: RGB = colorInfo.color
     val backFace = (hit.normal * ray.direction) > 0
 
    //beer's law
     val beerslawMultiplier = if(ray.insideMedia){
       val refractedColor = RGB.WHITE - baseColor
-      val absorptionCoefficient : RGB = -(refractedColor * hit.material.absorption * hit.distance)
+      val absorptionCoefficient : RGB = -(refractedColor * colorInfo.absorption * hit.distance)
       absorptionCoefficient.expf
     }else{
       RGB.WHITE
@@ -109,8 +110,8 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
           val (light, weight, position) =
             (lightSample.light, lightSample.weight, lightSample.position)
           val L = (position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-          hit.material.color * Math.max(hit.normal * L, 0) *
-            hit.material.diffuse * light.intensity(hit.position, Some(position)) * weight //TODO light color?
+          hit.material.color * hit.material.diffuse  * Math.max(hit.normal * L, 0) *
+             light.intensity(hit.position, Some(position)) * weight //TODO light color?
         }
         .reduce(_ + _)
   }

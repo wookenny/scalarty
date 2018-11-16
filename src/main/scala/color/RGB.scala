@@ -1,4 +1,6 @@
 package color
+import java.awt.Color
+
 import math.Vector3
 
 final case class RGB(red: Double, green: Double, blue: Double) {
@@ -41,6 +43,12 @@ final case class RGB(red: Double, green: Double, blue: Double) {
 }
 
 object RGB {
+
+  def apply(value: Int):RGB = {
+    val c = new Color(value)
+    RGB(c.getRed, c.getGreen, c.getBlue)
+  }
+
   val BLACK = RGB(0, 0, 0)
   val WHITE = RGB(1, 1, 1)
   val RED = BLACK.copy(red = 1)

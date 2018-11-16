@@ -14,11 +14,13 @@ final case class GeneralMaterial(
     reflectiveNode: Option[ValueNode],
     refractiveNode: Option[ValueNode],
     n: Option[Double],
-    shininessNode: Option[ValueNode]
+    shininessNode: Option[ValueNode],
+    absorption: Option[ValueNode]
 ) extends Material {
 
   import GeneralMaterial._
-  override def getMat(position: Vector3): UnshadedMaterial = {
+  override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]): UnshadedMaterial = {
+    //TODO: maybe use UV coords
     val ambient = ambientNode.map(_.value(position)).getOrElse(DefaultAmbient)
     val diffuse = diffuseNode.map(_.value(position)).getOrElse(DefaultDiffuse)
     val spec = specNode.map(_.value(position)).getOrElse(DefaultSpec)
@@ -34,9 +36,9 @@ final case class GeneralMaterial(
       reflective / sum,
       refractive / sum,
       n.getOrElse(DefaultN),
-      shininessNode.getOrElse(ConstantValue(0)).value(position),
+      shininessNode.map(_.value(position)).getOrElse(0),
       normalModifier = bump.map(_.value(position)).getOrElse(DefaultBump),
-      absorption = 0
+      absorption = absorption.map(_.value(position)).getOrElse(0)
     )
   }
 }

@@ -1,10 +1,13 @@
-import io.circe._, io.circe.generic.auto._, io.circe.parser._
-
+import io.circe._
+import io.circe.generic.auto._
+import io.circe.parser._
 import renderer.Renderer
 import scene.{Scene, SceneDTO}
 import support.{Config, SamplingValue}
 import support.Implicits.imageWriter
+
 import scala.io.Source._
+import scala.util.{Failure, Success, Try}
 
 object Main {
 
@@ -70,25 +73,30 @@ object Main {
     val description = note("Simple raytracer written in scala.\n")
   }
 
-  def main(args: Array[String]) {
-    parser.parse(args, Config()) match {
-      case Some(config) => main(config) // do stuff
+  def main(args: Array[String]) = parser.parse(args, Config()) match {
+      case Some(config) => run(config) // do stuff
       case None         => // arguments are bad, error message will be displayed
     }
 
-  }
 
-  def main(implicit config: Config): Unit = {
-    val sceneFile: String = fromFile(config.in).getLines
-      .map(_.replaceAll("//.*", ""))
-      .mkString
-      .replaceAll("/\\*.*\\*/", "")
+  def run(implicit config: Config): Unit = {
+    val sceneFile: Either[String,String] =
+      Try(fromFile(config.in)) match {
+        case Success(value) =>
+              Right(value.getLines
+                         .map(_.replaceAll("//.*", ""))
+                         .mkString
+                         .replaceAll("/\\*.*\\*/", "")
+              )
+        case Failure(t) =>  Left(t.getMessage)
+      }
 
-    val sceneEither: Either[Error, SceneDTO] = decode[SceneDTO](sceneFile)
+    val sceneEither: Either[String, SceneDTO] = sceneFile.flatMap( decode[SceneDTO](_))
+      .swap.map(_.toString).swap
 
     sceneEither match {
-      case Right(scene) => Renderer(Scene.fromDTO(scene)).startRendering(config)
-      case Left(error)  => println(s"Error rendering ${config.in}. Error: $error")
+      case Right(scene) => Renderer(Scene.fromDTO(scene, config.in)).startRendering(config)
+      case Left(error)  => println(s"ERROR: Rendering ${config.in} failed:\n$error")
     }
 
   }

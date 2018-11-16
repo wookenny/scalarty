@@ -6,6 +6,7 @@ import math.{Triangle, Vector3}
 import math.Math.π
 
 import scala.io.BufferedSource
+import scala.util.{Failure, Success, Try}
 
 case class ObjObject(
     filename: String,
@@ -40,21 +41,33 @@ case class ObjObject(
     Vector3(vector.x * cos - vector.z * sin, vector.y, vector.x * sin + vector.z * cos)
   }
 
-  def getTriangles()(implicit reader: (String) => BufferedSource): Seq[Triangle] = {
+  def getTriangles()(implicit reader: String => BufferedSource): Seq[Triangle] = {
 
     logger.info(s"Reading $filename")
-    val objFile = reader(filename).getLines
 
-    objFile foreach {
-      case line if line.trim.isEmpty          => Unit //skip empty lines
-      case line if line.trim.startsWith("#")  => Unit //comment
-      case line if line.trim.startsWith("g")  => Unit //TODO: parse what?
-      case line if line.trim.startsWith("vn") => parseNormal(line)
-      case line if line.trim.startsWith("v")  => parseVertex(line)
+    val fileReadSuccessfully: Try[Unit] = Try(reader(filename)).map(_.getLines() foreach {
+        case line if line.trim.isEmpty          => Unit //skip empty lines
+        case line if line.trim.startsWith("#")  => Unit //comment
+        case line if line.trim.startsWith("g")  => Unit //TODO: parse what?
+        case line if line.trim.startsWith("vn") => parseNormal(line)
+        case line if line.trim.startsWith("v")  => parseVertex(line)
+        case line if line.trim.startsWith("vt") => Unit //TODO parse texture coordinate
+        case line if line.trim.startsWith("mtllib") => Unit //TODO parse material file
+        case line if line.trim.startsWith("usemtl") => Unit //TODO set current material
       case line if line.trim.startsWith("f")  => parseFace(line)
-      case line                               => logger.error(s"ERROR: Cannot parse this line: <$line>")
+        case line                               => logger.error(s"ERROR: Cannot parse this line: <$line>")
+    })
+
+    fileReadSuccessfully match {
+      case Failure(u) => logger.error(s"Could not read object $filename, skipping!")
+                         Seq.empty
+
+      case Success(u) => if(vertices.isEmpty) Seq.empty else createTriangles
     }
 
+  }
+
+  private def createTriangles = {
     val (coordinates_x, coordinates_y, coordinates_z) =
       (vertices.map(_.x), vertices.map(_.y), vertices.map(_.z))
     val scalingFactor = maxSide / Seq(
@@ -121,6 +134,10 @@ case class ObjObject(
       case Array(a, b, c) =>
         triangles += Tuple3(toIntList(a), toIntList(b), toIntList(c))
     }
+  }
+
+  private def parseMaterialFile(filename : String): Unit = {
+
   }
 
 }

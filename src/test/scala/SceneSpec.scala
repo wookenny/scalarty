@@ -24,6 +24,8 @@ class SceneSpec extends Specification with Mockito {
 
   implicit val config: _root_.support.Config = Config()
 
+  val pathPrefix = ""
+
   def testSceneWithoutObjInit = {
     val mat1 = SingleColorMaterial("mat1", RGB.CYAN, 0.7f, 0.1f, 0.1f, 0.1f)
     val mat2 =
@@ -33,7 +35,7 @@ class SceneSpec extends Specification with Mockito {
     val lights = Seq(PointLight(Vector3(1, 2, 3), RGB.WHITE, 12))
 
     val scene =
-      Scene(Vector3.ZERO, Vector3.Z, 2, 2, ppi = 100, lights, Seq(shape1, shape2), Seq(mat1, mat2))
+      Scene(pathPrefix, Vector3.ZERO, Vector3.Z, 2, 2, ppi = 100, lights, Seq(shape1, shape2), Seq(mat1, mat2))
 
     (Shape.materialMap should havePairs("mat1" -> mat1, "mat2" -> mat2)) and
       (scene.materials should be equalTo Seq(mat1, mat2)) and
@@ -60,8 +62,14 @@ class SceneSpec extends Specification with Mockito {
        Triangle(Vector3.Z, Vector3.Y, Vector3.X))
     objObj1.getTriangles returns Seq(triangle1)
     objObj2.getTriangles returns Seq(triangle2, triangle3)
+    objObj1.filename returns ""
+    objObj2.filename returns ""
+    objObj1.copy(anyString,anyObject[Vector3],anyDouble,anyDouble,anyObject[Option[String]]) returns objObj1
+    objObj2.copy(anyString,anyObject[Vector3],anyDouble,anyDouble,anyObject[Option[String]]) returns objObj2
 
-    val scene = Scene(Vector3.ONE,
+
+    val scene = Scene(pathPrefix,
+                      Vector3.ONE,
                       Vector3.X,
                       4,
                       7,
@@ -94,6 +102,7 @@ class SceneSpec extends Specification with Mockito {
     (decode[SceneDTO](json) should beRight) and
       (Scene.fromDTO(sceneDTO) should beEqualTo(
         Scene(
+          pathPrefix,
           sceneDTO.cameraOrigin,
           sceneDTO.cameraPointing,
           sceneDTO.width,

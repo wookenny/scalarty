@@ -1,7 +1,7 @@
 name := "Scalarty"
 
 version := "1.0"
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.7"
 
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 resolvers ++= Seq(
@@ -9,8 +9,8 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots")
 )
 
-val specs2Version = "4.3.0"
-val circeVersion = "0.9.3"
+val specs2Version = "4.3.5"
+val circeVersion = "0.10.1"
 val monocleVersion = "1.5.0"
 
 libraryDependencies ++= Seq(
@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion,
-  "org.mockito" % "mockito-core" % "2.19.0",
+  "org.mockito" % "mockito-core" % "2.23.0",
   "com.chuusai" %% "shapeless" % "2.3.3",
   "org.scalanlp" %% "breeze" % "0.13.2",
   "org.scalanlp" %% "breeze-natives" % "0.13.2",
@@ -31,7 +31,7 @@ libraryDependencies ++= Seq(
   "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
   "com.github.julien-truffaut" %% "monocle-law" % monocleVersion % "test",
   "com.github.ichoran" %% "thyme" % "0.1.2-SNAPSHOT",
-  "com.chuusai"        %% "shapeless" % "2.3.2"
+  "com.chuusai"        %% "shapeless" % "2.3.3"
 )
 
 parallelExecution in Test := false

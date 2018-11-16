@@ -4,7 +4,7 @@ import math.{Ray, Vector3}
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 import renderer.{Hit, Renderer}
-import scene.Scene
+import scene.{ObjObject, Scene}
 import support.{Config, Image}
 
 class RendererSpec extends Specification with Mockito {
@@ -30,7 +30,8 @@ class RendererSpec extends Specification with Mockito {
 
   implicit val config: Config = Config()
 
-  val emptyScene = Scene(cameraOrigin = Vector3.ZERO,
+  val emptyScene = Scene(pathPrefix = "",
+                         cameraOrigin = Vector3.ZERO,
                          cameraPointing = Vector3.Z,
                          width = 2,
                          height = 2,
@@ -38,7 +39,7 @@ class RendererSpec extends Specification with Mockito {
                          lights = Seq(),
                          shapes = Seq(),
                          materials = Seq(),
-                         Seq.empty)
+                         objFiles = Seq.empty)
 
   val renderEmpty = {
     val renderer = new Renderer(emptyScene)

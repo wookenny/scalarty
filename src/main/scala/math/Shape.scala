@@ -43,6 +43,6 @@ object Shape {
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty
-  def getMaterial(name: String, pos: Vector3): UnshadedMaterial =
-    materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos)
+  def getMaterial(name: String, pos: Vector3, uv_coordinates : Option[(Double,Double)] = None): UnshadedMaterial =
+    materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos,uv_coordinates)
 }

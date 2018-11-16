@@ -19,8 +19,11 @@ object Renderer {
 
   def abbrevNumber(n:Int) = n match {
     case _ if n < 1000 => n.toString
+    case _ if n < 1000*10 => f"${n/1000.0}%1.1fk"
     case _ if n < 1000*1000 => f"${n/1000}%3dK"
+    case _ if n < 1000*1000*10 => f"${n/(1000.0*1000)}%1.1fM"
     case _ if n < 1000*1000*1000 => f"${n/(1000*1000)}%3dM"
+    case _ if n < 1000*1000*1000*10 => f"${n/(1000.0*1000*1000)}%1.1fG"
     case _ if n < 1000*1000*1000*1000 => f"${n/(1000*1000*1000)}%3dG"
     case _ => n.toString
   }

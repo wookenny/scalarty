@@ -60,7 +60,8 @@ final case class Triangle(
                   )
                 )
               case _ =>
-                Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos)))
+                val uv_coordinates = Some(u,v)
+                Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos,uv_coordinates)))
             }
           } else {
             None

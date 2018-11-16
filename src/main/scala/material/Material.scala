@@ -20,7 +20,7 @@ object Material {
     case n @ EmissionMaterial(_, _, _) => Json.obj("EmissionMaterial" -> n.asJson)
     case n @ OpenSimplexNoiseMaterial(_, _, _, _, _, _, _, _, _, _, _) =>
       Json.obj("OpenSimplexNoiseMaterial" -> n.asJson)
-    case n @ GeneralMaterial(_, _, _, _, _, _, _, _, _, _) =>
+    case n @ GeneralMaterial(_, _, _, _, _, _, _, _, _, _, _) =>
       Json.obj("GeneralMaterial" -> n.asJson)
   }
 
@@ -57,7 +57,28 @@ final case class UnshadedMaterial(
     absorption: Double = 0,
 )
 
+
+trait UnshadedColorT{
+  def ambientColor: RGB
+  def diffuseColor: RGB
+  def specularColor: RGB // (x,x,x) for case so far case, use as specular factor
+  def reflectiveColor: RGB
+
+  //=> specularity == reflectiveness
+  def shininess : Double //N
+  def n: Double
+  def transparency: Double
+
+}
+
+//TODO: Implement and use the new trait
+// * firs implement current versiuon and use it instead
+// * then use different version for WaveFrontMaterial
+// * add parsing in ObjMaterialReaading
+// * add example with texture map and material
+
 trait Material {
-  def getMat(position: Vector3): UnshadedMaterial
+  def getMat(position: Vector3): UnshadedMaterial = getMat(position, None)
+  def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]): UnshadedMaterial
   def name: String
 }

@@ -16,8 +16,7 @@ final case class CheckerMaterial(
     refractive: Double = 0,
     n: Double = 1.33f,
     shininess: Double = 64,
-    absorption: Double = 0
-) extends Material {
+    absorption: Option[Double] = None) extends Material {
   require(Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
   private def mod(x: Double, m: Double) = (x % m + m) % m
@@ -25,7 +24,7 @@ final case class CheckerMaterial(
   private def inStep(pos: Double): Boolean = mod(pos, 2 * steps) >= steps
   private def inStep(pos: Vector3): Boolean =
     inStep(pos.x) ^ inStep(pos.y) ^ inStep(pos.z)
-  override def getMat(position: Vector3) =
+  override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]) =
     UnshadedMaterial(
       if (inStep(position)) c1 else c2,
       ambient,
@@ -35,6 +34,6 @@ final case class CheckerMaterial(
       refractive,
       n,
       shininess,
-      absorption
+      absorption.getOrElse(0)
     )
 }

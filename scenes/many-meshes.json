@@ -111,23 +111,23 @@
     }
   ],
   "objFiles" : [
-    { "filename": "scenes/obj/suzanne.obj.gz",
+    { "filename": "obj/suzanne.obj.gz",
       "centerBottom"   : {"x": -0.5, "y": -1,"z": -0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,
       "material": "Glass"
     },{
-      "filename": "scenes/obj/bunny.obj.gz",
+      "filename": "obj/bunny.obj.gz",
       "centerBottom"   : {"x": 0.5, "y": -1, "z": -0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,
       "material": "Glass"
-    },{"filename": "scenes/obj/dragon.obj.gz",
+    },{"filename": "obj/dragon.obj.gz",
       "centerBottom"   : {"x": -0.5, "y": -1,"z":  0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,
       "material": "Glass"
-    },{"filename": "scenes/obj/happybuddha.obj.gz",
+    },{"filename": "obj/happybuddha.obj.gz",
       "centerBottom"   : {"x": 0.5, "y": -1,"z": 0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,

@@ -61,13 +61,13 @@ class ShaderSpec extends Specification with Mockito {
   val testShadowRayPositive = {
     val shapes = Seq(Sphere(Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * 0.3, 0.1))
     mockedScene.allShapes returns ShapeSeq(shapes)
-    shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beTrue
+    shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beEqualTo(0d)
   }
 
   val testShadowRayNegative = {
     val shapes = Seq(Sphere(Vector3.ONE * 10, 1.2), Sphere(Vector3.ONE * -0.5, 0.1))
     mockedScene.allShapes returns ShapeSeq(shapes)
-    shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beFalse
+    shader.shadowRay(position = Vector3.ZERO, light = Vector3.ONE) should beEqualTo(1d)
   }
 
   val testShadeReflectionStopping = {
