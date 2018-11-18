@@ -111,23 +111,29 @@
     }
   ],
   "objFiles" : [
-    { "filename": "obj/suzanne.obj.gz",
+    { "pathPrefix" : "obj/",
+      "filename": "suzanne.obj.gz",
       "centerBottom"   : {"x": -0.5, "y": -1,"z": -0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,
       "material": "Glass"
     },{
-      "filename": "obj/bunny.obj.gz",
+      "pathPrefix" : "obj/",
+      "filename": "bunny.obj.gz",
       "centerBottom"   : {"x": 0.5, "y": -1, "z": -0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,
       "material": "Glass"
-    },{"filename": "obj/dragon.obj.gz",
+    },{
+      "pathPrefix" : "obj/",
+      "filename": "dragon.obj.gz",
       "centerBottom"   : {"x": -0.5, "y": -1,"z":  0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,
       "material": "Glass"
-    },{"filename": "obj/happybuddha.obj.gz",
+    },{
+      "pathPrefix" : "obj/",
+      "filename": "happybuddha.obj.gz",
       "centerBottom"   : {"x": 0.5, "y": -1,"z": 0.5},
       "maxSide"  : 0.8,
       "rotation" : 75,

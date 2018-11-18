@@ -25,7 +25,7 @@ final case class CheckerMaterial(
   private def inStep(pos: Vector3): Boolean =
     inStep(pos.x) ^ inStep(pos.y) ^ inStep(pos.z)
   override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]) =
-    UnshadedMaterial(
+    UnshadedMaterial.from(
       if (inStep(position)) c1 else c2,
       ambient,
       diffuse,

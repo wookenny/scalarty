@@ -27,7 +27,7 @@ object Shape {
   implicit val encodeShape: Encoder[Shape] = Encoder.instance {
     case n @ NonEmptyAABB(_, _, _, _, _, _, _) => Json.obj("AABB" -> n.asJson)
     case n @ Sphere(_, _, _)           => Json.obj("Sphere" -> n.asJson)
-    case n @ Triangle(_, _, _, _, _)   => Json.obj("Triangle" -> n.asJson)
+    case n @ Triangle(_, _, _, _, _, _)   => Json.obj("Triangle" -> n.asJson)
     case n @ Cuboid(_, _, _, _)        => Json.obj("Cuboid" -> n.asJson)
   }
 

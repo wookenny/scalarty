@@ -7,7 +7,8 @@ final case class Triangle(
     b: Vector3,
     c: Vector3,
     material: String = "DEFAULT_MATERIAL",
-    normals: Option[Seq[Vector3]] = None
+    normals: Option[Seq[Vector3]] = None,
+    textureCoordinates: Option[Seq[(Double,Double)]] = None
 ) extends Shape {
   import Math._
   lazy val edge1: Vector3 = b - a

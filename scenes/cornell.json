@@ -132,7 +132,9 @@
     }
     }
   ],
-  "objFiles" : [{"filename": "obj/venusm.obj.gz",
+  "objFiles" : [{
+    "pathPrefix" : "obj/",
+    "filename": "venusm.obj.gz",
     "centerBottom"   : {"x": -0.3, "y": -1,"z": -0.6},
     "maxSide"  : 1.1,
     "rotation" : -75

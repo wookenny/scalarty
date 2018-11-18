@@ -20,7 +20,7 @@ trait ShapeContainer {
     case None => acc
     case Some(hit) if hit.distance >= maxDist => acc
     case Some(hit) => lightPercentage(r.marchedRay(hit.distance+EPS), maxDist-hit.distance,
-                                      hit.material.refractive * acc)
+                                      hit.material.transparency * acc)
   }
 
 }

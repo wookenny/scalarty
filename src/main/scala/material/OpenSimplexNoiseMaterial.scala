@@ -34,7 +34,7 @@ final case class OpenSimplexNoiseMaterial(
   private def gradientAt(v: Vector3) = (Vector3.apply _).tupled(gradient[Double](v.x, v.y, v.z))
 
   override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]) =
-    UnshadedMaterial(
+    UnshadedMaterial.from(
       colorAt(position),
       ambient,
       diffuse,

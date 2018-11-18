@@ -28,7 +28,7 @@ final case class GeneralMaterial(
     val refractive = refractiveNode.map(_.value(position)).getOrElse(DefaultRefractive)
     val sum: Double = ambient + diffuse + reflective + refractive
 
-    UnshadedMaterial(
+    UnshadedMaterial.from(
       colorNode.map(_.value(position)).getOrElse(DefaultColor),
       ambient / sum,
       diffuse / sum,

@@ -21,21 +21,19 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
 
   def shadeHit(hit: Hit, ray: Ray): (RGB, Double) = {
 
-    val colorInfo: UnshadedMaterial = hit.material
-    val baseColor: RGB = colorInfo.color
+    val material: UnshadedMaterial = hit.material
     val backFace = (hit.normal * ray.direction) > 0
 
    //beer's law
     val beerslawMultiplier = if(ray.insideMedia){
-      val refractedColor = RGB.WHITE - baseColor
-      val absorptionCoefficient : RGB = -(refractedColor * colorInfo.absorption * hit.distance)
+      val absorptionCoefficient : RGB = -(material.absorptionColor * hit.distance)
       absorptionCoefficient.expf
     }else{
       RGB.WHITE
     }
 
     //ambient
-    val ambientColor = baseColor * colorInfo.ambient
+    val ambientColor = material.ambientColor
 
     val (visibleLightSamples, shadowPercentage): (Seq[LightSample], Double) =
       if (backFace)
@@ -68,20 +66,20 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
 
   //TODO: Ray -> enters object, copy transmition
   def shadeRefraction(hit: Hit, ray: Ray): RGB = {
-    if (hit.material.refractive > ThresholdRayWeight && ray.depth <= RayDepthRefraction)
+    if (hit.material.transparency > ThresholdRayWeight && ray.depth <= RayDepthRefraction)
       ray.refractedAt(hit.position, hit.normal, hit.material.n) match {
         case Some(refractedRay) =>
-          renderer.traceRay(refractedRay).color * hit.material.refractive
+          renderer.traceRay(refractedRay).color * hit.material.transparency
         case None =>
           renderer
             .traceRay(ray.reflectedAt(hit.position, -hit.normal))
-            .color * hit.material.refractive //Total Internal ref
+            .color * hit.material.transparency //Total Internal ref
       } else Renderer.BackgroundColor
   }
 
   def shadeReflection(hit: Hit, ray: Ray): RGB = {
-    if (hit.material.reflective > ThresholdRayWeight && ray.depth <= RayDepthReflection) //TODO make configurable
-      renderer.traceRay(ray.reflectedAt(hit.position, hit.normal)).color * hit.material.reflective
+    if (hit.material.reflectiveColor.max > ThresholdRayWeight && ray.depth <= RayDepthReflection) //TODO make configurable
+      renderer.traceRay(ray.reflectedAt(hit.position, hit.normal)).color mult hit.material.reflectiveColor
     else RGB.BLACK
   }
 
@@ -96,8 +94,9 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
           val V = r.direction * -1 //towards eye
           val L = (position - hit.position).normalized // vector pointing towards light
           val R = V - hit.normal * (V * hit.normal) * 2 //reflected ray
-          light.color * Math.pow(Math.max(-(R * L), 0), hit.material.shininess) *
-            hit.material.spec * light.intensity(hit.position, Some(position)) * weight //spec does not use color of object
+          (light.color mult hit.material.specularColor) *
+            Math.pow(Math.max(-(R * L), 0), hit.material.shininess) *
+            light.intensity(hit.position, Some(position)) * weight //spec does not use color of object
         }.reduce(_ + _)
   }
 
@@ -110,7 +109,7 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
           val (light, weight, position) =
             (lightSample.light, lightSample.weight, lightSample.position)
           val L = (position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-          hit.material.color * hit.material.diffuse  * Math.max(hit.normal * L, 0) *
+          hit.material.diffuseColor  * Math.max(hit.normal * L, 0) *
              light.intensity(hit.position, Some(position)) * weight //TODO light color?
         }
         .reduce(_ + _)

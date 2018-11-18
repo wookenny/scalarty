@@ -28,19 +28,8 @@ final case class WaveFrontMaterial(name: String,
       case (Some(kdMap),Some((u,v))) => WaveFrontMaterial.sampleImage(u, v, kdMap, width, height)
       case _  => Kd
     }
-    //TODO: set values
-    //TODO: modify to allow colors for diffuse, specular, and so on
-    UnshadedMaterial(
-      color = diffuseColor,
-      ambient = 0, //TODO: set based on illum 0 or 1
-      diffuse = (Kd.red + Kd.green + Kd.blue)/3,
-      spec = (Ks.red + Ks.green + Ks.blue)/3,
-      reflective =  0,
-      refractive = 0,
-      n = 0,
-      shininess = Ns,
-      normalModifier = Vector3.ZERO,
-    )
+
+      UnshadedMaterial.fromWaveFrontMaterial( Ka, diffuseColor, Ks, Tr, Ns)
   }
 
 }
@@ -48,10 +37,21 @@ final case class WaveFrontMaterial(name: String,
 object WaveFrontMaterial{
 
   def sampleImage(u: Double, v: Double, texture: BufferedImage, width : Int, height : Int) : RGB  = {
-    val color = texture.getRGB( Math.round(u * width).toInt,
+    val color: Int = texture.getRGB( Math.round(u * width).toInt,
                                 Math.round(v * height).toInt)
-    //TODO: add linear or bilinear filtering
-    RGB(color)
+    //linear filtering
+    val x =  Math.floor(u * width).toInt
+    val X = (x+1) % width
+    val y =  Math.floor(u * width).toInt
+    val Y = (y+1) % width
+    val Seq(f00,f10,f01,f11) = Seq((x,y),(X,y),(x,Y),(X,Y)).map(Function.tupled(texture.getRGB)).map(RGB.apply)
+
+
+    val result = f00 + (f10 - f00) * (u-x)
+                     + (f01 - f00) * (v-y)
+                     + (f11 + f00 - f10 - f01) * (u-x) * (v-y)
+
+    result
   }
 
 
@@ -85,7 +85,7 @@ object WaveFrontMaterial{
   }
 
   //TODO: log errors
-  def toRgb(array: Array[String]) = array match {
+  def toRgb(array: Array[String]): RGB = array match {
     case Array(x,y,z) => RGB(x.toDouble, y.toDouble, z.toDouble)
     case _            => RGB.BLACK
   }

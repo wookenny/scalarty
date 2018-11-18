@@ -40,6 +40,8 @@ final case class RGB(red: Double, green: Double, blue: Double) {
   def gammaCorrected: RGB = this ^ (1 / RGB.GAMMA)
 
   lazy val clamp = this.map(0d max _ min 1d)
+
+  def max : Double = red max green max blue
 }
 
 object RGB {

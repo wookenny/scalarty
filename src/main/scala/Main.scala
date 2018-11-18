@@ -91,8 +91,7 @@ object Main {
         case Failure(t) =>  Left(t.getMessage)
       }
 
-    val sceneEither: Either[String, SceneDTO] = sceneFile.flatMap( decode[SceneDTO](_))
-      .swap.map(_.toString).swap
+    val sceneEither: Either[String, SceneDTO] = sceneFile.flatMap( decode[SceneDTO](_)).left.map(_.toString)
 
     sceneEither match {
       case Right(scene) => Renderer(Scene.fromDTO(scene, config.in)).startRendering(config)

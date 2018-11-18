@@ -1,7 +1,5 @@
 package scene
 
-import java.io.File
-
 import bounding.{BVH, ShapeContainer, ShapeMetaContainer, ShapeSeq}
 import lightning.LightSource
 import material.Material
@@ -52,8 +50,7 @@ case class Scene(
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
   private def parseObjFiles(objFiles: Vector[ObjObject], pathPrefix: String): Vector[Triangle] = {
-    objFiles.map(objFile => objFile.copy(filename = pathPrefix + objFile.filename))
-            .flatMap(_.getTriangles)
+    objFiles.map(objFile => objFile.copy(pathPrefix = pathPrefix + objFile.pathPrefix)).flatMap(_.getTriangles)
   }
 
 }

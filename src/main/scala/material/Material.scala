@@ -43,39 +43,77 @@ object Material {
 
 }
 
-final case class UnshadedMaterial(
-    color: RGB,
-    ambient: Double,
-    diffuse: Double,
-    spec: Double,
-    reflective: Double,
-    refractive: Double,
-    n: Double,
-    shininess: Double,
-    emission: Double = 0,
-    normalModifier: Vector3 = Vector3.ZERO,
-    absorption: Double = 0,
-)
+case class UnshadedMaterial(
+  ambientColor: RGB,
+  diffuseColor: RGB,
+  specularColor: RGB,
+  reflectiveColor: RGB,
+  absorptionColor : RGB,
 
+  shininess : Double,
+  n: Double,
+  transparency: Double,
+  normalModifier: Vector3,
+  emission : RGB){}
 
-trait UnshadedColorT{
-  def ambientColor: RGB
-  def diffuseColor: RGB
-  def specularColor: RGB // (x,x,x) for case so far case, use as specular factor
-  def reflectiveColor: RGB
+object UnshadedMaterial {
 
-  //=> specularity == reflectiveness
-  def shininess : Double //N
-  def n: Double
-  def transparency: Double
+  val emptyMaterial = UnshadedMaterial(
+    RGB.BLACK,
+    RGB.BLACK,
+    RGB.BLACK,
+    RGB.BLACK,
+    RGB.BLACK,
+    0,
+    0,
+    0,
+    Vector3.ZERO,
+    RGB.BLACK
+  )
 
+  def from(color: RGB,
+           ambient: Double,
+           diffuse: Double,
+           spec: Double,
+           reflective: Double,
+           refractive: Double,
+           n: Double,
+           shininess: Double,
+           emissionCoeffient: Double = 0,
+           normalModifier: Vector3 = Vector3.ZERO,
+           absorption: Double = 0) : UnshadedMaterial = UnshadedMaterial(
+    ambientColor = color * ambient,
+    diffuseColor = color * diffuse,
+    specularColor = RGB(spec, spec, spec),
+    reflectiveColor = RGB.WHITE * reflective, //reflect without color change?
+    absorptionColor = (RGB.WHITE - color) * absorption,
+    shininess = shininess,
+    n = n,
+    transparency = refractive,
+    normalModifier = normalModifier,
+    emission = color * emissionCoeffient)
+
+  def fromWaveFrontMaterial(Ka: RGB, Kd: RGB, Ks: RGB, Tr: Double, Ns: Double) = UnshadedMaterial(
+    ambientColor = Ka,
+    diffuseColor = Kd,
+    specularColor = Ks,
+    reflectiveColor = Ks,
+    absorptionColor = RGB.BLACK,
+    shininess = Ns,
+    n = 0,
+    transparency = Tr,
+    normalModifier = Vector3.ZERO,
+    emission= RGB.BLACK)
 }
 
+
+
 //TODO: Implement and use the new trait
-// * firs implement current versiuon and use it instead
-// * then use different version for WaveFrontMaterial
 // * add parsing in ObjMaterialReaading
 // * add example with texture map and material
+//run -i scenes/cornell.json -o test.before.png --> 96s/115s/116s/131s
+// 111/97/
+
 
 trait Material {
   def getMat(position: Vector3): UnshadedMaterial = getMat(position, None)

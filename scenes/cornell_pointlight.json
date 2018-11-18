@@ -169,12 +169,16 @@
     }
     }
   ],
-  "objFiles" : [{ "filename": "obj/bunny.obj.gz",
+  "objFiles" : [{
+    "pathPrefix" : "obj/",
+    "filename": "bunny.obj.gz",
     "centerBottom"   : {"x": -0.3, "y": -1.0,"z": -0.1},
     "maxSide"  : 0.8,
     "rotation" : 175,
     "material": "Chrome"
-  },{"filename": "obj/dragon.obj.gz",
+  },{
+    "pathPrefix" : "obj/",
+    "filename": "dragon.obj.gz",
     "centerBottom"   : {"x": 0.5, "y": -1.0,"z": -0.3},
     "maxSide"  : 1.5,
     "rotation" : 75,
