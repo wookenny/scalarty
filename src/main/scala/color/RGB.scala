@@ -41,12 +41,12 @@ final case class RGB(red: Double, green: Double, blue: Double) {
 
   lazy val clamp = this.map(0d max _ min 1d)
 
-  def max : Double = red max green max blue
+  def max: Double = red max green max blue
 }
 
 object RGB {
 
-  def apply(value: Int):RGB = {
+  def apply(value: Int): RGB = {
     val c = new Color(value)
     RGB(c.getRed, c.getGreen, c.getBlue)
   }

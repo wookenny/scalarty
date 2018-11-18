@@ -7,8 +7,6 @@ import math.{Shape, Triangle, Vector3}
 import support.Config
 import support.Implicits._
 
-
-
 case class SceneDTO(
     cameraOrigin: Vector3,
     cameraPointing: Vector3,
@@ -22,7 +20,7 @@ case class SceneDTO(
 ) {}
 
 case class Scene(
-    pathPrefix : String,
+    pathPrefix: String,
     cameraOrigin: Vector3,
     cameraPointing: Vector3,
     width: Double,
@@ -50,7 +48,9 @@ case class Scene(
   Shape.materialMap = materials.groupBy(_.name).mapValues(_.head)
 
   private def parseObjFiles(objFiles: Vector[ObjObject], pathPrefix: String): Vector[Triangle] = {
-    objFiles.map(objFile => objFile.copy(pathPrefix = pathPrefix + objFile.pathPrefix)).flatMap(_.getTriangles)
+    objFiles
+      .map(objFile => objFile.copy(pathPrefix = pathPrefix + objFile.pathPrefix))
+      .flatMap(_.getTriangles)
   }
 
 }
@@ -60,7 +60,7 @@ object Scene {
   val pathSeparator = "/" //TODO: File.pathSeparator was not working??
 
   def getFolderOfFile(filepath: String) = {
-    filepath.substring(0,filepath.lastIndexOf(pathSeparator)+1)
+    filepath.substring(0, filepath.lastIndexOf(pathSeparator) + 1)
   }
 
   def fromDTO(sceneDTO: SceneDTO, path: String = "")(implicit config: Config) =

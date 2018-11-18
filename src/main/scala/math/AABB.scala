@@ -4,20 +4,19 @@ import cats.data.NonEmptyVector
 import material.Material.DEFAULT_MATERIAL
 import renderer.Hit
 
-
-abstract class AABB extends Shape{
+abstract class AABB extends Shape {
   def contains(vec: Vector3): Boolean
 
   def union(otherAABB: AABB): AABB = AABB.union(this, otherAABB)
 
   def area: Double
 
-  def lenghtX : Double
-  def lenghtY : Double
-  def lenghtZ : Double
+  def lenghtX: Double
+  def lenghtY: Double
+  def lenghtZ: Double
 }
 
-sealed case class EmptyAABB() extends AABB{
+sealed case class EmptyAABB() extends AABB {
   override def intersect(r: Ray): Option[Hit] = None
   override def intersect(r: Ray, maxDist: Double): Boolean = false
   override def boundingBox: AABB = this
@@ -148,23 +147,23 @@ object AABB {
     )
   }
 
-
   def union(a: AABB, b: AABB): AABB = union(Seq(a, b))
 
-  def union(boxes: Iterable[AABB]): AABB = boxes.foldLeft[AABB](AABB.Empty) {
-    (a: AABB, b: AABB) => (a,b) match {
-        case (a:NonEmptyAABB, b: NonEmptyAABB) =>
-          NonEmptyAABB(
-            a.x_min min b.x_min,
-            a.x_max max b.x_max,
-            a.y_min min b.y_min,
-            a.y_max max b.y_max,
-            a.z_min min b.z_min,
-            a.z_max max b.z_max)
-          case (a:NonEmptyAABB, _) => a
-          case (_, b) => b
+  def union(boxes: Iterable[AABB]): AABB = boxes.foldLeft[AABB](AABB.Empty) { (a: AABB, b: AABB) =>
+    (a, b) match {
+      case (a: NonEmptyAABB, b: NonEmptyAABB) =>
+        NonEmptyAABB(
+          a.x_min min b.x_min,
+          a.x_max max b.x_max,
+          a.y_min min b.y_min,
+          a.y_max max b.y_max,
+          a.z_min min b.z_min,
+          a.z_max max b.z_max
+        )
+      case (a: NonEmptyAABB, _) => a
+      case (_, b)               => b
 
-        }
+    }
   }
 
 }

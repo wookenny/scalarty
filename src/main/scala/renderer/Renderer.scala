@@ -16,16 +16,15 @@ object Renderer {
   val BackgroundColor = RGB.BLACK
   private val ChunkSize = 5
 
-
-  def abbrevNumber(n:Int) = n match {
-    case _ if n < 1000 => n.toString
-    case _ if n < 1000*10 => f"${n/1000.0}%1.1fk"
-    case _ if n < 1000*1000 => f"${n/1000}%3dK"
-    case _ if n < 1000*1000*10 => f"${n/(1000.0*1000)}%1.1fM"
-    case _ if n < 1000*1000*1000 => f"${n/(1000*1000)}%3dM"
-    case _ if n < 1000*1000*1000*10 => f"${n/(1000.0*1000*1000)}%1.1fG"
-    case _ if n < 1000*1000*1000*1000 => f"${n/(1000*1000*1000)}%3dG"
-    case _ => n.toString
+  def abbrevNumber(n: Int) = n match {
+    case _ if n < 1000                      => n.toString
+    case _ if n < 1000 * 10                 => f"${n / 1000.0}%1.1fk"
+    case _ if n < 1000 * 1000               => f"${n / 1000}%3dK"
+    case _ if n < 1000 * 1000 * 10          => f"${n / (1000.0 * 1000)}%1.1fM"
+    case _ if n < 1000 * 1000 * 1000        => f"${n / (1000 * 1000)}%3dM"
+    case _ if n < 1000 * 1000 * 1000 * 10   => f"${n / (1000.0 * 1000 * 1000)}%1.1fG"
+    case _ if n < 1000 * 1000 * 1000 * 1000 => f"${n / (1000 * 1000 * 1000)}%3dG"
+    case _                                  => n.toString
   }
 }
 
@@ -189,7 +188,9 @@ case class Renderer(scene: Scene)(implicit config: Config) extends LazyLogging {
           val status = tracedPixels.incrementAndGet()
 
           if (status % (5 * one_percent) == 0)
-            logger.info(f"traced ${Renderer.abbrevNumber(status)} pixels -> ${status / one_percent}%3d%%")
+            logger.info(
+              f"traced ${Renderer.abbrevNumber(status)} pixels -> ${status / one_percent}%3d%%"
+            )
       }
     }
   }

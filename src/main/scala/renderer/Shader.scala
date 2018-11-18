@@ -24,11 +24,11 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
     val material: UnshadedMaterial = hit.material
     val backFace = (hit.normal * ray.direction) > 0
 
-   //beer's law
-    val beerslawMultiplier = if(ray.insideMedia){
-      val absorptionCoefficient : RGB = -(material.absorptionColor * hit.distance)
+    //beer's law
+    val beerslawMultiplier = if (ray.insideMedia) {
+      val absorptionCoefficient: RGB = -(material.absorptionColor * hit.distance)
       absorptionCoefficient.expf
-    }else{
+    } else {
       RGB.WHITE
     }
 
@@ -55,14 +55,18 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
       }
 
     //non-ambient parts
-    val diffuseColor = if(ray.insideMedia) RGB.BLACK else shadeDiffuse(hit, ray, visibleLightSamples)
+    val diffuseColor =
+      if (ray.insideMedia) RGB.BLACK else shadeDiffuse(hit, ray, visibleLightSamples)
     val specColor = shadeSpecular(hit, ray, visibleLightSamples)
     val reflectedColor = shadeReflection(hit, ray)
     val refractedColor = shadeRefraction(hit, ray)
-    (beerslawMultiplier.mult(ambientColor + diffuseColor + specColor + refractedColor + reflectedColor),
-      shadowPercentage)
+    (
+      beerslawMultiplier.mult(
+        ambientColor + diffuseColor + specColor + refractedColor + reflectedColor
+      ),
+      shadowPercentage
+    )
   }
-
 
   //TODO: Ray -> enters object, copy transmition
   def shadeRefraction(hit: Hit, ray: Ray): RGB = {
@@ -79,7 +83,9 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
 
   def shadeReflection(hit: Hit, ray: Ray): RGB = {
     if (hit.material.reflectiveColor.max > ThresholdRayWeight && ray.depth <= RayDepthReflection) //TODO make configurable
-      renderer.traceRay(ray.reflectedAt(hit.position, hit.normal)).color mult hit.material.reflectiveColor
+      renderer
+        .traceRay(ray.reflectedAt(hit.position, hit.normal))
+        .color mult hit.material.reflectiveColor
     else RGB.BLACK
   }
 
@@ -97,7 +103,8 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
           (light.color mult hit.material.specularColor) *
             Math.pow(Math.max(-(R * L), 0), hit.material.shininess) *
             light.intensity(hit.position, Some(position)) * weight //spec does not use color of object
-        }.reduce(_ + _)
+        }
+        .reduce(_ + _)
   }
 
   def shadeDiffuse(hit: Hit, r: Ray, visibleLights: Seq[LightSample]): RGB = {
@@ -109,8 +116,8 @@ case class Shader(renderer: Renderer)(implicit config: Config) extends LazyLoggi
           val (light, weight, position) =
             (lightSample.light, lightSample.weight, lightSample.position)
           val L = (position - hit.position).normalized // vector pointing towards light //TODO duplicate calculation
-          hit.material.diffuseColor  * Math.max(hit.normal * L, 0) *
-             light.intensity(hit.position, Some(position)) * weight //TODO light color?
+          hit.material.diffuseColor * Math.max(hit.normal * L, 0) *
+            light.intensity(hit.position, Some(position)) * weight //TODO light color?
         }
         .reduce(_ + _)
   }

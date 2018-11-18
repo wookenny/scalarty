@@ -11,8 +11,7 @@ object Gradient {
     def /(scalar: Double): T
   }
 
-
-    private val EPS = 0.01
+  private val EPS = 0.01
 
   def gradient[T](
       x: Double
@@ -53,24 +52,27 @@ object Gradient {
     )
   }
 
- object implicits {
-   implicit val gradientableDouble : Double => Gradientable[Double] = value => new Gradientable[Double] {
-     override def -(other: Double): Double = value - other
+  object implicits {
+    implicit val gradientableDouble: Double => Gradientable[Double] = value =>
+      new Gradientable[Double] {
+        override def -(other: Double): Double = value - other
 
-     override def /(scalar: Double): Double = value / scalar
-   }
+        override def /(scalar: Double): Double = value / scalar
+      }
 
-   implicit val gradientableRGB : RGB => Gradientable[RGB] = value => new Gradientable[RGB] {
-     override def -(other: RGB): RGB = value - other
+    implicit val gradientableRGB: RGB => Gradientable[RGB] = value =>
+      new Gradientable[RGB] {
+        override def -(other: RGB): RGB = value - other
 
-     override def /(scalar: Double): RGB = value / scalar
-   }
+        override def /(scalar: Double): RGB = value / scalar
+      }
 
-   implicit val gradientableVector3 : Vector3 => Gradientable[Vector3] = value => new Gradientable[Vector3]{
-     override def -(other: Vector3): Vector3 = value - other
+    implicit val gradientableVector3: Vector3 => Gradientable[Vector3] = value =>
+      new Gradientable[Vector3] {
+        override def -(other: Vector3): Vector3 = value - other
 
-     override def /(scalar: Double): Vector3 = value / scalar
-   }
- }
+        override def /(scalar: Double): Vector3 = value / scalar
+      }
+  }
 
 }

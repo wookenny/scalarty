@@ -8,7 +8,7 @@ final case class Triangle(
     c: Vector3,
     material: String = "DEFAULT_MATERIAL",
     normals: Option[Seq[Vector3]] = None,
-    textureCoordinates: Option[Seq[(Double,Double)]] = None
+    textureCoordinates: Option[Seq[(Double, Double)]] = None
 ) extends Shape {
   import Math._
   lazy val edge1: Vector3 = b - a
@@ -61,8 +61,8 @@ final case class Triangle(
                   )
                 )
               case _ =>
-                val uv_coordinates = Some(u,v)
-                Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos,uv_coordinates)))
+                val uv_coordinates = Some(u, v)
+                Some(Hit(t, r.march(t), normal, Shape.getMaterial(material, pos, uv_coordinates)))
             }
           } else {
             None

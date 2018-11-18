@@ -19,7 +19,10 @@ final case class GeneralMaterial(
 ) extends Material {
 
   import GeneralMaterial._
-  override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]): UnshadedMaterial = {
+  override def getMat(
+      position: Vector3,
+      uv_coordinates: Option[(Double, Double)]
+  ): UnshadedMaterial = {
     //TODO: maybe use UV coords
     val ambient = ambientNode.map(_.value(position)).getOrElse(DefaultAmbient)
     val diffuse = diffuseNode.map(_.value(position)).getOrElse(DefaultDiffuse)

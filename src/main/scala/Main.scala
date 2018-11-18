@@ -74,24 +74,25 @@ object Main {
   }
 
   def main(args: Array[String]) = parser.parse(args, Config()) match {
-      case Some(config) => run(config) // do stuff
-      case None         => // arguments are bad, error message will be displayed
-    }
-
+    case Some(config) => run(config) // do stuff
+    case None         => // arguments are bad, error message will be displayed
+  }
 
   def run(implicit config: Config): Unit = {
-    val sceneFile: Either[String,String] =
+    val sceneFile: Either[String, String] =
       Try(fromFile(config.in)) match {
         case Success(value) =>
-              Right(value.getLines
-                         .map(_.replaceAll("//.*", ""))
-                         .mkString
-                         .replaceAll("/\\*.*\\*/", "")
-              )
-        case Failure(t) =>  Left(t.getMessage)
+          Right(
+            value.getLines
+              .map(_.replaceAll("//.*", ""))
+              .mkString
+              .replaceAll("/\\*.*\\*/", "")
+          )
+        case Failure(t) => Left(t.getMessage)
       }
 
-    val sceneEither: Either[String, SceneDTO] = sceneFile.flatMap( decode[SceneDTO](_)).left.map(_.toString)
+    val sceneEither: Either[String, SceneDTO] =
+      sceneFile.flatMap(decode[SceneDTO](_)).left.map(_.toString)
 
     sceneEither match {
       case Right(scene) => Renderer(Scene.fromDTO(scene, config.in)).startRendering(config)

@@ -14,18 +14,29 @@ final case class SingleColorMaterial(
     refractive: Double = 0,
     n: Double = 1.33f,
     shininess: Double = 64,
-    absorption : Option[Double] = None
+    absorption: Option[Double] = None
 ) extends Material {
   require(Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
-  override def getMat(position: Vector3,uv_coordinates: Option[(Double, Double)]) = UnshadedMaterial.from(c, ambient, diffuse, spec, reflective, refractive, n, shininess, absorption = absorption.getOrElse(0))
+  override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]) =
+    UnshadedMaterial.from(
+      c,
+      ambient,
+      diffuse,
+      spec,
+      reflective,
+      refractive,
+      n,
+      shininess,
+      absorption = absorption.getOrElse(0)
+    )
 
 }
 
 final case class EmissionMaterial(name: String, color: RGB, intensity: Double) extends Material {
 
   override def getMat(position: Vector3, uv_coordinates: Option[(Double, Double)]) =
-    UnshadedMaterial.emptyMaterial.copy(emission = color* intensity)
+    UnshadedMaterial.emptyMaterial.copy(emission = color * intensity)
   //TODO: handle emission correctly in tracer,
   //TODO: for shadows and lightning, we require some sampling here
 }

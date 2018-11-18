@@ -20,7 +20,7 @@ case class ObjObject(
   val triangles = scala.collection.mutable.ArrayBuffer.empty[(FaceVertex, FaceVertex, FaceVertex)]
   val normals = scala.collection.mutable.ArrayBuffer.empty[Vector3]
   val vertices = scala.collection.mutable.ArrayBuffer.empty[Vector3]
-  val textureCoordinates = scala.collection.mutable.ArrayBuffer.empty[(Double,Double)]
+  val textureCoordinates = scala.collection.mutable.ArrayBuffer.empty[(Double, Double)]
 
   private def transformVertex(
       vector: Vector3,
@@ -46,24 +46,27 @@ case class ObjObject(
 
     logger.info(s"Reading $filename from folder $pathPrefix")
 
-    val fileReadSuccessfully: Try[Unit] = Try(reader(pathPrefix+filename)).map(_.getLines() foreach {
+    val fileReadSuccessfully: Try[Unit] =
+      Try(reader(pathPrefix + filename)).map(_.getLines() foreach {
         case line if line.trim.isEmpty          => Unit //skip empty lines
         case line if line.trim.startsWith("#")  => Unit //comment
         case line if line.trim.startsWith("g")  => Unit //TODO: parse what?
         case line if line.trim.startsWith("vn") => parseNormal(line)
         case line if line.trim.startsWith("vt") => parseTextureCoordinate(line)
         case line if line.trim.startsWith("v")  => parseVertex(line)
-        case line if line.trim.startsWith("mtllib") => parseMaterialFile(line.replace("mtllib","").trim)
+        case line if line.trim.startsWith("mtllib") =>
+          parseMaterialFile(line.replace("mtllib", "").trim)
         case line if line.trim.startsWith("usemtl") => Unit //TODO set current material
-        case line if line.trim.startsWith("f")  => parseFace(line)
-        case line                               => logger.error(s"ERROR: Cannot parse this line: <$line>")
-    })
+        case line if line.trim.startsWith("f")      => parseFace(line)
+        case line                                   => logger.error(s"ERROR: Cannot parse this line: <$line>")
+      })
 
     fileReadSuccessfully match {
-      case Failure(f) => logger.error(s"Could not read object $filename, skipping!, $f")
-                         Seq.empty
+      case Failure(f) =>
+        logger.error(s"Could not read object $filename, skipping!, $f")
+        Seq.empty
 
-      case Success(_) => if(vertices.isEmpty) Seq.empty else createTriangles
+      case Success(_) => if (vertices.isEmpty) Seq.empty else createTriangles
     }
 
   }
@@ -95,24 +98,30 @@ case class ObjObject(
     val mat: String = material.getOrElse(DEFAULT_MATERIAL.name)
 
     val ts = triangles.map {
-          case (a, b, c) =>
+      case (a, b, c) =>
+        val norms: Option[Seq[Vector3]] = for {
+          an <- a.normal.flatMap(normals.lift)
+          bn <- b.normal.flatMap(normals.lift)
+          cn <- c.normal.flatMap(normals.lift)
+        } yield Seq(an, bn, cn)
 
-            val norms: Option[Seq[Vector3]] = for{
-              an <- a.normal.flatMap(normals.lift)
-              bn <- b.normal.flatMap(normals.lift)
-              cn <- c.normal.flatMap(normals.lift)
-            } yield Seq(an, bn, cn)
+        val texCoords: Option[Seq[(Double, Double)]] = for {
+          ta <- a.texture.flatMap(textureCoordinates.lift)
+          tb <- b.texture.flatMap(textureCoordinates.lift)
+          tc <- c.texture.flatMap(textureCoordinates.lift)
+        } yield Seq(ta, tb, tc)
 
-            val texCoords: Option[Seq[(Double, Double)]] = for{
-              ta <- a.texture.flatMap(textureCoordinates.lift)
-              tb <- b.texture.flatMap(textureCoordinates.lift)
-              tc <- c.texture.flatMap(textureCoordinates.lift)
-            } yield Seq(ta,tb,tc)
+        Triangle(
+          vertices(a.vertex - 1),
+          vertices(b.vertex - 1),
+          vertices(c.vertex - 1),
+          mat,
+          norms,
+          texCoords
+        )
+    }
 
-            Triangle(vertices(a.vertex-1), vertices(b.vertex-1), vertices(c.vertex-1), mat, norms, texCoords)
-        }
-
-      logger.info(
+    logger.info(
       s"Object read with ${vertices.size} vertices, ${normals.size} normals, " +
         s"${textureCoordinates.size} texture coordinates and ${triangles.size} triangles"
     )
@@ -121,15 +130,14 @@ case class ObjObject(
 
   private def parseTextureCoordinate(line: String) =
     line.split("\\s+").slice(1, 3) match {
-       case Array(u,v) =>  textureCoordinates += ((u.toDouble, v.toDouble))
-  }
-
+      case Array(u, v) => textureCoordinates += ((u.toDouble, v.toDouble))
+    }
 
   private def parseVertex(line: String) =
     line.split("\\s+").slice(1, 4) match {
       case Array(a, b, c) =>
         vertices += Vector3(a.toDouble, b.toDouble, c.toDouble)
-    } 
+    }
 
   private def parseNormal(line: String) =
     line.split("\\s+").slice(1, 4) match {
@@ -138,37 +146,38 @@ case class ObjObject(
     }
 
   private def toIntList(s: String): Array[Int] =
-    s.trim.split("/").filter(_ != "").map(_.trim.toInt)      //Case class (vertex,tecxture, normal)
+    s.trim.split("/").filter(_ != "").map(_.trim.toInt) //Case class (vertex,tecxture, normal)
 
-  private[scene] case class FaceVertex(vertex: Int, texture:Option[Int], normal: Option[Int]){}
-  object  FaceVertex{
-    def fromString(s: String): Option[FaceVertex] = s.trim.split("/").map(x => Try(x.toInt).toOption) match {
-           case Array(Some(v), t, n) =>  Some(FaceVertex(v,t,n))
-           case _ => logger.warn(s"Could not parse face from line $s")
-                     None
-         }
+  private[scene] case class FaceVertex(vertex: Int, texture: Option[Int], normal: Option[Int]) {}
+  object FaceVertex {
+    def fromString(s: String): Option[FaceVertex] =
+      s.trim.split("/").map(x => Try(x.toInt).toOption) match {
+        case Array(Some(v), t, n) => Some(FaceVertex(v, t, n))
+        case _ =>
+          logger.warn(s"Could not parse face from line $s")
+          None
+      }
   }
 
   private def parseFace(line: String) = {
     line.split("\\s+").slice(1, 5) match {
       case Array(a, b, c, d) =>
-        (for{
+        (for {
           fa <- FaceVertex.fromString(a)
           fb <- FaceVertex.fromString(b)
           fc <- FaceVertex.fromString(c)
           fd <- FaceVertex.fromString(d)
-        } yield ((fa, fb, fc),(fa, fc, fd))
-        ).map(ts => triangles ++= Seq(ts._1,ts._2) )
+        } yield ((fa, fb, fc), (fa, fc, fd))).map(ts => triangles ++= Seq(ts._1, ts._2))
       case Array(a, b, c) =>
         (for {
           fa <- FaceVertex.fromString(a)
           fb <- FaceVertex.fromString(b)
           fc <- FaceVertex.fromString(c)
-        } yield (fa,fb,fc)).map( triangles += _ )
+        } yield (fa, fb, fc)).map(triangles += _)
     }
   }
 
-  private def parseMaterialFile(materialFilename : String): Unit = {
+  private def parseMaterialFile(materialFilename: String): Unit = {
     println(s"\n\nreading $materialFilename from $pathPrefix\n\n")
   }
 

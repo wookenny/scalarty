@@ -16,7 +16,8 @@ final case class CheckerMaterial(
     refractive: Double = 0,
     n: Double = 1.33f,
     shininess: Double = 64,
-    absorption: Option[Double] = None) extends Material {
+    absorption: Option[Double] = None
+) extends Material {
   require(Math.abs(ambient + diffuse + spec + reflective + refractive - 1) <= EPS)
 
   private def mod(x: Double, m: Double) = (x % m + m) % m

@@ -26,9 +26,9 @@ object Shape {
 
   implicit val encodeShape: Encoder[Shape] = Encoder.instance {
     case n @ NonEmptyAABB(_, _, _, _, _, _, _) => Json.obj("AABB" -> n.asJson)
-    case n @ Sphere(_, _, _)           => Json.obj("Sphere" -> n.asJson)
-    case n @ Triangle(_, _, _, _, _, _)   => Json.obj("Triangle" -> n.asJson)
-    case n @ Cuboid(_, _, _, _)        => Json.obj("Cuboid" -> n.asJson)
+    case n @ Sphere(_, _, _)                   => Json.obj("Sphere" -> n.asJson)
+    case n @ Triangle(_, _, _, _, _, _)        => Json.obj("Triangle" -> n.asJson)
+    case n @ Cuboid(_, _, _, _)                => Json.obj("Cuboid" -> n.asJson)
   }
 
   private val decodeAABB = Decoder[NonEmptyAABB].prepare(_.downField("AABB"))
@@ -43,6 +43,10 @@ object Shape {
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.Null"))
   var materialMap: Map[String, Material] = Map.empty
-  def getMaterial(name: String, pos: Vector3, uv_coordinates : Option[(Double,Double)] = None): UnshadedMaterial =
-    materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos,uv_coordinates)
+  def getMaterial(
+      name: String,
+      pos: Vector3,
+      uv_coordinates: Option[(Double, Double)] = None
+  ): UnshadedMaterial =
+    materialMap.getOrElse(name, Material.DEFAULT_MATERIAL).getMat(pos, uv_coordinates)
 }

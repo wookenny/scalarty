@@ -7,7 +7,7 @@ final case class Hit(
     distance: Double,
     position: Vector3,
     originalNormal: Vector3,
-    material: UnshadedMaterial)
-{
+    material: UnshadedMaterial
+) {
   lazy val normal: Vector3 = (originalNormal + material.normalModifier).normalized
 }
